@@ -1,0 +1,93 @@
+\section{Methodology}
+\subsection{GNN Encoder for Agent-Count-Agnostic Q-Network}
+\label{subsec:gnn}
+The fleet is represented as a graph $G=(V,E)$ with $|V|=n$. Each node $v^i \in V$
+carries the observation $o^i_t$, current action, received reward, velocity, and heading
+of vehicle $i$. Edges $e^{ij} \in E$ are constructed between vehicles within the
+detection radius $r_{\text{detect}}$ and carry edge features encoding relative quantities:
+Euclidean distance, relative heading angle, relative velocity, and time-to-closest-point-of-approach,
+which is particularly relevant for collision avoidance in shared airspace.
+
+A message-passing GNN processes $G$ through $L$ layers of neighborhood aggregation.
+After $L$ layers, a global graph-level readout function --- implemented as a
+permutation-invariant pooling operation combining sum, max, and mean pooling across node
+embeddings --- produces a fixed-dimensional latent vector $z \in \mathbb{R}^d$,
+\begin{equation}
+\label{eq:encoder}
+z = \mathrm{Readout}\!\left(\mathrm{GNN}(G)\right), \quad z \in \mathbb{R}^d,\; d \text{ independent of } n.
+\end{equation}
+The latent vector $z$ is passed directly into the centralized Q-network, which therefore
+operates on a representation of constant dimension $d$ regardless of how many vehicles
+are active. The GNN encoder and the Q-network are trained jointly end-to-end. Because
+GNN message passing is permutation equivariant,
+\begin{equation}
+\label{eq:equivariance}
+\mathrm{GNN}(P \cdot G) = P \cdot \mathrm{GNN}(G)
+\end{equation}
+for any permutation matrix $P$, and the readout is permutation invariant by construction,
+the latent $z$ is insensitive to agent ordering. By contrast, the QMIX mixing function
+$Q_{\text{tot}}(s,\mathbf{a})=f\!\left(Q_1,\dots,Q_n;s\right)$ has $n$ fixed input slots
+and cannot be evaluated at a fleet size other than the one it was trained on.
+
+To train the GNN encoder to be genuinely agent-count-agnostic, we employ a parallel
+training protocol in which environments with different fleet sizes
+$n \in \{2, 4, 8, 16, \ldots, n_{\max}\}$ contribute to a shared replay buffer. Gradient
+updates train the encoder jointly across all fleet sizes, forcing it to learn latent
+representations that are consistent and meaningful regardless of $n$.
+
+\subsection{Hybrid Control Architecture and Conditional MARL Activation}
+\label{subsec:hybrid}
+Each vehicle operates under a nominal PID controller $\pi_{\text{PID}}^i$ that computes
+control actions --- thrust, pitch, roll, and yaw rate --- to track the assigned waypoint.
+The PID action carries an explicit, interpretable signal of mission progress; supplying
+it as part of the conflict-resolution policy input is expected to improve sample
+efficiency relative to end-to-end MARL, in which the learner must discover waypoint
+tracking and collision avoidance jointly.
+
+When no other vehicle or intruder lies within the detection radius $r_{\text{detect}}$,
+control authority remains with the PID controller and the MARL policy is inactive.
+When any other agent enters $r_{\text{detect}}$, the conflict-resolution policy
+$\pi_{\text{MARL}}$ activates. It constructs the fleet interaction graph $G$ from the
+current sensor readings, computes the latent $z$ via the GNN encoder of
+Eq.~\eqref{eq:encoder}, queries the centralized Q-network to select the optimal joint
+corrective action, and issues those corrective actions directly to the vehicle, overriding
+the PID output. The final action for each vehicle is therefore
+\begin{equation}
+\label{eq:switching}
+a^i_{\text{final}} =
+\begin{cases}
+\pi_{\text{MARL}}(G,\,\mathbf{a}_{\text{PID}})^i, & s^i < \theta,\\[2pt]
+a^i_{\text{PID}}, & s^i \ge \theta,
+\end{cases}
+\end{equation}
+where $s^i = f_{\text{GNN}}(G)^i$ is a learned safety score derived from the GNN node
+embedding of vehicle $i$, and $\theta$ is the intervention threshold. The conflict-resolution
+policy $\pi_{\text{MARL}}$ takes both the graph $G$ and the vector of locally proposed PID
+actions $\mathbf{a}_{\text{PID}} = [\pi_{\text{PID}}^1(o_1), \ldots, \pi_{\text{PID}}^n(o_n)]$
+as input, so the MARL controller learns to issue corrective commands relative to the
+reactive baseline rather than reconstruct waypoint-tracking behavior from scratch. The
+conflict-resolution policy is reinforced with a positive reward for reducing
+loss-of-separation events and a cost for each intervention, so that overriding the PID
+action is reinforced only when the override produces a materially safer trajectory.
+
+The expected number of interventions per episode satisfies $\mathbb{E}[I] \ll T$, which
+is the basis of claim~2: the conflict-resolution policy need not reason about the joint
+action at every step, reducing the effective decision space and computational cost at
+deployment while keeping the intervention condition interpretable and verifiable.
+When the detected conflict is resolved and no other agent remains within $r_{\text{detect}}$,
+control authority returns automatically to the PID controller. The continuity of this
+handoff --- whether the transition from MARL-issued corrective actions to PID-issued
+waypoint-tracking actions produces discontinuous commands --- is characterized as part of
+the experimental program.
+
+\subsection{Conflict-Resolution Policy Learning}
+Because the local controller is a fixed PID law, the only learned component is the
+conflict-resolution policy $\pi_{\text{MARL}}$, and training is a single-level
+reinforcement learning problem rather than a joint optimization over two learned levels.
+The GRU hidden state $h^i_t$ from Eq.~\eqref{eq:gru} is included as a node feature in
+$G$ at each timestep, so the GNN encoder aggregates both instantaneous spatial
+relationships and temporally accumulated broadcast detection information when computing
+the latent $z$. This integration of spatial and temporal information in the encoder is
+expected to improve deconfliction quality in the presence of communication latency
+$\delta > 0$.
+

@@ -1,0 +1,7 @@
+[submodule "simulator/third_party/bluesky-gym"]
+	path = simulator/third_party/bluesky-gym
+	url = https://github.com/jangroter/bluesky-gym.git
+	branch = petting_zoo_sac
+[submodule "algorithms/third_party/cleanmarl"]
+	path = algorithms/third_party/cleanmarl
+	url = https://github.com/AmineAndam04/cleanmarl.git

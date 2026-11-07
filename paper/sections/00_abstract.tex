@@ -1,0 +1,20 @@
+\begin{abstract}
+We propose a hybrid multi-agent reinforcement learning (MARL) framework for cooperative
+collision avoidance in uncrewed aircraft system (UAS) operations that remains invariant to
+the number of vehicles $n$ sharing an airspace volume. Centralized-training,
+decentralized-execution (CTDE) methods have mixing or critic networks whose input
+dimensionality is fixed at the training team size, and therefore require retraining when
+$n$ changes. The proposed architecture instead pairs a fixed proportional--integral--derivative
+(PID) controller, which drives each vehicle toward its assigned waypoint, with a
+conditionally activated conflict-resolution policy that overrides the PID output only when
+an intruder enters a vehicle's detection radius. The conflict-resolution policy is built on
+a permutation-equivariant graph neural network (GNN) encoder that maps the fleet
+interaction graph $G$ to a fixed-size latent vector, decoupling the downstream centralized
+Q-network from fleet size and enabling zero-shot generalization to fleet sizes not seen
+during training. Inter-vehicle coordination uses a decentralized broadcast channel in which
+an intruder detection is relayed to the fleet subject to a latency $\delta$, integrated by
+each vehicle through a gated recurrent unit (GRU). We present the technical foundation,
+three theoretical claims, an experimental design against QMIX, MAPPO, and Graph Control
+Barrier Function baselines, and the expected outcomes, the central one being improved
+zero-shot generalization to larger fleets.
+\end{abstract}

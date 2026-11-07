@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnn-marl-bluesky"
+version = "0.0.1"
+description = "Graph-encoded MARL for zero-shot scalable conflict resolution, on the BlueSky ATC simulator"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+  { name = "Aadit-Farhan Khan" },
+  { name = "Adam Haroon" },
+  { name = "Cody Fleming" },
+]
+# Pinned versions: see docs/PROJECT_RECORD.md decision D-005.
+# The bluesky-gym fork is NOT a dependency (it pins numpy==1.24); it is a git submodule
+# put on sys.path by simulator/bluesky_marl/envs.py (decision D-003).
+dependencies = [
+  "numpy==2.3.4",
+  "gymnasium==1.2.1",
+  "pettingzoo==1.25.0",
+  "marlbench==0.0.5",
+  "bluesky-simulator",
+  "pygame",
+  "stable-baselines3",  # imported transitively by bluesky_gym/utils/logger.py
+  "torch==2.9.0",
+  "tyro==0.9.35",
+  "tensorboard",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["simulator*", "marl*", "algorithms*"]
+exclude = ["*third_party*"]
+
+[tool.pytest.ini_options]
+testpaths = ["marl/tests"]

@@ -1,0 +1,26 @@
+\section{Nomenclature}
+
+{\renewcommand\arraystretch{1.0}
+\noindent\begin{longtable*}{@{}l @{\quad=\quad} l@{}}
+$n$                      & number of cooperating UAS \\
+$m$                      & number of non-cooperative intruders \\
+$G=(V,E)$                & fleet interaction graph; $|V|=n$ \\
+$\delta$                 & communication (broadcast) latency, s \\
+$o^i_t$                  & local observation of vehicle $i$ at time $t$ \\
+$m^i_t$                  & broadcast message received by vehicle $i$ at time $t$ \\
+$h^i_t$                  & recurrent hidden (belief) state of vehicle $i$ \\
+$\pi_{\text{PID}}^i$     & local PID policy for vehicle $i$ \\
+$\pi_{\text{MARL}}$      & conditionally activated conflict-resolution policy \\
+$\mathbf{a}_{\text{PID}}$  & vector of locally proposed PID actions \\
+$\mathbf{a}_{\text{final}}$ & action vector after conflict-resolution override \\
+$z$                      & fixed-size GNN encoder latent vector \\
+$d$                      & latent vector dimension (independent of $n$) \\
+$s^i$                    & learned safety score for vehicle $i$ \\
+$\theta$                 & intervention threshold on the safety score \\
+$r_{\text{detect}}$      & per-vehicle intruder detection radius \\
+$P$                      & vehicle permutation matrix \\
+$T$                      & episode length, control steps \\
+$I$                      & number of conflict-resolution interventions per episode \\
+$\gamma$                 & discount factor
+\end{longtable*}}
+

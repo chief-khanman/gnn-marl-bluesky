@@ -1,0 +1,70 @@
+\section{Experimental Design and Expected Results}
+\subsection{Setup}
+Scenarios use fleet sizes $n\in\{5,10,20,50\}$, $m$ non-cooperative intruders, static
+obstacles of varying density, and communication latencies
+$\delta\in\{0,0.1,0.5,1.0\}$~s. The GNN encoder is trained jointly across
+$n \in \{3, 5, 8\}$ using the parallel training protocol of Section~\ref{subsec:gnn}
+and evaluated zero-shot at $n \in \{10, 20, 50\}$. Loss-of-separation events are
+deliberately induced during training to expose the conflict-resolution policy to the
+collision regime; a separate, more realistic scenario is used to evaluate the handoff
+between the PID controller and the MARL policy. Baselines are QMIX~\cite{qmix},
+MAPPO~\cite{mappo}, GCBF~\cite{gcbf}, and a local-only ablation in which the
+conflict-resolution policy is removed and the PID controller operates alone. Metrics are
+mission success rate, loss-of-separation rate, path efficiency, intervention frequency,
+and emergence measures: heading-direction entropy, trajectory mutual information, and
+deadlock count.
+
+% TODO(authors): the implementation now uses BlueSky / BlueSky-Gym (PettingZoo branch)
+% \cite{bluesky,bluesky-gym}. Decide whether BlueSky replaces the "2D navigation
+% benchmark" below or is added as a third environment, and update this paragraph.
+Validation is conducted in two environments. The first is a standard 2D multi-agent
+navigation benchmark used widely in social force and robot motion planning research,
+providing a controlled setting in which fleet size can be varied systematically. The
+second is a custom 3D UAV simulation environment developed by our research team, which
+models UAV dynamics with six-degree-of-freedom kinematics, realistic airspace geometry, and stochastic agent entry and exit
+events that mimic AAM operational patterns.
+
+\subsection{Hypothesized Outcomes}
+The central hypothesis is that the proposed architecture retains a high mission success
+rate as fleet size grows, because the GNN encoder produces a fixed-size latent vector
+independent of $n$ and the downstream Q-network is consequently decoupled from fleet size,
+whereas CTDE baselines with fixed-dimensional mixing or critic networks cannot be evaluated
+at a fleet size other than the one they were trained on without architectural change.
+We further expect that removing the conflict-resolution policy (the local-only ablation)
+degrades success in high-density scenarios, since the PID controller alone has no mechanism
+for fleet-level coordination. Table~\ref{tab:expected} states these expectations as a
+qualitative prediction; the entries are hypotheses to be tested, not measured results.
+
+
+\begin{table}[hbt!]
+\caption{\label{tab:expected} Hypothesized zero-shot mission success after training at
+$n=5$. Entries are predicted outcomes to be tested in the final manuscript, not measured
+results.}
+\centering
+\begin{tabular}{lcccc}
+\hline
+Method & $n=5$ & $n=10$ & $n=20$ & $n=50$ \\
+\hline
+Proposed (hybrid, GNN encoder) & High & High & High & Moderate--High \\
+QMIX / MAPPO & High & \multicolumn{3}{c}{Not transferable without retraining} \\
+Local-only ablation (PID only) & Moderate & Moderate & Low & Low \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\subsection{Planned Evaluation and Deliverables}
+The final paper will report: (i) a quantitative scaling curve of mission success rate
+against fleet size $n$, with the empirically fitted degradation exponent for the proposed
+method and for the CTDE baselines; (ii) the effect of communication latency $\delta$ on
+success rate, compared against the theoretical degradation characterization; (iii)
+ablations isolating the conflict-resolution policy and the PID input, including a
+comparison of sample efficiency against end-to-end MARL; and (iv) emergence analysis
+quantifying lane formation through heading-direction entropy, leader--follower structure
+through trajectory mutual information, and deadlock frequency relative to baselines.
+The theoretical claims stated in Section~\ref{sec:intro} will be accompanied by formal
+statements and proofs. The simulation environment, the PID local controller, the
+decentralized broadcast channel, and the GNN encoder with its downstream Q-network are
+under active implementation, which supports completion of this evaluation by the manuscript
+deadline.
+

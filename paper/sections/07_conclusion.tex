@@ -1,0 +1,27 @@
+\section{Conclusion}
+We have described a hybrid MARL framework for cooperative UAS collision avoidance in which
+a PID local controller is paired with a conditionally activated conflict-resolution policy.
+The conflict-resolution policy is a permutation-equivariant GNN encoder that maps the
+fleet interaction graph to a fixed-size latent vector of dimension $d$, independent of the
+number of active vehicles $n$, which is passed to the centralized Q-network. The Q-network
+is therefore structurally decoupled from fleet size: it accepts a representation of constant
+dimension regardless of how many UAVs are operating, enabling zero-shot deployment across
+fleet compositions not seen during training. When an intruder is detected within the
+detection radius of any cooperating vehicle, the conflict-resolution policy activates,
+queries the Q-network via the GNN-encoded latent, and issues corrective control actions
+that override the PID output for the duration of the conflict. When the conflict is
+resolved, control returns to the PID controller. Inter-vehicle coordination is carried
+over a decentralized broadcast channel with latency $\delta$, integrated by each vehicle
+through a GRU. This architecture is of direct relevance to AAM operations where fleet
+composition changes continuously and a policy that requires retraining at each fleet size
+is operationally infeasible. The simulation environment, controllers, communication
+channel, GNN encoder, and Q-network are under active implementation. The final manuscript
+will deliver formal proofs of the three theoretical claims, full statistical evaluation
+against QMIX, MAPPO, and GCBF, zero-shot generalization curves across fleet size,
+latency-sensitivity analysis, ablations, and a quantitative analysis of emergent
+coordination. Known limitations anticipated for the final work are that the latency
+analysis is expected to be empirical and will be tightened where possible, experiments
+are planned in two-dimensional navigation with extension toward three-dimensional UAS
+dynamics, and the method does not provide a formal safety certificate; integration with
+certificate-based control is identified as future work.
+

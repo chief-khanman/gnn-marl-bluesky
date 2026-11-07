@@ -1,0 +1,33 @@
+\section{Problem Formulation}
+\subsection{Cooperative UAS Collision Avoidance}
+\label{subsec:problem}
+We consider a fleet of $n$ cooperating UAS, each assigned a sequence of mission waypoints,
+operating in a shared airspace volume that also contains static obstacles and $m$
+non-cooperative intruders whose trajectories are not controlled and not known in advance.
+Each cooperating vehicle must track its waypoints while maintaining separation from
+obstacles, intruders, and other fleet members. The problem is a Markov game
+$\mathcal{M}=\langle\mathcal{S},\{\mathcal{A}^i\},\mathcal{P},\{r^i\},\gamma\rangle$
+with global state space $\mathcal{S}$, per-vehicle action spaces $\mathcal{A}^i$,
+transition kernel $\mathcal{P}$, per-vehicle rewards $r^i$, and discount factor
+$\gamma\in[0,1)$. The learning objective combines three terms: drive the
+loss-of-separation count toward zero, maximize the mission-completion rate, and minimize
+path length and time.
+
+\subsection{Decentralized Broadcast Communication Model}
+Coordination between cooperating vehicles uses a decentralized broadcast channel. When
+any cooperating vehicle detects an intruder at time $t$, that detection is relayed to
+every other fleet member, but arrives subject to a latency $\delta$ that abstracts
+data-link range, bandwidth, and processing constraints. The channel is broadcast rather
+than point-to-point: a single detection informs the whole fleet, but never instantaneously.
+Each vehicle integrates the delayed messages with its own observations using a gated
+recurrent unit (GRU),
+\begin{equation}
+\label{eq:gru}
+h^i_t = \mathrm{GRU}\!\left(h^i_{t-1},\,[\,o^i_t,\,m^i_t\,]\right),
+\end{equation}
+where $o^i_t$ is the local observation of vehicle $i$ and $m^i_t$ is the broadcast
+message received at time $t$. The recurrent hidden state $h^i_t$ lets each vehicle retain
+detection information across the latency interval, so that a delayed warning still informs
+avoidance behavior rather than being discarded. The communication latency $\delta$ is
+treated as an experimental variable rather than a fixed assumption.
+

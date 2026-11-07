@@ -1,0 +1,33 @@
+\section{Background and Related Work}
+\subsection{Multi-Agent Reinforcement Learning}
+CTDE methods such as QMIX~\cite{qmix} and MAPPO~\cite{mappo} train decentralized policies
+with a centralized component used only during learning. The QMIX mixing network and the
+MAPPO centralized critic take a joint input whose dimensionality is fixed by the training
+team size, so changing $n$ requires architectural modification and retraining. This
+hard coupling between agent count and network architecture is the primary barrier to
+scalable AAM autonomy that the present work addresses.
+
+\subsection{Graph Neural Networks for Multi-Agent Systems}
+Graph-based MARL~\cite{gnn_marl} represents the fleet as a graph and exploits the
+permutation equivariance of message passing to produce representations that do not depend
+on agent ordering. The present work extends this principle by positioning the GNN as an
+encoder whose global readout produces a latent vector of fixed dimension $d$, rather than
+using the GNN as a replacement for the mixer (as in GraphMIX) or as an observation
+enrichment tool (as in QMIX-GNN and InforMARL). This placement fully decouples the
+downstream Q-network from $n$ and is compatible with any CTDE value-based method.
+
+\subsection{Safety-Critical and Scale-Invariant Control}
+Neural Graph Control Barrier Functions~\cite{gcbf} provide distributed collision avoidance
+with a formal safety certificate by encoding inter-agent safety constraints directly into
+a graph-structured control law. In the present framework, GCBF serves a dual role: as a
+baseline for empirical comparison and as a principled mechanism for determining the
+intervention threshold $\theta$ in Eq.~\eqref{eq:switching}. Specifically, the CBF
+condition $\dot{h}^{ij} + \alpha(h^{ij}) \geq 0$, where $h^{ij}$ is the barrier function
+between vehicles $i$ and $j$ and $\alpha$ is a class-$\mathcal{K}$ function, provides a
+computable, certificate-backed criterion for when the PID controller alone is insufficient
+to guarantee separation. The learned safety score $s^i$ is trained to approximate this
+barrier condition, and $\theta$ is calibrated such that $s^i < \theta$ coincides with the
+barrier condition being at risk of violation. This grounds the switching logic of the
+hybrid controller in a formally motivated safety criterion rather than an ad hoc
+heuristic, and provides a path toward certificate-based guarantees for the hybrid
+control architecture as future work.

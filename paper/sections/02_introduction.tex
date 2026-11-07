@@ -1,0 +1,84 @@
+\section{Introduction}
+\label{sec:intro}
+\lettrine{C}{ollision} avoidance among uncrewed aircraft systems (UAS) is a central problem
+for the safe scaling of low-altitude airspace operations, including package delivery,
+infrastructure inspection, and emerging UAS traffic management concepts. As operational
+density increases, a fleet of cooperating vehicles must keep itself separated from static
+obstacles, from non-cooperative intruders, and from one another, while each vehicle still
+completes its own mission. Advanced Air Mobility (AAM) operations impose a further
+constraint: the number of vehicles sharing an airspace volume at any moment is not fixed
+at design time. UAVs rotate out for battery swaps, return to base for maintenance, are
+added as demand increases, or are removed following mission completion or communication
+degradation. A coordination algorithm that must be retrained for each fleet size $n$ is
+therefore operationally infeasible.
+
+Reinforcement learning offers a route to coordination policies that are not hand-tuned,
+but most multi-agent reinforcement learning (MARL) methods share a structural limitation:
+a policy trained for a fixed fleet size $n$ does not transfer to a different fleet size
+without architectural changes and retraining. Algorithms such as QMIX~\cite{qmix} and
+MAPPO~\cite{mappo} use a centralized Q-network or critic during training whose input
+dimensionality is a fixed function of the training team size. Changing $n$ requires
+architectural modification and full retraining.
+
+Prior work has integrated graph neural networks with MARL under the CTDE paradigm, but
+none has resolved the agent-count coupling in a manner suitable for value-based methods
+in dynamic AAM-like settings. QMIX-GNN~\cite{qmix-gnn} enriches individual agent observations using a
+Graph Attention Network but passes the full set of $n$ augmented observations into the
+centralized mixer, preserving the dependence on $n$. InforMARL~\cite{nayak2023scalable} applies a mean-pooling
+operation over GNN-produced node embeddings to give the centralized critic a fixed-size
+input, but this approach is restricted to actor-critic (PPO-family) methods and cannot
+be applied to value decomposition architectures such as QMIX, since mean pooling destroys
+the per-agent Q-value structure those methods require. GraphMIX~\cite{naderializadeh2021graphconvolutionalvaluedecomposition} replaces QMIX's MLP mixer
+with a GNN-based mixing module operating on a complete directed graph over all agents;
+however, because the graph is complete and the input consists of one Q-value per agent
+node, the mixing network remains structurally dependent on $n$ and requires fine-tuning
+when $n$ changes. None of these approaches provides a drop-in, retrain-free solution for
+dynamic-fleet AAM coordination.
+
+This work addresses scale invariance through a hybrid control architecture that separates
+two concerns. A local PID controller handles fast, reactive, waypoint-directed motion for
+each vehicle independently. A conditionally activated conflict-resolution policy provides
+strategic deconfliction by overriding PID actions and issuing corrective control commands
+when, and only when, an intruder enters the detection radius $r_{\text{detect}}$ of a
+given vehicle. The conflict-resolution policy is a permutation-equivariant GNN encoder
+whose output is a fixed-size latent vector of dimension $d$, independent of $n$, which
+is passed to the centralized Q-network. The Q-network therefore operates on a
+representation of constant size regardless of how many vehicles are active, enabling
+zero-shot deployment across fleet sizes not seen during training.
+
+\textbf{Theoretical claims (to be proven in the final manuscript).}
+\begin{enumerate}
+\item Fleet-size invariance follows from permutation equivariance of GNN message passing
+      combined with a fixed-size global readout, in contrast to the fixed input
+      dimensionality of CTDE mixing and critic networks.
+\item Hybrid decomposition removes the reactive control layer from the learning problem
+      entirely, since the local PID controller is fixed; the learner explores only the
+      conflict-resolution action space, reducing the effective state--action complexity
+      and improving sample efficiency relative to end-to-end MARL.
+\item Coordination quality degrades gracefully with communication latency $\delta$; we
+      will characterize this degradation theoretically, relating it to the decay of mutual
+      information between vehicle observations as latency grows, and derive a quantitative
+      bound where the analysis admits one.
+\end{enumerate}
+
+\textbf{Methodological constructions.}
+\begin{enumerate}
+\item A GNN encoder placed before the centralized Q-network that maps the fleet
+      interaction graph $G=(V,E)$ to a fixed-size latent vector $z \in \mathbb{R}^d$,
+      decoupling the Q-network from $n$.
+\item A conditionally activated conflict-resolution policy with a sparse-intervention
+      property, in which the MARL controller issues corrective actions only when a learned
+      safety score falls below a threshold.
+\item Integration of GNN spatial reasoning with GRU temporal modeling of the decentralized
+      broadcast channel.
+\item A single-level training scheme in which the fixed PID action is supplied as input
+      to the conflict-resolution policy, so the MARL controller learns to issue corrective
+      commands relative to the reactive baseline rather than relearn waypoint tracking.
+\end{enumerate}
+
+\textbf{Experimental program.}
+Comparison against QMIX, MAPPO, and Graph Control Barrier Functions (GCBF); zero-shot
+generalization from training at $n=5$ to evaluation at $n\in\{10,20,50\}$; ablation of
+the conflict-resolution policy and of the PID input; characterization of performance
+against communication latency; and quantitative analysis of emergent coordination.
+

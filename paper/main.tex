@@ -1,0 +1,36 @@
+\documentclass[conf]{new-aiaa}
+% new-aiaa.cls is NOT included: download the AIAA LaTeX template
+% (Overleaf "AIAA Conference and Journal Template") and copy new-aiaa.cls here.
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{longtable,tabularx}
+\setlength\LTleft{0pt}
+\graphicspath{{figures/}}
+
+\title{Graph-Encoded Multi-Agent Reinforcement Learning for Zero-Shot Scalable UAS Conflict Resolution}
+
+\author{Aadit-Farhan Khan\textsuperscript{*}, Adam Haroon\textsuperscript{*}, and Cody Fleming}
+\affil{Department of Mechanical Engineering, Iowa State University, Ames, IA 50011, USA}
+
+\begin{document}
+
+\maketitle
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[1]{These authors contributed equally to this work.}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+
+\input{sections/00_abstract}
+\input{sections/01_nomenclature}
+\input{sections/02_introduction}
+\input{sections/03_background}
+\input{sections/04_problem_formulation}
+\input{sections/05_methodology}
+\input{sections/06_experiments}
+\input{sections/07_conclusion}
+\input{sections/08_acknowledgments}
+
+\bibliography{references}
+
+\end{document}
