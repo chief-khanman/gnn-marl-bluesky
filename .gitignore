@@ -2,6 +2,12 @@
 runs/
 wandb/
 
+# per-machine settings and local artifact cache (docs/HANDOFF.md, docs/ARTIFACTS.md)
+.env
+artifacts/cache/
+*.pt
+*.pth
+
 # python
 __pycache__/
 *.pyc

@@ -17,3 +17,12 @@ Hard rules:
 - Paper: one section per file in `paper/sections/`; don't change claims in the paper without asking the authors.
 - Never invent bibliographic details or results. Hypothesized ≠ measured (S-14, S-15).
 - Every code module, config and experiment cites the goal ID(s) it serves (S-03).
+
+Change discipline (S-18…S-21):
+- One issue (one G-/INF-/GAP- item) per change. Edit only that area. Log anything else you notice instead of fixing it.
+- Run the S-20 test tiers before and after (Tier 0 `python tools/check_docs.py` always). Report results truthfully.
+- Stage explicit paths only. **Never commit or push without the user's explicit OK in this session.** Show the diff summary and test results first.
+
+Across machines (S-22, S-23): your memory doesn't travel to the user's other machines.
+Write what matters into the repo. End sessions with `State:`/`Next:` in the work log.
+Trained weights go through `docs/ARTIFACTS.md`, never into git.

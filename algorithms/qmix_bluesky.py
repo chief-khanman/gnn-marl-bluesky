@@ -95,7 +95,7 @@ class Args:
     """ Weights & Biases entity name"""
 
 
-class Qnetwrok(nn.Module):
+class Qnetwrok(nn.Module): #TODO: fix name - Qnetwrok to Qnetwork 
     def __init__(self, input_dim, hidden_dim, num_layer, output_dim):
         super().__init__()
         self.layers = nn.ModuleList()

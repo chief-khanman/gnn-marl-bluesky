@@ -54,7 +54,11 @@ gnn-marl-bluesky/
 ├── docs/
 │   ├── PROJECT_RECORD.md      ★ status, binding standards, decisions, gaps, open questions, work log
 │   ├── goals/                 programming goals derived from paper/, one file per paper section
-│   └── plans/                 detailed per-goal plans (Stage 3); _TEMPLATE.md
+│   ├── plans/                 detailed per-goal plans (Stage 3); _TEMPLATE.md
+│   ├── HANDOFF.md             carrying state between machines (laptop / lab / HPC)
+│   └── ARTIFACTS.md           publishing and pulling trained weights
+├── artifacts/registry.toml    index of shared, immutable run artifacts (bytes live in the store)
+├── tools/check_docs.py        Tier-0 check: IDs and links in the docs resolve
 ├── paper/                     LaTeX (AIAA), main.tex + sections/ (one file per section) + references.bib
 ├── simulator/
 │   ├── bluesky_marl/          make_env(name, n_agents): env registry, singleton guard
@@ -108,10 +112,13 @@ Put `new-aiaa.cls` (from the Overleaf "AIAA Conference and Journal Template") in
 
 ## Contributing (humans and agents)
 
-1. Read [docs/PROJECT_RECORD.md](docs/PROJECT_RECORD.md). Its standards (S-01…S-17) are binding.
+1. Read [docs/PROJECT_RECORD.md](docs/PROJECT_RECORD.md). Its standards (S-01…S-23) are binding.
 2. Pick a goal ID from [docs/goals/](docs/goals/README.md). Paper goals need an approved plan in
    `docs/plans/` before implementation.
-3. Use conventional commits and the PR checklist. Update the record's work log in the same PR.
+3. One issue per change, stay in its area, run the test tiers, and commit or push only after
+   confirmation (S-18…S-21). Use the PR checklist. Update the record's work log in the same PR.
+4. Working on several machines (laptop / lab / HPC)? Follow [docs/HANDOFF.md](docs/HANDOFF.md).
+   Sharing or pulling trained weights? Follow [docs/ARTIFACTS.md](docs/ARTIFACTS.md).
 
 ## Acknowledgments
 

@@ -21,7 +21,8 @@ the intervention threshold θ**.
 - **Objective:** copy CleanMARL `mappo.py` → `algorithms/mappo_bluesky.py` with the same
   `bluesky` env branch as QMIX. Centralized critic kept fixed-n.
 - **Depends on:** INF-5. **Feeds:** G06.4.
-- **Status:** defined. **Gaps:** GAP-12 (continuous vs discrete), GAP-13.
+- **Status:** in-progress. Plan `docs/plans/G03.2_mappo_baseline.md` approved 2026-11-09;
+  `algorithms/mappo_bluesky.py` smoke-tested on both envs. **Gaps:** GAP-12 (continuous vs discrete), GAP-13.
 
 ### G03.3: GCBF baseline
 - **Paper basis:** "Neural Graph Control Barrier Functions provide distributed collision

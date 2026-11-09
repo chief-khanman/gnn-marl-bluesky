@@ -3,7 +3,7 @@
 > **Single source of truth** for everyone working on this project, human or agent.
 > **Read it before you start. Update it before you finish.** (S-01, S-02)
 >
-> Last updated: 2026-11-07 · Current phase: **Stage 1: Framework** (see §2)
+> Last updated: 2026-11-07 (2) · Current phase: **Stage 1: Framework** (see §2)
 
 Contents: [1 How to use](#1-how-to-use-this-record) · [2 Workflow & phase](#2-workflow-stages-and-current-phase) ·
 [3 Status board](#3-status-board) · [4 Standards](#4-standards-binding) · [5 Decisions](#5-decision-log) ·
@@ -20,9 +20,13 @@ Contents: [1 How to use](#1-how-to-use-this-record) · [2 Workflow & phase](#2-w
 | make a choice others must follow | §5 to check it isn't already decided | add a **D-** entry |
 | find an inconsistency or weakness | §6 to check it isn't already logged | add a **GAP-** entry |
 | need an author decision | §7 | add a **Q-** entry; don't decide it yourself |
-| finish a session / open a PR | — | add a §8 work-log entry (who, which agent, what, IDs) |
+| make a code or doc change | §4 "Change discipline" (S-18…S-21) | commit only after tests pass and confirmation |
+| switch machines (laptop / lab / HPC) | [HANDOFF.md](HANDOFF.md) | push branch, publish artifacts, write `State:`/`Next:` |
+| share or reuse trained weights | [ARTIFACTS.md](ARTIFACTS.md), `artifacts/registry.toml` | registry entry in the same PR |
+| finish a session / open a PR | — | add a §8 work-log entry (who, which agent, what, IDs, `State:`, `Next:`) |
 
 Related files: [README.md](../README.md) (overview) · [docs/goals/](goals/README.md) (paper → goals) ·
+[HANDOFF.md](HANDOFF.md) (multi-machine) · [ARTIFACTS.md](ARTIFACTS.md) (weights) ·
 [docs/plans/](plans/) (detailed plans) · [PLAN.md](../PLAN.md) (original bootstrap plan) ·
 [CLAUDE.md](../CLAUDE.md) / [AGENTS.md](../AGENTS.md) (agent rules).
 
@@ -55,12 +59,18 @@ a running simulator.
 | INF-2 | paper build (`new-aiaa.cls` + `latexmk`) | todo | class file not in repo. `latexmk` not installed on the dev machine |
 | INF-3 | `simulator/tests/test_api.py` (`parallel_api_test` in a subprocess) | todo | |
 | INF-4 | random-rollout sweeps n∈{3,5,10,20}; SubprocVectorEnv check | todo | |
-| INF-5 | QMIX smoke run, simple_spread sanity run | todo | needs the Python 3.12 venv |
-| INF-6 | Python 3.12 venv per PLAN.md §1.3 | todo | dev machine has no 3.12 or `uv` yet (conda env is 3.11) |
+| INF-5 | QMIX smoke run, simple_spread sanity run | **in-progress** | QMIX smoke run passes in `.venv` (2026-11-09). simple_spread sanity run not done (needs `pettingzoo[mpe]`) |
+| INF-6 | Python 3.12 venv per PLAN.md §1.3 | **done** 2026-11-09 (aadit-mbp) | `uv venv -p 3.12 .venv` + PLAN.md §1.3 installs + `-e .`. Versions match the tested set (bluesky-simulator 1.1.1, numpy 2.3.4, torch 2.9.0). Other machines: repeat the steps until INF-7 adds a lock file |
+| INF-7 | Lock file (`uv pip compile` → `requirements.lock`, platform note for CUDA torch) | todo | needed so every machine gets the same env (HANDOFF.md) |
+| INF-8 | `tools/artifacts.py` (publish / pull / verify / find) + add `huggingface_hub` to deps | todo | after Q-07 |
+| INF-9 | Git remote (GitHub) + branch protection on `main` | todo | **no remote yet**: nothing can be pushed |
+| INF-10 | `tools/check_docs.py`: ID and link consistency check (S-20 Tier 0) | **done** 2026-11-07 | |
 
 ### Paper goals (see `docs/goals/`)
 All `G*`, `T*` and `D*` goals are **defined** (Stage 1), except: G01.1 **done** (naming
-contract), G00.3 **in-progress** (logging convention active), G06.10 **blocked** (Q-04).
+contract), G00.3 **in-progress** (logging convention active), G06.10 **blocked** (Q-04),
+G03.2 **in-progress** (plan approved 2026-11-09, `algorithms/mappo_bluesky.py` smoke-tested;
+3-seed curves are G06.4).
 G05.3 is the critical-path item and is blocked by GAP-03 until a design is approved.
 
 ---
@@ -102,21 +112,76 @@ standard without a recorded exception. Automated checks are planned (INF, later)
   CleanMARL does). Values that an experiment may vary live in config (`SimConfig`, `configs/`),
   never as constants in code. Prefer small single-purpose modules over editing large copied scripts.
 - **S-10 Experiments are reproducible.** Every run has a config file in `configs/`. The run dir
-  is `runs/<goal-id>_<algo>_<env>_n<train-n>_s<seed>_<YYYYMMDD-HHMM>/` and contains the resolved
-  config, the repo commit hash and both submodule hashes. Minimum **3 seeds** for any reported
-  result; the seed count is always stated alongside the result.
+  is `$GNN_MARL_RUNS_DIR/<goal-id>_<algo>_<env>_n<train-n>_s<seed>_<YYYYMMDD-HHMM>_<machine>/`
+  (D-014) and contains the resolved config, its `config_sha`, the repo commit hash and both
+  submodule hashes. Minimum **3 seeds** for any reported result; the seed count is always stated
+  alongside the result.
 - **S-11 Metrics have one definition.** Paper metrics are implemented once (G06.2) and
   referenced by canonical name. Tensorboard tags keep CleanMARL's prefixes (`rollout/`,
   `eval/`, `train/`) followed by the canonical metric name.
-- **S-12 Tests.** BlueSky tests run one per process (subprocess or `pytest --forked`). Run
-  `python -m marl.scripts.random_rollout` and `pytest` before every commit. Equivariance and
-  variable-n property tests are mandatory for G05.2/G05.3. Tests must not require a display.
+- **S-12 Tests.** BlueSky tests run one per process (subprocess or `pytest --forked`). Which
+  tests to run before a commit is set by S-20. Equivariance and variable-n property tests are
+  mandatory for G05.2/G05.3. Tests must not require a display. Every new test directory is
+  added to `testpaths` in `pyproject.toml`.
 
 ### Git
 - **S-13 Commits and branches.** Conventional commits `<type>(<scope>): <summary>` with type
   ∈ {feat, fix, docs, chore, refactor, test, exp} and scope = top-level dir or `paper`. Reference
   goal IDs in the body. Branches: `<type>/<goal-id>-<slug>` (e.g. `feat/G05.2-encoder`). One
   goal per PR where possible. Never commit `runs/` or large artifacts.
+
+### Change discipline (D-012)
+- **S-18 One issue at a time.** A change addresses exactly **one** item: a goal (G…), an
+  infrastructure item (INF-…), or a gap (GAP-…). Don't bundle unrelated fixes. If you notice
+  another problem along the way, record it (GAP- entry or a work-log note) and leave it for its
+  own change. Don't fix it in passing.
+- **S-19 Stay local.** Touch only the area that the issue belongs to:
+
+  | area | paths | typical goals |
+  |---|---|---|
+  | simulator | `simulator/` (not `third_party/`) | G04.1, INF-3 |
+  | marl | `marl/` (interfaces, graph, metrics, scripts, tests) | G04.3–G04.5, G05.1, G06.2 |
+  | algorithms | `algorithms/` (not `third_party/`) | G03.x, G05.2–G05.11 |
+  | experiments | `configs/`, `artifacts/registry.toml` | G06.x |
+  | paper | `paper/` | G06.11, bibliography |
+  | docs / process | `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md`, `.github/`, `tools/` | — |
+
+  A change that must cross areas goes through an interface declared in an approved plan.
+  Where possible, split it into one commit per area. No drive-by reformatting, renames or
+  dependency bumps. Every change updates the record (S-02), and that update doesn't count as
+  leaving the area.
+- **S-20 Prove nothing broke.** Before starting, run the relevant tiers on the clean tree so
+  failures that were already there are known. After the change, run them again. A change
+  must not turn any passing check red. The tiers:
+
+  | tier | when | command |
+  |---|---|---|
+  | 0 | always (incl. docs-only changes) | `python tools/check_docs.py` |
+  | 1 | code in an area changed | `pytest <area>/tests` (that area's tests) |
+  | 2 | any code change | `python -m marl.scripts.random_rollout --env sector_cr` and `--env merge`, then `pytest` (all) |
+
+  The commit body states which tiers ran and their result (e.g. `Tests: T0 pass, T2 pass`).
+  A tier that couldn't run is stated as such, with the reason. Never claim a test passed if it didn't run.
+- **S-21 Add, commit, push: after confirmation.**
+  1. Stage **explicit paths** (`git add <paths>`, never `git add -A` / `git add .`), then
+     review `git diff --staged` for anything out of scope or secret.
+  2. One logical change per commit, conventional message (S-13). The body lists goal IDs and tests (S-20).
+  3. **Agents never commit or push without explicit confirmation from their human in the
+     current session.** Show the diff summary and test results, then wait. An approval covers
+     only that change; it is not standing permission.
+  4. Humans push only after S-20 passes. Never force-push `main` or a branch someone else uses.
+     `wip:` commits only on your own branch, squashed or cleaned before merge.
+  5. Never commit `.env`, tokens, `runs/`, checkpoints (`*.pt`) or other artifacts (they go to the store, S-23).
+
+### Multi-machine and shared artifacts (D-013, D-015)
+- **S-22 Leave no state on one machine.** Follow [HANDOFF.md](HANDOFF.md): at session end, push
+  your branch, publish needed artifacts, and end the work-log entry with `State:` and `Next:`.
+  Agent memory is machine-local and does not count as shared state. Anything an agent must
+  know goes into repo docs.
+- **S-23 Artifacts are registered and immutable.** Follow [ARTIFACTS.md](ARTIFACTS.md):
+  weights-only checkpoints, manifest with checksums and `config_sha`, an entry in
+  `artifacts/registry.toml`, never overwritten. Check the registry for a matching
+  `config_sha` before launching a run so nobody repeats one.
 
 ### Research integrity
 - **S-14 Hypothesized ≠ measured.** No number enters the paper without a run ID that produced
@@ -147,6 +212,10 @@ Format: **D-xxx** · date · status (`adopted` / `proposed` / `superseded by D-y
 | D-009 | 2026-11-07 | adopted | Framework-first workflow: Framework → Gap analysis → Planning → Implementation (§2) | user direction 2026-11-07: plan everything coherently before implementing |
 | D-010 | 2026-11-07 | adopted | Documentation structure: this record is the single source of truth. `docs/goals/` mirrors `paper/sections/`. Detailed plans in `docs/plans/`. IDs per `docs/goals/README.md` | so collaborators and their agents share one status and standard set |
 | D-011 | 2026-11-07 | adopted | `PLAN.md` is the canonical bootstrap plan. `PLAN_bluesky_marl_repo.md` is a byte-identical copy, kept until an author removes it | avoid two diverging copies. Edit only `PLAN.md` |
+| D-012 | 2026-11-07 | adopted | Change discipline S-18…S-21: one issue per change, area-local edits, tiered regression tests, explicit staging, commit and push only after confirmation | user direction 2026-11-07 (item 4) |
+| D-013 | 2026-11-07 | **proposed** (pending Q-07) | Artifact store = one private Hugging Face Hub model repo under a project org. Git-tracked `artifacts/registry.toml` as the index. Bundle/manifest format per ARTIFACTS.md | user direction 2026-11-07 (item 2). Rationale and alternatives in ARTIFACTS.md §2 |
+| D-014 | 2026-11-07 | adopted | Run IDs gain a `_<machine>` suffix. Every run records `config_sha` (amends S-10) | unique IDs across machines; detect duplicate runs |
+| D-015 | 2026-11-07 | adopted | Multi-machine handoff protocol (HANDOFF.md, S-22). Work-log entries end with `State:` and `Next:` | user direction 2026-11-07 (item 1) |
 
 ---
 
@@ -180,6 +249,9 @@ Severity: **H** blocks a core claim or goal · **M** affects an experiment or it
 | GAP-18 | M | "Mission success" per env: `merge` ends for everyone when any aircraft finishes; `sector_cr` truncates when all have left. Per-agent success needs a definition. | G04.2, G06.2 | open → Q-02 |
 | GAP-19 | M | Scaling rule for zero-shot tests: does airspace size grow with n (constant density) or stay fixed (rising density)? This changes what "generalization" means. | G06.1, G04.1, D1 | open |
 | GAP-20 | M | Sum pooling in the readout scales with n, so z's distribution shifts at unseen n. That may hurt zero-shot even though the dimension is fixed (C1 is about dimension/invariance, not distribution). | G05.2, T1, D1 | open |
+| GAP-21 | M | Env observations hold only the `NUM_AC_STATE`=3 nearest *agents*. For n≤3 the obs is shorter than the declared `Box(24,)` (17 at n=3, 10 at n=2), which breaks fixed-shape code for the n=3 sweep (INF-4) and the {3,5,8} / {2,4,…} training sets. For n>4, agents beyond the 3rd neighbor are invisible to the policy. | INF-4, D-007, G04.1, G05.1 | open |
+| GAP-22 | L | Env-wrapper unit/doc mismatches: the speed action adds a "kt" delta (20/3) to CAS in m/s before converting, so the effective step is ≈±13 kt, not ±6.7 kt. `merge` compares `DISTANCE_MARGIN` (labeled km) with a distance in NM. The obs docstrings say "heading difference", but the code computes the relative-velocity track angle. The `merge` docstring lists FAF distance and a FAF-reached flag that the obs doesn't contain. | G04.1, G05.1, G05.7 | open |
+| GAP-23 | L | `algorithms/qmix_bluesky.py` has no origin header (source path, pinned commit, list of changes), which S-06 requires. `mappo_bluesky.py` has one to copy from. | G03.1 | open |
 
 ---
 
@@ -195,12 +267,15 @@ Agents and code contributors **don't decide these**. Record the answer as a D- e
 | Q-04 | Does BlueSky replace the "2D navigation benchmark", or come in addition? What happens to the custom 3D env? | PLAN.md §6; GAP-11 | open |
 | Q-05 | Which training fleet sizes are canonical: n=5, {3,5,8}, or {2,4,8,16,…}? | GAP-01 | open |
 | Q-06 | Is execution meant to be decentralized (CTDE) or centralized-on-activation? | GAP-02 | open |
+| Q-07 | Confirm the artifact backend (HF Hub proposed, D-013). Who creates the org, and what is it named? | 2026-11-07 item 2 | open |
+| Q-08 | Work-coordination mechanism (who is working on what, claims, "next"): under discussion, not implemented | 2026-11-07 item 3 | open (discussion) |
 
 ---
 
 ## 8. Work log
 
-Append-only, newest last. Format: date · who / agent · what · IDs touched.
+Append-only, newest last. Format: date · who / agent · machine · what · tests (S-20) · IDs
+touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete next step), per S-22.
 
 - **2026-11-07** · Aadit-Farhan Khan with Claude Code (Claude Opus 5.5) · Stage 1 started.
   Initialized git repo (`main`). Added submodules `simulator/third_party/bluesky-gym` @
@@ -211,3 +286,47 @@ Append-only, newest last. Format: date · who / agent · what · IDs touched.
   `pytest` were **not run** before the initial commit (S-12 exception for the scaffold commit
   only). Paper not built (no `new-aiaa.cls` / `latexmk`).
   IDs: INF-1, D-001…D-011, G01.1, G00.3, GAP-01…20, Q-05, Q-06.
+- **2026-11-07 (2)** · Aadit-Farhan Khan with Claude Code (Claude Opus 5.5) · aadit-mbp ·
+  Added the multi-machine and collaboration standards: change discipline S-18…S-21 (D-012),
+  `docs/HANDOFF.md` + `.env.example` (S-22, D-015), `docs/ARTIFACTS.md` +
+  `artifacts/registry.toml` (S-23, D-013 *proposed*), run-ID machine suffix + `config_sha`
+  (D-014, amends S-10), `tools/check_docs.py` (INF-10). Updated CLAUDE.md, AGENTS.md, PR template,
+  README, `.gitignore`. Item 3 (who-works-on-what board) is **not implemented**; it's under
+  discussion as Q-08. Tests: T0 pass (also checked that it catches planted errors); T1/T2 not
+  applicable (no code touched in an area with tests).
+  IDs: D-012…D-015, S-18…S-23, INF-7…INF-10, Q-07, Q-08.
+  State: `main`, uncommitted, awaiting confirmation to commit (S-21); no git remote yet (INF-9).
+  Next: decide Q-08 (coordination board) and Q-07 (artifact backend); create the GitHub remote; then Stage 2 gap analysis.
+- **2026-11-09** · Aadit-Farhan Khan with Claude Code (Claude Opus 5.5) · aadit-mbp ·
+  Read-only inventory: compared the states, actions and reward variables the paper proposes with
+  what `sector_cr` / `merge` (mergev3) expose (answer given in chat, not saved as a doc). BlueSky
+  isn't installed here, so `bs.traf` fields weren't introspected. Logged GAP-21 (obs length depends
+  on n for n≤3; only 3 neighbors visible) and GAP-22 (unit/doc mismatches in the env wrappers).
+  No code changed. Tests: T0 pass; T1/T2 not applicable.
+  IDs: GAP-21, GAP-22.
+  State: `main`, uncommitted (on top of the 2026-11-07 (2) changes), no remote.
+  Next: same as the previous entry. GAP-21 should be considered before INF-4.
+- **2026-11-09 (2)** · Aadit-Farhan Khan with Claude Code (Claude Opus 5.5) · aadit-mbp ·
+  INF-6: installed `uv` 0.13.7 (Homebrew), created `.venv` (CPython 3.12.16, gitignored), ran the
+  PLAN.md §1.3 installs and `uv pip install -e .`. Resolved: bluesky-simulator 1.1.1,
+  bluesky-navdata 1.0.0, numpy 2.3.4, torch 2.9.0, pettingzoo 1.25.0, marlbench 0.0.5,
+  gymnasium 1.2.1, tyro 0.9.35, stable-baselines3 2.9.2, pytest 9.2.0. First BlueSky import
+  built `~/bluesky/cache/navdata.p`. Smoke test: `make_env` for `sector_cr` and `merge` (n=5),
+  50 random steps each, obs (24,), in separate processes. No repo code changed.
+  Tests: T0 pass; T2 pass (`random_rollout --env sector_cr` and `--env merge` 100 steps each; `pytest` 1 passed).
+  IDs: INF-6.
+  State: `main`, uncommitted, no remote. `.venv` is local to this machine.
+  Next: INF-7 (lock file, so other machines get the same env), then INF-3/INF-4 (mind GAP-21 at n=3).
+- **2026-11-09 (3)** · Aadit-Farhan Khan with Claude Code (Claude Opus 5.5) · aadit-mbp ·
+  Baselines. INF-5 (part): QMIX smoke run (`qmix_bluesky.py`, sector_cr, n=5, 3000 steps) passes
+  in `.venv` and logs rollout/eval/train scalars; `train/loss` ≈1e3 as before (rewards unnormalized).
+  G03.2: wrote `docs/plans/G03.2_mappo_baseline.md`, **approved by Aadit-Farhan Khan 2026-11-09**,
+  then created `algorithms/mappo_bluesky.py` (CleanMARL `mappo.py` @ `5cf837e` + origin header + the
+  same 3 edits as the QMIX copy). Smoke runs on `sector_cr` and `merge` (n=5, 3000 steps) wrote all
+  plan §2 tags; entropy ≈2.69 ≈ ln 15. Logged GAP-23 (QMIX copy lacks its S-06 header). The plan's
+  §6 notes that a MAPPO actor with `agent_ids=False` is n-transferable, which bears on Table 1 (GAP-13).
+  Tests: T0 pass; T2 pass (`random_rollout` both envs; `pytest` 1 passed). No T1 tests exist for `algorithms/`.
+  IDs: INF-5, G03.2, GAP-23, GAP-13.
+  State: `main`, uncommitted, no remote. Smoke-run outputs only in the session scratchpad (not kept).
+  Next: authors decide how Table 1 treats MAPPO transfer (GAP-13); INF-5 simple_spread sanity run;
+  INF-7 lock file.

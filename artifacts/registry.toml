@@ -1,0 +1,23 @@
+# Artifact registry: the index of shared, immutable run artifacts. See docs/ARTIFACTS.md (S-23).
+# Append-only: add one [[artifact]] block per artifact at the END of the file. Never edit an
+# existing block except `status` / `status_reason`.
+#
+# Template (copy below the last block and fill in):
+#
+# [[artifact]]
+# artifact_id   = "G05.4_qmixgnn_sector_cr_n3-5-8_s1_20261120-1430_hpc"
+# goal_ids      = ["G05.4"]
+# store         = "hf:<org>/gnn-marl-bluesky-artifacts"
+# algo          = "qmixgnn"
+# env           = "sector_cr"
+# train_n       = [3, 5, 8]
+# seed          = 1
+# config_sha    = "<sha256 of canonical config.json>"
+# checkpoint_sha = "<sha256 of checkpoint.pt>"
+# repo_commit   = "<git sha>"
+# created_by    = "<person>"
+# agent         = "<AI agent/tool, or empty>"
+# created_utc   = "2026-11-20T14:30:00Z"
+# status        = "candidate"   # candidate | reference | paper | deprecated
+# status_reason = ""
+# summary       = "one line: what it is and what it shows"

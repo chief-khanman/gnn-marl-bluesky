@@ -7,5 +7,8 @@ Instructions for any coding agent (Claude Code, Codex, Copilot, Cursor, ...) wor
 2. The rules in `CLAUDE.md` apply to every agent, not only Claude.
 3. Work only toward a goal ID listed in `docs/goals/`, and only in the stage the record allows
    (currently framework / planning: no implementation without an approved plan).
-4. End every session by updating the record's work log, and say which agent did the work.
-   The paper must disclose AI-tool use (S-16).
+4. One issue at a time, edit only in that area, test before and after, and commit or push
+   only after your human confirms (S-18…S-21).
+5. End every session by updating the record's work log with `State:` and `Next:` (S-22), and
+   say which agent did the work. The paper must disclose AI-tool use (S-16). Your memory
+   doesn't carry across machines; the repo does.
