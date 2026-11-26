@@ -36,8 +36,20 @@ def _merge(**kw):
 ENV_REGISTRY = {"sector_cr": _sector_cr, "merge": _merge}
 
 
-def make_env(name: str = "sector_cr", n_agents: int = 5, render_mode: str | None = None):
+def _sector_cr_configurable(**kw):
+    from simulator.bluesky_marl.custom_envs import ConfigurableSectorCR
+    return ConfigurableSectorCR(**kw)
+
+
+# Envs that accept extra keyword arguments (spawn_min_sep_nm, area_scale; see custom_envs.py)
+CONFIGURABLE = {"sector_cr": _sector_cr_configurable}
+
+
+def make_env(name: str = "sector_cr", n_agents: int = 5, render_mode: str | None = None, **env_kwargs):
+    """`env_kwargs` selects the configurable subclass of the env; without them the original env is used."""
     global _INSTANCES
+    if env_kwargs and name not in CONFIGURABLE:
+        raise ValueError(f"env {name!r} takes no extra arguments (got {sorted(env_kwargs)})")
     if name not in ENV_REGISTRY:
         raise ValueError(f"unknown env {name!r}; choose from {list(ENV_REGISTRY)}")
     _INSTANCES += 1
@@ -46,4 +58,6 @@ def make_env(name: str = "sector_cr", n_agents: int = 5, render_mode: str | None
             "A BlueSky env already exists in this process. BlueSky shares one global "
             "simulator, so a second instance would corrupt the first. Use one process per env."
         )
+    if env_kwargs:
+        return CONFIGURABLE[name](render_mode=render_mode, n_agents=n_agents, **env_kwargs)
     return ENV_REGISTRY[name](render_mode=render_mode, n_agents=n_agents)
