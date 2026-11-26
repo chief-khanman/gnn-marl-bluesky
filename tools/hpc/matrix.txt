@@ -1,0 +1,26 @@
+# Core run matrix for the paper (docs/RUNBOOK.md §3). One line per training run:
+#   <config file> <train-n, comma separated> <seed>
+# Line number (ignoring comment lines) = Slurm array task id, starting at 1.
+# Budget: 2,000,000 environment steps per training fleet size in every run (D-030).
+configs/gnn_qmix_sector_cr.json 3,6,9 1
+configs/gnn_qmix_sector_cr.json 3,6,9 2
+configs/gnn_qmix_sector_cr.json 3,6,9 3
+configs/vdn_sector_cr.json 3,6,9 1
+configs/vdn_sector_cr.json 3,6,9 2
+configs/vdn_sector_cr.json 3,6,9 3
+configs/iql_sector_cr.json 3,6,9 1
+configs/iql_sector_cr.json 3,6,9 2
+configs/iql_sector_cr.json 3,6,9 3
+configs/qmix_sector_cr.json 3 1
+configs/qmix_sector_cr.json 3 2
+configs/qmix_sector_cr.json 3 3
+configs/qmix_sector_cr.json 6 1
+configs/qmix_sector_cr.json 6 2
+configs/qmix_sector_cr.json 6 3
+configs/qmix_sector_cr.json 9 1
+configs/qmix_sector_cr.json 9 2
+configs/qmix_sector_cr.json 9 3
+# Ablation (optional, G06.7): GCN agent with a VDN sum instead of the GAT mixer
+configs/ablation_vdn_gcn_sector_cr.json 3,6,9 1
+configs/ablation_vdn_gcn_sector_cr.json 3,6,9 2
+configs/ablation_vdn_gcn_sector_cr.json 3,6,9 3
