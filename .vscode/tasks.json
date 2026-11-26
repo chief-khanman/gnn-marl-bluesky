@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Render paper",
+            "detail": "INF-2: build paper/main.pdf and show it in a tab (Cmd+Shift+B)",
+            "type": "shell",
+            "command": "${workspaceFolder}/paper/render.sh",
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "silent", "clear": true },
+            "problemMatcher": []
+        }
+    ]
+}

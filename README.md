@@ -107,8 +107,14 @@ python algorithms/qmix_bluesky.py --env_type bluesky --env_name sector_cr --n_ag
 
 ## Building the paper
 
-Put `new-aiaa.cls` (from the Overleaf "AIAA Conference and Journal Template") in `paper/`, then
-`cd paper && latexmk -pdf main.tex`.
+Put `new-aiaa.cls` and `new-aiaa.bst` (from the Overleaf "AIAA Conference and Journal Template") in
+`paper/`, then run `paper/render.sh` (in VS Code: Cmd+Shift+B, task "Render paper"). It writes
+`paper/main.pdf` and opens it in a VS Code tab; all other LaTeX output goes to a scratch directory
+outside the repo. Needs only `pdflatex` and `bibtex` (BasicTeX is enough, no `latexmk`).
+
+On BasicTeX the AIAA class needs extra packages. Install them once per machine (no `sudo`; they go to
+`~/Library/texmf`; run `tlmgr init-usertree` first if that tree does not exist):
+`tlmgr --usermode install abstract preprint enumitem footmisc lettrine newtx quoting titlesec xstring kastrup fontaxes tex-gyre txfonts`
 
 ## Contributing (humans and agents)
 

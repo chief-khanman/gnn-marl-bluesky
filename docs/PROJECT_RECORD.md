@@ -57,7 +57,7 @@ a running simulator.
 | ID | item | status | notes |
 |---|---|---|---|
 | INF-1 | repo init, submodules pinned, `.gitignore`, `pyproject.toml`, `CLAUDE.md` | **done** 2026-11-07 | both submodule hashes verified |
-| INF-2 | paper build (`new-aiaa.cls` + `latexmk`) | todo | class file not in repo. `latexmk` not installed on the dev machine |
+| INF-2 | paper build (`new-aiaa.cls` + `paper/render.sh`) | **done** 2026-11-25 (aadit-mbp) | `paper/render.sh` + VS Code task (no `latexmk` needed). Paper compiles with no undefined references. Other machines: install the TeX packages listed in README. `new-aiaa.cls` / `.bst` are committed in `paper/` (author's decision 2026-11-25: publicly available template files) |
 | INF-3 | `simulator/tests/test_api.py` (`parallel_api_test` in a subprocess) | todo | |
 | INF-4 | random-rollout sweeps n∈{3,5,10,20}; SubprocVectorEnv check | todo | |
 | INF-5 | QMIX smoke run, simple_spread sanity run | **in-progress** | QMIX smoke run passes in `.venv` (2026-11-09). simple_spread sanity run not done (needs `pettingzoo[mpe]`) |
@@ -450,3 +450,32 @@ touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete
   `eval_zero_shot.csv`; resubmit any dead task id (no resume, GAP-26). Authors to look at the QMIX loss before
   its numbers are used. Then aggregate per RUNBOOK §6 over a folder of symlinks to the run directories, and
   publish the checkpoints (Q-07 still open).
+- **2026-11-25 (4)** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · aadit-mbp · branch `gap_address` ·
+  INF-2 (part): added `paper/render.sh` (pdflatex → bibtex → pdflatex ×2; by-products go to
+  `$TMPDIR/gnn-marl-paper-build`, only `paper/main.pdf` is written to the repo and it is gitignored; opens
+  the PDF in a VS Code tab) and `.vscode/tasks.json` (default build task "Render paper", Cmd+Shift+B).
+  README build instructions updated. This machine has BasicTeX 2026 without `latexmk`, so the script does
+  not use it. **The paper itself was not compiled**: `new-aiaa.cls` is still missing, the script stops with
+  a message saying so. The script was exercised on a toy `article` document only (success, undefined
+  citation warning, and LaTeX error paths). Unknown until the class is present: whether BasicTeX has every
+  package the class needs, and whether `new-aiaa.bst` ships with the template.
+  Tests: T0 pass (before and after). T1/T2 not run (no Python code changed).
+  IDs: INF-2.
+  State: `gap_address`, uncommitted (committed with entry (5)). Nothing running.
+  Next: copy `new-aiaa.cls` (and `.bst`) into `paper/`, run `paper/render.sh`, install any missing
+  packages with `tlmgr`, then close INF-2. Otherwise unchanged from entry 2026-11-25 (3).
+- **2026-11-25 (5)** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · aadit-mbp · branch `gap_address` ·
+  INF-2: the author added `new-aiaa.cls` and `new-aiaa.bst` to `paper/` (untracked). `paper/render.sh` then
+  failed on `newtxtext.sty` not found: BasicTeX lacks packages the class loads. Installed into the user tree
+  (`tlmgr --usermode install`, no sudo): abstract, preprint (authblk), enumitem, footmisc, lettrine, newtx,
+  quoting, titlesec, xstring, kastrup, fontaxes, tex-gyre, txfonts. The paper now **compiles**: no LaTeX
+  errors, no undefined citations or references. Remaining output, not fixed here (S-18): one overfull hbox
+  (8.6 pt) in `03_background.tex`; BibTeX warnings for empty `pages` (10 entries) and empty `year`
+  (`cleanmarl`, `gat`, `gcn`, `gnn_marl`, `iql`, `qmix-gnn`), left as is under S-15. No paper text was
+  changed. README lists the package install line; the script's hint now points to it.
+  Tests: T0 pass (before and after). T1/T2 not run (no Python code changed).
+  IDs: INF-2, GAP-27 (the "not compiled" part is now met).
+  The author approved committing `new-aiaa.cls` / `.bst` (publicly available template files) with the
+  render script.
+  State: `gap_address`, committed and pushed to `origin` (see `git log`). Nothing running.
+  Next: fill the missing bibliography years from the publisher pages (S-15). Otherwise unchanged from entry 2026-11-25 (3) (Nova jobs still running).
