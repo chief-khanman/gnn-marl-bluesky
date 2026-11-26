@@ -1,33 +1,55 @@
 \section{Problem Formulation}
-\subsection{Cooperative UAS Collision Avoidance}
+\label{sec:problem}
+\subsection{Cooperative Conflict Resolution}
 \label{subsec:problem}
-We consider a fleet of $n$ cooperating UAS, each assigned a sequence of mission waypoints,
-operating in a shared airspace volume that also contains static obstacles and $m$
-non-cooperative intruders whose trajectories are not controlled and not known in advance.
-Each cooperating vehicle must track its waypoints while maintaining separation from
-obstacles, intruders, and other fleet members. The problem is a Markov game
-$\mathcal{M}=\langle\mathcal{S},\{\mathcal{A}^i\},\mathcal{P},\{r^i\},\gamma\rangle$
-with global state space $\mathcal{S}$, per-vehicle action spaces $\mathcal{A}^i$,
-transition kernel $\mathcal{P}$, per-vehicle rewards $r^i$, and discount factor
-$\gamma\in[0,1)$. The learning objective combines three terms: drive the
-loss-of-separation count toward zero, maximize the mission-completion rate, and minimize
-path length and time.
+We consider $n$ cooperating vehicles that fly at a common altitude in a shared airspace
+sector. Each vehicle $i$ is assigned its own waypoint and is controlled through a heading
+command and a speed command. Two vehicles $i$ and $j$ are in loss of separation (LoS) at a
+control step when their horizontal distance satisfies $d_{ij} < d_{\text{sep}}$, with
+$d_{\text{sep}} = 5$~NM. Each vehicle must fly toward its waypoint while the fleet avoids
+losses of separation.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- the extended
+% abstract's problem also contained static obstacles and m non-cooperative intruders with
+% unknown trajectories. They are not part of the present formulation.
 
-\subsection{Decentralized Broadcast Communication Model}
-Coordination between cooperating vehicles uses a decentralized broadcast channel. When
-any cooperating vehicle detects an intruder at time $t$, that detection is relayed to
-every other fleet member, but arrives subject to a latency $\delta$ that abstracts
-data-link range, bandwidth, and processing constraints. The channel is broadcast rather
-than point-to-point: a single detection informs the whole fleet, but never instantaneously.
-Each vehicle integrates the delayed messages with its own observations using a gated
-recurrent unit (GRU),
+The problem is a Dec-POMDP as defined in Section~\ref{subsec:decpomdp}. The state $s$
+contains the position, velocity, and waypoint-tracking error of every vehicle. Vehicle $i$
+observes its own tracking error and airspeed and the relative position and velocity of the
+vehicles inside its sensor radius $r_{\text{detect}}$. The action $a_i$ is one of 15
+discrete combinations of a heading change and a speed change
+(Section~\ref{subsec:env}). Each vehicle receives an individual reward $r_i$ that penalizes
+deviation from the bearing to its waypoint and penalizes every other vehicle closer than
+$d_{\text{sep}}$; the team reward used for learning is the mean over the fleet,
 \begin{equation}
-\label{eq:gru}
-h^i_t = \mathrm{GRU}\!\left(h^i_{t-1},\,[\,o^i_t,\,m^i_t\,]\right),
+\label{eq:team-reward}
+r = \frac{1}{n}\sum_{i=1}^{n} r_i .
 \end{equation}
-where $o^i_t$ is the local observation of vehicle $i$ and $m^i_t$ is the broadcast
-message received at time $t$. The recurrent hidden state $h^i_t$ lets each vehicle retain
-detection information across the latency interval, so that a delayed warning still informs
-avoidance behavior rather than being discarded. The communication latency $\delta$ is
-treated as an experimental variable rather than a fixed assumption.
+The mean is used instead of the sum so that the scale of the return does not grow with the
+fleet size. The number of vehicles is constant within an episode.
+% TODO(authors): mission-success definition (GAP-18). The extended abstract's objective named
+% a mission-completion rate and path length/time terms. The environment used here has no
+% per-vehicle completion event, so the objective is stated through the reward above and the
+% evaluation uses the conflict-free episode rate and the LoS rate as primary metrics.
 
+\subsection{Generalization Across Fleet Size}
+\label{subsec:generalization}
+Let $\mathcal{N}_{\text{train}}$ and $\mathcal{N}_{\text{test}}$ be two disjoint sets of fleet
+sizes. The goal is a single set of parameters $\theta$, trained only on episodes with
+$n\in\mathcal{N}_{\text{train}}$, that defines the individual action-value functions $Q_i$
+and can be executed without any change or further training on episodes with
+$n\in\mathcal{N}_{\text{test}}$. We call this zero-shot transfer across fleet size. In this
+paper $\mathcal{N}_{\text{train}}=\{3,6,9\}$ and $\mathcal{N}_{\text{test}}=\{10,20,50\}$.
+Zero-shot transfer requires that (a) the agent network accepts observations that describe
+any number of other vehicles, and (b) for joint training over $\mathcal{N}_{\text{train}}$,
+the centralized mixing function accepts any number of agents. Standard value-decomposition
+networks meet neither requirement (Section~\ref{subsec:monotonic}).
+
+\subsection{Communication}
+\label{subsec:communication}
+Execution uses no communication between vehicles: each vehicle acts on what its own sensor
+measures inside $r_{\text{detect}}$.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- the decentralized
+% broadcast channel with latency \delta and the GRU belief update
+%   h^i_t = GRU(h^i_{t-1}, [o^i_t, m^i_t])
+% (former Eq. (1), label eq:gru) were removed from the formulation. Note for restoration: one
+% control step of the environment is 5 s of simulated time (GAP-07).

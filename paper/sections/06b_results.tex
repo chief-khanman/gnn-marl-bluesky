@@ -1,0 +1,192 @@
+\section{Results and Discussion}
+\label{sec:results}
+% ---------------------------------------------------------------------------------------
+% This section is a skeleton. It contains NO measured numbers. Every table cell marked "--"
+% and every figure box is to be filled from the files written by
+%   tools/plot_results.py --runs-dir <dir> --out <dir>
+% namely summary_training.csv, summary_zero_shot.csv, the learning-curve figures and the
+% zero-shot scaling figure. Do not write interpretive text until those files exist (S-14, S-15).
+% ---------------------------------------------------------------------------------------
+The experiments of Section~\ref{sec:setup} have not yet been completed. This section fixes
+the structure in which the results will be reported; tables and figures are placeholders.
+
+\subsection{Main Results at the Training Fleet Sizes}
+\label{subsec:results-main}
+Figure~\ref{fig:learning-curves} will show the evaluation metrics during training at
+$n=3$, $n=6$, and $n=9$ for GNN-QMIX and the baselines, and Table~\ref{tab:main} will report
+the metrics of the final checkpoints. The question addressed here is hypothesis~(i) of
+Section~\ref{subsec:hypotheses}: whether one GNN-QMIX model trained jointly on the three
+sizes matches the baselines (VDN and IQL trained jointly on the $k$-nearest observation, and
+QMIX trained separately at each size).
+% TODO(results): learning curves from the learning-curve figures written by
+% tools/plot_results.py (source data: split = eval rows of each run's metrics.csv, aggregated
+% in summary_training.csv). One panel per training size; x = environment steps, y = LoS rate
+% (and conflict-free episode rate); one line per algorithm with the across-seed spread.
+% TODO(results): write the discussion paragraph for this subsection after the table is filled.
+
+\begin{figure}[hbt!]
+\centering
+\fbox{\parbox[c][0.18\textheight][c]{0.9\textwidth}{\centering
+Figure placeholder: learning curves at $n=3$, $n=6$, $n=9$ (results pending).}}
+% TODO(results): replace the box with the learning-curve figure(s) produced by
+% tools/plot_results.py, e.g. \includegraphics[width=\textwidth]{<file written to --out>}
+\caption{\label{fig:learning-curves} Evaluation metrics during training at the training
+fleet sizes for GNN-QMIX, VDN, and IQL (one model each, trained jointly on the three sizes) and for
+QMIX (one model per size). The horizontal axis is environment steps per fleet size. Placeholder; no results are shown.}
+\end{figure}
+
+\begin{table}[hbt!]
+\caption{\label{tab:main} Final performance at the training fleet sizes, 3 seeds. Cells are
+empty pending the experiments.}
+\centering
+\begin{tabular}{llcccc}
+\hline
+$n$ & Method & Conflict-free rate & LoS rate & Min. separation, NM & Mean abs. drift, deg \\
+\hline
+% TODO(results): every cell below from summary_training.csv (final evaluation point,
+% n_agents = 3; metrics conflict_free, los_rate, min_sep_nm, mean_abs_drift_deg).
+3 & GNN-QMIX & -- & -- & -- & -- \\
+3 & QMIX     & -- & -- & -- & -- \\
+3 & VDN      & -- & -- & -- & -- \\
+3 & IQL      & -- & -- & -- & -- \\
+\hline
+% TODO(results): as above with n_agents = 6 (summary_training.csv).
+6 & GNN-QMIX & -- & -- & -- & -- \\
+6 & QMIX     & -- & -- & -- & -- \\
+6 & VDN      & -- & -- & -- & -- \\
+6 & IQL      & -- & -- & -- & -- \\
+\hline
+% TODO(results): as above with n_agents = 9 (summary_training.csv).
+9 & GNN-QMIX & -- & -- & -- & -- \\
+9 & QMIX     & -- & -- & -- & -- \\
+9 & VDN      & -- & -- & -- & -- \\
+9 & IQL      & -- & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{table}
+% TODO(results): decide whether Table~\ref{tab:main} is filled from summary_training.csv (last
+% in-training evaluation) or from the eval_n in {3, 6, 9} rows of summary_zero_shot.csv (final
+% checkpoint evaluation); use one source consistently and name it in the caption.
+
+\subsection{Zero-Shot Transfer Across Fleet Size}
+\label{subsec:results-zeroshot}
+Table~\ref{tab:zeroshot} and Fig.~\ref{fig:zeroshot} will report the final checkpoints of
+GNN-QMIX, VDN, and IQL at $n\in\{3,6,9,10,20,50\}$ without retraining, in the fixed airspace
+and in the constant-density airspace. This is the test of the central hypothesis of
+Section~\ref{subsec:hypotheses}. QMIX appears as not evaluable at $n\in\{10,20,50\}$, which
+is a property of its architecture and not a measured outcome.
+% TODO(results): Table~\ref{tab:zeroshot} is for the fixed airspace (airspace = fixed rows of
+% summary_zero_shot.csv). Add the same table for airspace = density, and the
+% zero_shot_<metric>_fixed.png / zero_shot_<metric>_density.png figures side by side.
+% TODO(results): GNN-QMIX, VDN (vdn-k3) and IQL (iql-k3) cells from summary_zero_shot.csv
+% (status = ok; one column group per eval_n). QMIX cells at eval_n in {10, 20, 50} must
+% correspond to status = not_evaluable rows; QMIX cells at eval_n in {3, 6, 9} are the
+% per-size models (train_n = eval_n).
+% TODO(results): write the discussion paragraph (trend of each metric with n; relation to the
+% rising density at fixed sector size, Q-11) after the table is filled.
+
+\begin{table}[hbt!]
+\caption{\label{tab:zeroshot} Zero-shot evaluation across fleet size in the fixed airspace,
+3 seeds. GNN-QMIX, VDN, and IQL are trained jointly at $n\in\{3,6,9\}$; $n\in\{10,20,50\}$ are unseen. ``n/e'': not evaluable
+without retraining (fixed-size network). Cells marked ``--'' are empty pending the
+experiments.}
+\centering
+\begin{tabular}{llcccccc}
+\hline
+ & & \multicolumn{3}{c}{Training sizes} & \multicolumn{3}{c}{Unseen sizes} \\
+Metric & Method & $n=3$ & $n=6$ & $n=9$ & $n=10$ & $n=20$ & $n=50$ \\
+\hline
+% TODO(results): metric conflict_free (mean over episodes) from summary_zero_shot.csv.
+Conflict-free rate & GNN-QMIX & -- & -- & -- & -- & -- & -- \\
+                   & QMIX     & -- & -- & -- & n/e & n/e & n/e \\
+                   & VDN      & -- & -- & -- & -- & -- & -- \\
+                   & IQL      & -- & -- & -- & -- & -- & -- \\
+\hline
+% TODO(results): metric los_rate from summary_zero_shot.csv.
+LoS rate           & GNN-QMIX & -- & -- & -- & -- & -- & -- \\
+                   & QMIX     & -- & -- & -- & n/e & n/e & n/e \\
+                   & VDN      & -- & -- & -- & -- & -- & -- \\
+                   & IQL      & -- & -- & -- & -- & -- & -- \\
+\hline
+% TODO(results): metric los_events_per_agent from summary_zero_shot.csv.
+LoS events per agent & GNN-QMIX & -- & -- & -- & -- & -- & -- \\
+                   & QMIX     & -- & -- & -- & n/e & n/e & n/e \\
+                   & VDN      & -- & -- & -- & -- & -- & -- \\
+                   & IQL      & -- & -- & -- & -- & -- & -- \\
+\hline
+% TODO(results): metric mean_abs_drift_deg from summary_zero_shot.csv.
+Mean abs. drift, deg & GNN-QMIX & -- & -- & -- & -- & -- & -- \\
+                   & QMIX     & -- & -- & -- & n/e & n/e & n/e \\
+                   & VDN      & -- & -- & -- & -- & -- & -- \\
+                   & IQL      & -- & -- & -- & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[hbt!]
+\centering
+\fbox{\parbox[c][0.18\textheight][c]{0.9\textwidth}{\centering
+Figure placeholder: primary metrics against fleet size $n$ (results pending).}}
+% TODO(results): replace the box with the zero-shot scaling figure produced by
+% tools/plot_results.py (source data: summary_zero_shot.csv).
+\caption{\label{fig:zeroshot} Conflict-free episode rate and LoS rate against the evaluation
+fleet size for the final checkpoints. The training sizes are $n\in\{3,6,9\}$. Placeholder;
+no results are shown.}
+\end{figure}
+
+\subsection{Ablations}
+\label{subsec:results-ablations}
+The ablations are planned to isolate the following components; Table~\ref{tab:ablation} is
+the placeholder for their results.
+\begin{itemize}
+\item \emph{Hybrid layer.} PID + GNN-QMIX (stage~2) against GNN-QMIX (stage~1) and against
+      the PID controller alone, including the number of environment steps each learned
+      variant needs to reach a given level of the primary metrics (claim~2) and the
+      intervention count $I$.
+\item \emph{Mixer graph.} Fully connected agent graph against the sensor-radius agent graph
+      in the mixer (Section~\ref{subsec:mixer}), in particular at the unseen fleet sizes.
+\item \emph{Aggregation.} Mean against sum in Eq.~\eqref{eq:qtot}.
+\item \emph{Joint training.} Joint training at $n\in\{3,6,9\}$ against GNN-QMIX trained at
+      a single fleet size.
+\item \emph{Network components.} The GCN agent with the standard QMIX mixer, and the MLP
+      agent with the GAT mixer, each trained at a single fleet size. The first can still be
+      executed at other sizes, because the mixer is not used at execution time; the second
+      cannot, because the MLP agent is tied to the observation width.
+\end{itemize}
+% TODO(authors): confirm the ablation set. From the extended abstract: removal of the
+% conflict-resolution policy (PID only) and of the PID input, and sample efficiency against
+% end-to-end MARL. From plan G05.3: the mixer_graph and aggregation flags. The joint-training
+% and network-component ablations are proposals that mirror the TransfQMix ablation and are
+% not in an approved plan. The "PID input" ablation applies only if the stage-2 policy
+% receives the PID proposal (undecided, see Section~\ref{subsec:hybrid}).
+% TODO(results): ablation rows from summary_training.csv (training sizes) and
+% summary_zero_shot.csv (unseen sizes) of the corresponding ablation runs; stage-2 rows need
+% the intervention-count metric, which the current metric set does not yet emit.
+% TODO(results): write the discussion paragraph after the table is filled.
+
+\begin{table}[hbt!]
+\caption{\label{tab:ablation} Ablations, 3 seeds. ``n/e'': not evaluable without retraining.
+Cells marked ``--'' are empty pending the experiments.}
+\centering
+\begin{tabular}{lcccc}
+\hline
+ & \multicolumn{2}{c}{Training sizes, $n\in\{3,6,9\}$} & \multicolumn{2}{c}{Unseen sizes, $n\in\{10,20,50\}$} \\
+Variant & Conflict-free rate & LoS rate & Conflict-free rate & LoS rate \\
+\hline
+GNN-QMIX (stage 1, default)          & -- & -- & -- & -- \\
+PID + GNN-QMIX (stage 2)             & -- & -- & -- & -- \\
+PID only                             & -- & -- & -- & -- \\
+Mixer graph: sensor radius           & -- & -- & -- & -- \\
+Aggregation: sum                     & -- & -- & -- & -- \\
+Single-size training                 & -- & -- & -- & -- \\
+GCN agent + QMIX mixer (single size) & -- & -- & -- & -- \\
+MLP agent + GAT mixer (single size)  & -- & -- & n/e & n/e \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Discussion}
+\label{subsec:results-discussion}
+% TODO(results): discussion of the measured outcomes against the hypotheses of
+% Section~\ref{subsec:hypotheses} and Table~\ref{tab:expected}. No text until results exist.
+The discussion will be written once the results are available.

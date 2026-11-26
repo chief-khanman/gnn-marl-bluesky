@@ -1,93 +1,338 @@
-\section{Methodology}
-\subsection{GNN Encoder for Agent-Count-Agnostic Q-Network}
-\label{subsec:gnn}
-The fleet is represented as a graph $G=(V,E)$ with $|V|=n$. Each node $v^i \in V$
-carries the observation $o^i_t$, current action, received reward, velocity, and heading
-of vehicle $i$. Edges $e^{ij} \in E$ are constructed between vehicles within the
-detection radius $r_{\text{detect}}$ and carry edge features encoding relative quantities:
-Euclidean distance, relative heading angle, relative velocity, and time-to-closest-point-of-approach,
-which is particularly relevant for collision avoidance in shared airspace.
+\section{Method}
+\label{sec:method}
+GNN-QMIX has two networks (Fig.~\ref{fig:architecture}). The agent network is a GCN that
+every vehicle runs on its own observation graph to obtain an embedding $h_i$ and its
+individual action values $Q_i$. The mixer is a GAT over the graph of agents that is used
+only during training: it reads the embeddings $h_i$ together with the global entity state
+and generates the weights of a monotonic mixing function. The GAT makes the mixer
+independent of the number of agents; the GCN enriches each agent's observation before it
+reaches the mixer. Execution is decentralized: vehicle $i$ selects
+$a_i = \arg\max_{a} Q_i(o_i,a)$ from its own observation graph, and no network ever selects
+a joint action. Sections~\ref{subsec:entities}--\ref{subsec:training} specify stage~1 of
+the work (GNN-QMIX, learned end to end). Section~\ref{subsec:hybrid} describes stage~2
+(PID + GNN-QMIX).
 
-A message-passing GNN processes $G$ through $L$ layers of neighborhood aggregation.
-After $L$ layers, a global graph-level readout function --- implemented as a
-permutation-invariant pooling operation combining sum, max, and mean pooling across node
-embeddings --- produces a fixed-dimensional latent vector $z \in \mathbb{R}^d$,
+\begin{figure}[hbt!]
+\centering
+\fbox{\parbox[c][0.18\textheight][c]{0.9\textwidth}{\centering
+Figure placeholder: (a) GCN agent on the sensor-radius observation graph;
+(b) overall CTDE architecture; (c) monotonic GAT mixer.}}
+% TODO(authors): draw the architecture figure and replace the box with
+% \includegraphics[width=0.9\textwidth]{architecture}
+\caption{\label{fig:architecture} Architecture of GNN-QMIX. Each vehicle encodes its
+observation graph with a shared GCN to obtain $h_i$ and $Q_i$. During training, a GAT over
+the agent graph takes $[\mathbf{S}_i \,\Vert\, h_i]$ for every agent and generates the
+non-negative mixing weights $\mathbf{W}_1$, $\mathbf{W}_2$ and the biases $\mathbf{b}_1$,
+$b_2$ that combine the chosen $Q_i$ into $Q_{\text{tot}}$.}
+\end{figure}
+
+\subsection{Graph Observations and State}
+\label{subsec:entities}
+Following TransfQMix~\cite{transfqmix}, observations and the state are matrices with one row
+per entity and one column per feature type, instead of concatenated vectors. Features of
+the same type are then processed by the same weights for every entity, and the number of
+rows may change without changing any weight shape. The only entities in the present
+problem are the cooperating vehicles, and all features are kinematic.
+
+\textbf{Observation graph.} Vehicle $i$ senses the vehicles inside its sensor radius,
 \begin{equation}
-\label{eq:encoder}
-z = \mathrm{Readout}\!\left(\mathrm{GNN}(G)\right), \quad z \in \mathbb{R}^d,\; d \text{ independent of } n.
+\label{eq:neighbors}
+\mathcal{N}_i = \{\, j \neq i \;:\; d_{ij} \le r_{\text{detect}} \,\}.
 \end{equation}
-The latent vector $z$ is passed directly into the centralized Q-network, which therefore
-operates on a representation of constant dimension $d$ regardless of how many vehicles
-are active. The GNN encoder and the Q-network are trained jointly end-to-end. Because
-GNN message passing is permutation equivariant,
+Its observation graph $G_i=(V_i,E_i)$ has the node set $V_i=\{i\}\cup\mathcal{N}_i$. A vehicle
+is added to $G_i$ when it comes inside the sensor radius of vehicle $i$ and is removed when
+it leaves. Vehicle $i$ is joined to every node in $\mathcal{N}_i$. Two neighbors
+$j,k\in\mathcal{N}_i$ are joined when $d_{jk}\le r_{\text{detect}}$, which vehicle $i$ can
+compute from the two relative positions it measures. Every node has a self-loop. In contrast
+to TransfQMix, where the agent attends over all observable entities and learns the edge
+weights, the edges here are fixed by the sensor geometry.
+
+\textbf{Node features.} Each node carries 11 features, arranged as
+$[\,\text{own}\ (3)\;|\;\text{relative}\ (7)\;|\;\texttt{IS\_SELF}\ (1)\,]$. The self node
+holds the own features of vehicle $i$,
 \begin{equation}
-\label{eq:equivariance}
-\mathrm{GNN}(P \cdot G) = P \cdot \mathrm{GNN}(G)
+\label{eq:own}
+\big(\cos\chi_i,\ \sin\chi_i,\ v_i\big),
 \end{equation}
-for any permutation matrix $P$, and the readout is permutation invariant by construction,
-the latent $z$ is insensitive to agent ordering. By contrast, the QMIX mixing function
-$Q_{\text{tot}}(s,\mathbf{a})=f\!\left(Q_1,\dots,Q_n;s\right)$ has $n$ fixed input slots
-and cannot be evaluated at a fleet size other than the one it was trained on.
+where $\chi_i$ is the drift angle, that is, the difference between the heading of vehicle
+$i$ and the bearing to its waypoint, and $v_i$ is its normalized airspeed; it has
+\texttt{IS\_SELF}~$=1$ and zeros in the relative block. The node of a neighbor $j$ holds the
+relative features measured by vehicle $i$,
+\begin{equation}
+\label{eq:rel}
+\big(\Delta x_{ij},\ \Delta y_{ij},\ \Delta v^{x}_{ij},\ \Delta v^{y}_{ij},\
+\cos\psi_{ij},\ \sin\psi_{ij},\ d_{ij}\big),
+\qquad \psi_{ij} = \operatorname{atan2}\!\big(\Delta v^{y}_{ij},\,\Delta v^{x}_{ij}\big),
+\end{equation}
+with positions and velocities expressed in a local east--north frame and divided by fixed
+scales; it has \texttt{IS\_SELF}~$=0$ and zeros in the own block. The \texttt{IS\_SELF} flag
+is the one introduced by TransfQMix to mark the observing agent after the positional
+information of a concatenated vector is lost. The observation of vehicle $i$ is therefore
+the pair of an entity matrix and an adjacency matrix,
+\begin{equation}
+\label{eq:obs-matrix}
+\mathbf{O}_i \in \mathbb{R}^{(1+|\mathcal{N}_i|)\times 11},
+\qquad
+\mathbf{A}_i \in \{0,1\}^{(1+|\mathcal{N}_i|)\times(1+|\mathcal{N}_i|)} .
+\end{equation}
 
-To train the GNN encoder to be genuinely agent-count-agnostic, we employ a parallel
-training protocol in which environments with different fleet sizes
-$n \in \{2, 4, 8, 16, \ldots, n_{\max}\}$ contribute to a shared replay buffer. Gradient
-updates train the encoder jointly across all fleet sizes, forcing it to learn latent
-representations that are consistent and meaningful regardless of $n$.
+\textbf{State.} The global state used by the mixer is the entity matrix
+\begin{equation}
+\label{eq:state-matrix}
+\mathbf{S} \in \mathbb{R}^{n\times 7},
+\qquad
+\mathbf{S}_i = \big(x_i,\ y_i,\ v^{x}_i,\ v^{y}_i,\ \cos\chi_i,\ \sin\chi_i,\ v_i\big),
+\end{equation}
+where $(x_i,y_i)$ is the position of vehicle $i$ relative to the centroid of the fleet and
+$(v^x_i,v^y_i)$ is its ground velocity, with the same scaling as in the observation. The
+state has no \texttt{IS\_SELF} feature because it is not defined with respect to an agent.
 
-\subsection{Hybrid Control Architecture and Conditional MARL Activation}
+\subsection{GCN Agent}
+\label{subsec:agent}
+The agent network is shared by all vehicles. It embeds the node features with a linear
+layer, applies $L_{\text{GCN}}$ graph convolutional layers of the form of Eq.~\eqref{eq:gcn}
+on the observation graph, and reads the embedding of the self node:
+\begin{align}
+\label{eq:agent-embed}
+\mathbf{H}_i^{(0)} &= \mathrm{ReLU}\big(\mathbf{O}_i\,\mathbf{W}_{\text{emb}}\big),
+\qquad \mathbf{W}_{\text{emb}}\in\mathbb{R}^{11\times d_h},\\
+\label{eq:agent-gcn}
+\mathbf{H}_i^{(\ell+1)} &= \mathrm{ReLU}\Big(\mathbf{D}_i^{-1/2}\,\mathbf{A}_i\,\mathbf{D}_i^{-1/2}\,
+\mathbf{H}_i^{(\ell)}\,\mathbf{W}^{(\ell)}\Big),
+\qquad \ell = 0,\dots,L_{\text{GCN}}-1,\\
+\label{eq:agent-q}
+h_i &= \big[\mathbf{H}_i^{(L_{\text{GCN}})}\big]_{\text{self}},
+\qquad
+Q_i(o_i,\cdot) = \mathrm{MLP}_{Q}(h_i) \in \mathbb{R}^{|\mathcal{A}|}.
+\end{align}
+Here $\mathbf{A}_i$ already contains the self-loops and $\mathbf{D}_i$ is its degree matrix;
+bias terms are omitted. The embedding $h_i\in\mathbb{R}^{d_h}$ summarizes the local traffic
+situation of vehicle $i$ after $L_{\text{GCN}}$ rounds of message passing among the
+vehicles it senses. A vehicle outside the sensor radius is not a node of $G_i$ and cannot
+influence $Q_i$. The agent has no recurrent input: unlike the TransfQMix agent, it carries
+no hidden state between time steps.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- no GRU hidden
+% state enters the node features; recurrence belongs to the latency work.
+
+\subsection{Monotonic GAT Mixer}
+\label{subsec:mixer}
+The mixer operates on a graph with one node per agent. The input feature of node $i$ is the
+concatenation of its state row and its agent embedding,
+\begin{equation}
+\label{eq:mixer-input}
+x_i = \big[\,\mathbf{S}_i \,\Vert\, h_i\,\big] \in \mathbb{R}^{7+d_h},
+\end{equation}
+and gradients of the loss flow through $h_i$ into the agent network. In the default
+configuration the agent graph is fully connected and the attention coefficients of
+Eq.~\eqref{eq:gat-alpha} determine how much each agent contributes to another, as in the
+TransfQMix mixer; an alternative configuration joins two agents only when
+$d_{ij}\le r_{\text{detect}}$ on the true positions. The node features are embedded and
+passed through $L_{\text{GAT}}$ multi-head graph attention layers
+(Eqs.~\eqref{eq:gat-alpha}--\eqref{eq:gat}),
+\begin{equation}
+\label{eq:mixer-gat}
+g_i^{(0)} = \mathrm{ReLU}\big(\mathbf{W}_{x}\,x_i\big),
+\qquad
+g_i^{(\ell+1)} = g_i^{(\ell)} + \mathrm{ELU}\Big(\big[\mathrm{GAT}^{(\ell)}\big(g^{(\ell)}_1,\dots,g^{(\ell)}_n\big)\big]_i\Big),
+\qquad
+g_i = g_i^{(L_{\text{GAT}})} \in \mathbb{R}^{d_h}.
+\end{equation}
+% NOTE: the residual connection and the ELU in Eq. (mixer-gat) follow
+% algorithms/gnn_qmix/networks.py as read on 2026-11-25; the plan (G05.3 section 3.3) only
+% states "gat_layers layers of multi-head GAT". TODO(authors): confirm.
+The node embedding $g_i$ combines the local reasoning of agent $i$ with information the
+agent did not have, namely the embeddings of the other agents and the true state. The
+mixing terms of Eq.~\eqref{eq:qmix} are generated from the node embeddings as follows:
+\begin{align}
+\label{eq:w1}
+\mathbf{W}_{1,i} &= \big|\,\mathrm{Linear}_{W_1}(g_i)\,\big| \in \mathbb{R}^{d_m}
+&&\text{(one row per agent)},\\
+\label{eq:readout}
+p &= \Big[\;\frac{1}{n}\sum_{i=1}^{n} g_i \;\Big\Vert\; \max_{i} g_i\;\Big] \in \mathbb{R}^{2d_h}
+&&\text{(fixed size for any } n\text{)},\\
+\label{eq:b1w2b2}
+\mathbf{b}_1 &= \mathrm{Linear}_{b_1}(p), \qquad
+\mathbf{W}_2 = \big|\,\mathrm{Linear}_{W_2}(p)\,\big|, \qquad
+b_2 = \mathrm{MLP}_{b_2}(p),
+\end{align}
+where the maximum in Eq.~\eqref{eq:readout} is taken elementwise over the agents and
+$|\cdot|$ is the elementwise absolute value. The joint action value is
+\begin{equation}
+\label{eq:qtot}
+Q_{\text{tot}} = \mathrm{ELU}\Big(\frac{1}{n}\sum_{i=1}^{n} Q_i(o_i,a_i)\,\mathbf{W}_{1,i} + \mathbf{b}_1\Big)\cdot\mathbf{W}_2 + b_2 .
+\end{equation}
+Equation~\eqref{eq:qtot} is the QMIX mixer of Eq.~\eqref{eq:qmix} with two changes. First,
+row $i$ of $\mathbf{W}_1$ is produced from the node embedding of agent $i$ by a layer that
+is shared by all agents, so $\mathbf{W}_1$ has $n$ rows without any layer of size $n$; this
+is the mechanism of TransfQMix. Second, the sum over agents is replaced by a mean. The
+terms $\mathbf{b}_1$, $\mathbf{W}_2$, and $b_2$ come from the readout $p$ instead of the
+recurrent tokens that TransfQMix adds to its mixer graph. The readout uses the mean and the
+maximum, not the sum, so its scale does not grow with $n$. With mean aggregation in
+Eq.~\eqref{eq:qtot} and the team reward of Eq.~\eqref{eq:team-reward}, $Q_{\text{tot}}$
+stays on one scale for every fleet size. Aggregation by sum is available as a configuration
+option.
+
+\subsection{Properties}
+\label{subsec:properties}
+The two properties below follow directly from Eqs.~\eqref{eq:agent-embed}--\eqref{eq:qtot}.
+They restate theoretical claim~1 of Section~\ref{sec:intro}.
+
+\textbf{Proposition 1 (monotonicity and IGM).}
+For every fleet size $n\ge 1$, every state, and every joint observation, the mixer of
+Eq.~\eqref{eq:qtot} satisfies $\partial Q_{\text{tot}}/\partial Q_i \ge 0$ for all $i$.
+Consequently the joint action formed by the individual greedy actions
+$a_i = \arg\max_{a}Q_i(o_i,a)$ maximizes $Q_{\text{tot}}$, that is, Eq.~\eqref{eq:igm} holds.
+
+\textit{Proof sketch.} Let $\mathbf{z} = \frac{1}{n}\sum_i Q_i\,\mathbf{W}_{1,i} + \mathbf{b}_1$
+and write $[\cdot]_k$ for the $k$-th component. The quantities $\mathbf{W}_{1,i}$,
+$\mathbf{b}_1$, $\mathbf{W}_2$, and $b_2$ are functions of $\mathbf{S}$ and of
+$h_1,\dots,h_n$, and each $h_i$ is a function of the observation $o_i$ only, so none of them
+depends on the selected actions. For a fixed state and joint observation, the chain rule
+gives
+\begin{equation}
+\label{eq:dqtot}
+\frac{\partial Q_{\text{tot}}}{\partial Q_i}
+= \frac{1}{n}\sum_{k=1}^{d_m} \mathrm{ELU}'\big([\mathbf{z}]_k\big)\,[\mathbf{W}_{1,i}]_k\,[\mathbf{W}_2]_k .
+\end{equation}
+The derivative of the ELU is positive, and $[\mathbf{W}_{1,i}]_k\ge 0$ and
+$[\mathbf{W}_2]_k\ge 0$ because of the absolute values in Eqs.~\eqref{eq:w1}
+and~\eqref{eq:b1w2b2}, so every term of the sum is non-negative. This holds for any $n$
+because $n$ enters only through the positive factor $1/n$ and the number of rows
+$\mathbf{W}_{1,i}$. A function that is non-decreasing in each argument $Q_i$ attains its
+maximum over joint actions when each $Q_i(o_i,a_i)$ is maximized separately, which is the
+argument used for QMIX~\cite{qmix}. The same derivation holds with aggregation by sum.
+
+\textbf{Proposition 2 (fleet-size independence and permutation symmetry).}
+(a) No parameter of the agent network or of the mixer has a dimension that depends on the
+fleet size $n$ or on the number of neighbors $|\mathcal{N}_i|$, so the same parameters
+$\theta$ define $Q_i$ and $Q_{\text{tot}}$ for every $n$. (b) $Q_i$ does not depend on the
+order in which the neighbors of vehicle $i$ are listed. (c) $Q_{\text{tot}}$ does not depend
+on the order in which the agents are listed.
+
+\textit{Proof sketch.} (a) The learned parameters are $\mathbf{W}_{\text{emb}}$
+($11\times d_h$), the GCN weights $\mathbf{W}^{(\ell)}$ ($d_h\times d_h$), the output
+network $\mathrm{MLP}_Q$ (input $d_h$, output $|\mathcal{A}|$), the mixer embedding
+$\mathbf{W}_x$ (input $7+d_h$, output $d_h$), the GAT parameters (functions of $d_h$ and
+the number of heads), and the layers in Eqs.~\eqref{eq:w1} and~\eqref{eq:b1w2b2} (inputs
+$d_h$ or $2d_h$, outputs $d_m$ or $1$). Each is applied either to one node at a time or to
+the fixed-size readout $p$, and the operations that combine nodes (the normalized adjacency
+product, the attention-weighted sum, the mean, and the maximum) are defined for any number
+of nodes. (b) By the permutation equivariance of the GCN layer
+(Section~\ref{subsec:gnn-background}), reordering the neighbor nodes reorders the rows of
+$\mathbf{H}_i^{(\ell)}$ in the same way and leaves the content of the self-node row, which is
+the only row that is read out, unchanged. (c) Reordering the agents by
+$\mathbf{P}$ reorders the inputs $x_i$ and, by the equivariance of the GAT layers, the
+embeddings $g_i$ and the rows $\mathbf{W}_{1,i}$ in the same way. The mean and the maximum
+in Eq.~\eqref{eq:readout} and the mean in Eq.~\eqref{eq:qtot} are symmetric functions, so
+$p$, $\mathbf{b}_1$, $\mathbf{W}_2$, $b_2$, and $Q_{\text{tot}}$ are unchanged.
+
+Proposition~2 states that the model can be evaluated at any $n$; it does not state that the
+values it produces at an unseen $n$ are accurate. Whether the learned policy remains
+effective at larger fleet sizes is an empirical question, addressed in
+Section~\ref{subsec:results-zeroshot}.
+
+\subsection{Training Over Several Fleet Sizes}
+\label{subsec:training}
+Because the parameters are independent of $n$ (Proposition~2), one model is trained on
+several fleet sizes at once. For each training size $n\in\mathcal{N}_{\text{train}}$ there is
+one environment process and one replay buffer $\mathcal{D}_n$ of single transitions
+$(\mathbf{S},\mathbf{o},\mathbf{a},r,\mathbf{S}',\mathbf{o}',e)$. In every iteration of the
+training loop each environment advances by one step with $\epsilon$-greedy decentralized
+action selection. In every update one batch is drawn from each buffer, the loss of
+Eq.~\eqref{eq:td} is evaluated separately for each fleet size, and the losses are summed
+before a single optimizer step:
+\begin{equation}
+\label{eq:joint-loss}
+\mathcal{L}(\theta) = \sum_{n\in\mathcal{N}_{\text{train}}} \mathcal{L}_n(\theta),
+\qquad
+\mathcal{L}_n(\theta) = \mathbb{E}_{\mathcal{D}_n}\Big[\big(y - Q_{\text{tot}}(\mathbf{S},\mathbf{o},\mathbf{a};\theta)\big)^2\Big].
+\end{equation}
+Each batch contains transitions of a single fleet size, so no padding of the agent
+dimension is needed. The target is the one-step target of Eq.~\eqref{eq:td},
+\begin{equation}
+\label{eq:target}
+y = r + \gamma\,(1-e)\,Q_{\text{tot}}\big(\mathbf{S}',\mathbf{o}',\mathbf{a}^{\star};\theta^-\big),
+\qquad
+a^{\star}_i = \arg\max_{a} Q_i(o'_i,a;\theta^-),
+\end{equation}
+where the maximization over joint actions is carried out per agent, which is exact by
+Proposition~1. The target parameters follow the online parameters by Polyak averaging,
+$\theta^- \leftarrow \tau\,\theta + (1-\tau)\,\theta^-$. Bootstrapping stops only on
+termination ($e=1$) and not when an episode is truncated by a time limit.
+
+TransfQMix reports zero-shot transfer from models trained at one team size and a curriculum
+over team sizes; the scheme above instead mixes the fleet sizes within every update.
+
+\subsection{Hybrid Control: PID + GNN-QMIX}
 \label{subsec:hybrid}
-Each vehicle operates under a nominal PID controller $\pi_{\text{PID}}^i$ that computes
-control actions --- thrust, pitch, roll, and yaw rate --- to track the assigned waypoint.
-The PID action carries an explicit, interpretable signal of mission progress; supplying
-it as part of the conflict-resolution policy input is expected to improve sample
-efficiency relative to end-to-end MARL, in which the learner must discover waypoint
-tracking and collision avoidance jointly.
+Stage~2 places the learned policy inside a hybrid controller. A nominal controller tracks
+the waypoint of each vehicle, and the learned conflict-resolution policy takes over a
+vehicle only while that vehicle has traffic inside its sensor radius. Both act through the
+same interface: a heading command and a speed command to the simulator (\texttt{HDG} and
+\texttt{SPD} in BlueSky).
 
-When no other vehicle or intruder lies within the detection radius $r_{\text{detect}}$,
-control authority remains with the PID controller and the MARL policy is inactive.
-When any other agent enters $r_{\text{detect}}$, the conflict-resolution policy
-$\pi_{\text{MARL}}$ activates. It constructs the fleet interaction graph $G$ from the
-current sensor readings, computes the latent $z$ via the GNN encoder of
-Eq.~\eqref{eq:encoder}, queries the centralized Q-network to select the optimal joint
-corrective action, and issues those corrective actions directly to the vehicle, overriding
-the PID output. The final action for each vehicle is therefore
+\textbf{Nominal controller.} Each vehicle runs a PID controller $\pi_{\text{PID}}$ that
+tracks its waypoint. At every control step the controller proposes a command
+$a_i^{\text{PID}}$ consisting of a heading that turns the vehicle toward its waypoint and a
+speed.
+% TODO(authors): the PID law is not yet specified (next plan, "PID + GNN-QMIX", goals
+% G05.5--G05.9). To decide: the error signal (the drift angle \chi_i of Eq. (eq:own) is the
+% natural candidate); the gains K_P, K_I, K_D; the speed law (hold the nominal speed?);
+% and whether the PID output is a continuous HDG/SPD command or is quantized to the same 15
+% discrete actions as the learned policy (GAP-12).
+
+\textbf{Activation rule.} The learned policy is active for vehicle $i$ when the observation
+graph of that vehicle contains at least one neighbor,
+\begin{equation}
+\label{eq:activation}
+c_i = \mathbf{1}\big[\,|\mathcal{N}_i| \ge 1\,\big],
+\end{equation}
+with $\mathcal{N}_i$ from Eq.~\eqref{eq:neighbors}. The command applied to the vehicle is
 \begin{equation}
 \label{eq:switching}
-a^i_{\text{final}} =
+a^{\text{final}}_i =
 \begin{cases}
-\pi_{\text{MARL}}(G,\,\mathbf{a}_{\text{PID}})^i, & s^i < \theta,\\[2pt]
-a^i_{\text{PID}}, & s^i \ge \theta,
+\arg\max_{a} Q_i(o_i,a), & c_i = 1,\\[2pt]
+a^{\text{PID}}_i, & c_i = 0.
 \end{cases}
 \end{equation}
-where $s^i = f_{\text{GNN}}(G)^i$ is a learned safety score derived from the GNN node
-embedding of vehicle $i$, and $\theta$ is the intervention threshold. The conflict-resolution
-policy $\pi_{\text{MARL}}$ takes both the graph $G$ and the vector of locally proposed PID
-actions $\mathbf{a}_{\text{PID}} = [\pi_{\text{PID}}^1(o_1), \ldots, \pi_{\text{PID}}^n(o_n)]$
-as input, so the MARL controller learns to issue corrective commands relative to the
-reactive baseline rather than reconstruct waypoint-tracking behavior from scratch. The
-conflict-resolution policy is reinforced with a positive reward for reducing
-loss-of-separation events and a cost for each intervention, so that overriding the PID
-action is reinforced only when the override produces a materially safer trajectory.
+The rule that adds a vehicle to an observation graph is therefore also the trigger of the
+learned policy: the policy acts exactly when its input graph is non-trivial. The rule is
+evaluated per vehicle from that vehicle's own sensor data, so the hybrid controller remains
+decentralized and needs no communication. When the last neighbor leaves the sensor radius,
+$c_i$ returns to zero and control returns to the PID controller.
+% NOTE (confirmed by the authors 2026-11-25, D-031): the extended abstract switched on a learned safety score
+% s^i < \theta with \theta calibrated from a control barrier function. By the 2026-11-25
+% decision the switching rule is the sensor radius; the safety score is mentioned only as a
+% possible extension in the conclusion.
+% TODO(authors): the extended abstract supplied the vector of PID proposals a_PID to the
+% learned policy as an input (so that it learns corrections relative to the PID). Whether the
+% stage-2 policy receives a_i^PID (for example as an extra node feature) is not decided; the
+% text above does not assume it.
 
-The expected number of interventions per episode satisfies $\mathbb{E}[I] \ll T$, which
-is the basis of claim~2: the conflict-resolution policy need not reason about the joint
-action at every step, reducing the effective decision space and computational cost at
-deployment while keeping the intervention condition interpretable and verifiable.
-When the detected conflict is resolved and no other agent remains within $r_{\text{detect}}$,
-control authority returns automatically to the PID controller. The continuity of this
-handoff --- whether the transition from MARL-issued corrective actions to PID-issued
-waypoint-tracking actions produces discontinuous commands --- is characterized as part of
-the experimental program.
+\textbf{Intervention count.} The number of interventions in an episode of $T$ control steps
+is the number of vehicle-steps in which the learned policy is active,
+\begin{equation}
+\label{eq:interventions}
+I = \sum_{t=1}^{T}\sum_{i=1}^{n} c_i^{\,t},
+\qquad 0 \le I \le nT ,
+\end{equation}
+and $I/(nT)$ is the intervention frequency.
+% TODO(authors): confirm this definition of I (vehicle-steps with c_i = 1). The plan (G05.3
+% section 3.5) lists intervention frequency as "not defined here: needs the PID layer".
+The learner produces actions only for these $I$ vehicle-steps, while the remaining
+$nT - I$ are handled by the fixed controller. Theoretical claim~2 of
+Section~\ref{sec:intro} is the hypothesis that this restriction makes the learning problem
+easier than in stage~1, where the policy must also learn waypoint tracking.
 
-\subsection{Conflict-Resolution Policy Learning}
-Because the local controller is a fixed PID law, the only learned component is the
-conflict-resolution policy $\pi_{\text{MARL}}$, and training is a single-level
-reinforcement learning problem rather than a joint optimization over two learned levels.
-The GRU hidden state $h^i_t$ from Eq.~\eqref{eq:gru} is included as a node feature in
-$G$ at each timestep, so the GNN encoder aggregates both instantaneous spatial
-relationships and temporally accumulated broadcast detection information when computing
-the latent $z$. This integration of spatial and temporal information in the encoder is
-expected to improve deconfliction quality in the presence of communication latency
-$\delta > 0$.
-
+\textbf{Training in the hybrid setting.} The networks, the mixer, and the loss are those of
+stage~1. Several details of how the hybrid controller interacts with the TD update are not
+yet decided and are not assumed here.
+% TODO(authors): decide how transitions with no active vehicle (c_i = 0 for all i) are used
+% in training: discarded, or stored with the PID actions (GAP-15).
+% TODO(authors): decide how Q_tot is formed when only some vehicles are active: mix over all
+% vehicles with the PID action treated as the taken action, or over the active subset only.
+% TODO(authors): decide whether an intervention cost is added to the reward (the extended
+% abstract stated a cost per intervention) and its value.
+% TODO(authors): the extended abstract planned to characterize the continuity of the handoff
+% between learned commands and PID commands; decide whether this stays in scope.

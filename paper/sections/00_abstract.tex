@@ -1,20 +1,31 @@
+% TODO(authors): confirm UAS vs ATM framing (Q-01). The motivation is written for UAS/AAM
+% operations; the experiments use BlueSky transport aircraft and are described as such.
 \begin{abstract}
-We propose a hybrid multi-agent reinforcement learning (MARL) framework for cooperative
-collision avoidance in uncrewed aircraft system (UAS) operations that remains invariant to
-the number of vehicles $n$ sharing an airspace volume. Centralized-training,
-decentralized-execution (CTDE) methods have mixing or critic networks whose input
-dimensionality is fixed at the training team size, and therefore require retraining when
-$n$ changes. The proposed architecture instead pairs a fixed proportional--integral--derivative
-(PID) controller, which drives each vehicle toward its assigned waypoint, with a
-conditionally activated conflict-resolution policy that overrides the PID output only when
-an intruder enters a vehicle's detection radius. The conflict-resolution policy is built on
-a permutation-equivariant graph neural network (GNN) encoder that maps the fleet
-interaction graph $G$ to a fixed-size latent vector, decoupling the downstream centralized
-Q-network from fleet size and enabling zero-shot generalization to fleet sizes not seen
-during training. Inter-vehicle coordination uses a decentralized broadcast channel in which
-an intruder detection is relayed to the fleet subject to a latency $\delta$, integrated by
-each vehicle through a gated recurrent unit (GRU). We present the technical foundation,
-three theoretical claims, an experimental design against QMIX, MAPPO, and Graph Control
-Barrier Function baselines, and the expected outcomes, the central one being improved
-zero-shot generalization to larger fleets.
+Cooperative conflict resolution for uncrewed aircraft system (UAS) and Advanced Air Mobility
+operations requires a coordination policy that keeps working when the number of vehicles $n$
+in an airspace volume changes. Value-based multi-agent reinforcement learning methods that
+follow centralized training with decentralized execution (CTDE), such as QMIX, use agent
+and mixing networks whose input sizes are fixed by the training team size, so a trained
+model cannot be evaluated at another $n$. We present GNN-QMIX, a monotonic value-decomposition
+method that follows the entity-graph principle of TransfQMix and replaces its transformers
+with two graph neural networks. Each vehicle builds an observation graph from the vehicles
+inside its sensor radius $r_{\text{detect}}$; a shared graph convolutional network (GCN)
+encodes this graph into an embedding $h_i$ and the individual action values $Q_i$. During
+training only, a graph attention network (GAT) over the agent graph takes the embeddings
+and the global entity state and generates the weights of a monotonic mixer, one weight row
+per agent, with fixed-size mean and max readouts for the remaining terms. No parameter has
+a dimension that depends on $n$, and the mixer is monotonic in every $Q_i$ for every $n$, so
+each vehicle acts greedily on its own $Q_i$ at execution time and the same parameters can
+be trained jointly at several fleet sizes. A second stage adds a hybrid layer in which a
+PID waypoint-tracking controller issues the heading and speed commands of a vehicle and the
+learned policy overrides it only while another vehicle is inside the sensor radius. We
+specify an evaluation in the BlueSky air traffic simulator with joint training at
+$n\in\{3,6,9\}$, zero-shot evaluation at $n\in\{10,20,50\}$, and QMIX, VDN, and IQL as
+baselines. VDN and IQL are given a fixed-width observation of the three nearest aircraft so that
+they, too, can be evaluated at unseen fleet sizes; QMIX, whose mixing network is tied to the
+training fleet size, is trained per size. The hypothesis under test is that the proposed
+method keeps its loss-of-separation performance at the unseen fleet sizes better than these
+baselines.
+% TODO(results): replace the last two sentences with the measured findings once
+% summary_training.csv and summary_zero_shot.csv (tools/plot_results.py) exist.
 \end{abstract}

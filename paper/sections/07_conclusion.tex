@@ -1,27 +1,55 @@
 \section{Conclusion}
-We have described a hybrid MARL framework for cooperative UAS collision avoidance in which
-a PID local controller is paired with a conditionally activated conflict-resolution policy.
-The conflict-resolution policy is a permutation-equivariant GNN encoder that maps the
-fleet interaction graph to a fixed-size latent vector of dimension $d$, independent of the
-number of active vehicles $n$, which is passed to the centralized Q-network. The Q-network
-is therefore structurally decoupled from fleet size: it accepts a representation of constant
-dimension regardless of how many UAVs are operating, enabling zero-shot deployment across
-fleet compositions not seen during training. When an intruder is detected within the
-detection radius of any cooperating vehicle, the conflict-resolution policy activates,
-queries the Q-network via the GNN-encoded latent, and issues corrective control actions
-that override the PID output for the duration of the conflict. When the conflict is
-resolved, control returns to the PID controller. Inter-vehicle coordination is carried
-over a decentralized broadcast channel with latency $\delta$, integrated by each vehicle
-through a GRU. This architecture is of direct relevance to AAM operations where fleet
-composition changes continuously and a policy that requires retraining at each fleet size
-is operationally infeasible. The simulation environment, controllers, communication
-channel, GNN encoder, and Q-network are under active implementation. The final manuscript
-will deliver formal proofs of the three theoretical claims, full statistical evaluation
-against QMIX, MAPPO, and GCBF, zero-shot generalization curves across fleet size,
-latency-sensitivity analysis, ablations, and a quantitative analysis of emergent
-coordination. Known limitations anticipated for the final work are that the latency
-analysis is expected to be empirical and will be tightened where possible, experiments
-are planned in two-dimensional navigation with extension toward three-dimensional UAS
-dynamics, and the method does not provide a formal safety certificate; integration with
-certificate-based control is identified as future work.
+\label{sec:conclusion}
+We have presented GNN-QMIX, a value-decomposition method for cooperative conflict
+resolution whose parameters do not depend on the number of vehicles. Following the
+entity-graph principle of TransfQMix, observations and the state are entity matrices. A
+GCN shared by all vehicles encodes each vehicle's sensor-radius observation graph into an
+embedding and its individual action values, and a GAT over the agent graph generates the
+weights of a monotonic mixer from those embeddings and the global state. The mixer
+satisfies the QMIX monotonicity condition at every fleet size and is used only in training;
+at execution each vehicle acts greedily on its own action values. The same parameters can
+therefore be trained jointly at several fleet sizes and executed at others. A second stage
+places the learned policy in a hybrid controller, in which a PID waypoint-tracking law
+issues the heading and speed commands and the learned policy overrides it for a vehicle
+only while another vehicle is inside that vehicle's sensor radius.
 
+The evaluation protocol uses the BlueSky simulator with joint training at $n\in\{3,6,9\}$,
+zero-shot evaluation at $n\in\{10,20,50\}$, and QMIX, VDN, and IQL as baselines. The results
+are not yet available; the expectations stated in this paper are hypotheses.
+% TODO(results): replace the previous sentence with a summary of the measured outcomes
+% (summary_training.csv, summary_zero_shot.csv) and state which hypotheses of
+% Section~\ref{subsec:hypotheses} were supported.
+
+\textbf{Limitations and future work.} The present method and experiments leave out several
+elements of the original problem statement. (i) Communication: there is no broadcast
+channel, no communication latency, and no recurrent belief state; each vehicle acts on its
+current sensor data only, and the characterization of performance against latency is
+future work.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- latency \delta,
+% broadcast channel, GRU belief, and theoretical claim 3.
+(ii) Non-cooperative traffic and obstacles: every aircraft in the experiments is a
+cooperating agent, and there are no static obstacles.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- intruders and
+% static obstacles.
+(iii) Actions: the learned policy selects among 15 discrete heading and speed changes;
+continuous actions, and the continuous-action baselines they would permit, are not
+considered.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- continuous
+% actions, MAPPO and GCBF baselines.
+(iv) Vehicle model: the experiments use a point-mass transport aircraft model at a single
+flight level with a 5~NM separation minimum. The method is motivated by UAS and AAM
+operations, but no UAS dynamics, separation standards, or vertical maneuvers are evaluated.
+% TODO(authors): confirm UAS vs ATM framing (Q-01).
+(v) Density: the zero-shot tests keep the sector size fixed, so fleet size and traffic
+density change together and their effects are not separated. (vi) Safety: the method does
+not provide a formal safety certificate, and the activation rule of the hybrid controller
+is a distance threshold. A possible extension is to replace the radius trigger by a learned
+safety score computed from each vehicle's node embedding, with a threshold calibrated
+against a control barrier function condition such as that of GCBF~\cite{gcbf}, which would
+connect the switching logic to certificate-based control.
+% NOTE (confirmed by the authors 2026-11-25, D-031): that the learned safety score s^i / CBF-calibrated threshold \theta
+% should be presented as a possible extension (it was the switching rule of the extended
+% abstract).
+(vii) The details of training in the hybrid stage, the PID law, and the definition of a
+per-vehicle mission-success metric for this environment remain to be fixed.
+% TODO(authors): mission-success definition (GAP-18).

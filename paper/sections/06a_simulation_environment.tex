@@ -1,0 +1,76 @@
+\subsection{Simulation Environment}
+\label{subsec:env}
+% Facts in this subsection are taken from
+% simulator/third_party/bluesky-gym/bluesky_zoo/sector_cr/sector_cr.py,
+% marl/interfaces/bluesky_interface.py and marl/interfaces/observation.py.
+We use the open-source BlueSky air traffic simulator~\cite{bluesky} through the
+multi-agent \texttt{sector\_cr} (sector conflict resolution) environment of a
+PettingZoo~\cite{pettingzoo} fork of BlueSky-Gym~\cite{bluesky-gym}.
+
+\textbf{Scenario.} At the start of an episode a polygonal sector is generated at random:
+vertices are sampled on a circle whose area is 3750~NM$^2$ until the polygon they span has
+an area of at least 2400~NM$^2$, so the sector area lies between 2400 and 3750~NM$^2$. The
+$n$ aircraft are placed at uniformly random positions inside the sector, subject to a minimum
+initial separation of 6~NM between every pair (rejection sampling; a new sector is drawn if
+the fleet cannot be placed). The original environment has no such constraint and can start an
+episode with pairs already closer than the 5~NM separation minimum; with the constraint no
+episode starts in loss of separation, so every loss of separation that is counted occurred
+under the policy being evaluated. Each aircraft is
+assigned its own exit waypoint: a point is sampled on the sector boundary and moved outward
+along the ray from the sector center to ten times its distance, and the aircraft is
+initialized with its heading toward that waypoint. All aircraft use BlueSky's point-mass
+performance model of an Airbus A320, are created at the same flight level (FL350) and with
+the same initial speed, and remain at that level, so conflicts are resolved in the
+horizontal plane. The fleet size $n$ is fixed within an episode.
+
+\textbf{Airspace scaling.} We use two rules for the sector size. In the \emph{fixed} airspace
+the sector area range is the original one for every $n$, so the traffic density grows in
+proportion to $n$. In the \emph{constant-density} airspace the area range is multiplied by
+$n/n_{\text{ref}}$ with $n_{\text{ref}}=9$, the largest training fleet size, so the density
+equals that of the fixed airspace at $n=9$ for every $n$. Training uses the fixed airspace;
+the zero-shot evaluation is run in both (Section~\ref{subsec:protocol}). The two rules
+separate two effects that the fixed airspace confounds: more vehicles, and more vehicles per
+unit area.
+% TODO(authors): verify altitude and speed units. The source defines ALTITUDE = 350 ("In FL")
+% and AC_SPD = 150 and passes both directly to bs.traf.cre(); whether that call interprets
+% them as FL/kt or m/(m/s) should be checked before the paper states an initial speed value.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- no static obstacles
+% and no non-cooperative intruders are present; all aircraft are cooperating agents.
+
+\textbf{Actions.} The environment applies an action as a change of the current heading and
+of the current speed and sends the result to the simulator as BlueSky \texttt{HDG} and
+\texttt{SPD} commands. The learned policy uses 15 discrete actions, the product of five
+heading changes, $\{-22.5^\circ,\,-11.25^\circ,\,0^\circ,\,+11.25^\circ,\,+22.5^\circ\}$, and
+three speed changes, $\{-\Delta v,\,0,\,+\Delta v\}$, where $\Delta v$ is the environment's
+speed increment. One control step applies the commands and advances the simulation by five
+steps of 1~s, that is, 5~s of simulated time.
+% TODO(authors): state the value and unit of \Delta v. The source sets D_VELOCITY = 20/3 with
+% the comment "kts", but adds it to bs.traf.cas before multiplying by the m/s-to-kt factor.
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12) -- continuous actions
+% and thrust/pitch/roll/yaw-rate (six-degree-of-freedom) control are not used.
+
+\textbf{Observations and state.} The quantities of Section~\ref{subsec:entities} are computed
+from the simulator's aircraft positions and ground-velocity components. Relative positions
+use a local flat-earth frame ($x$ east, $y$ north). Positions and distances are divided by
+50~km and velocities by 150~m/s. The own features $(\cos\chi_i,\sin\chi_i,v_i)$ are taken
+from the environment's own observation, in which the airspeed is centered and scaled. The
+environment's native observation, which lists only the three nearest aircraft, is not used.
+With $r_{\text{detect}}=20$~NM the sensor radius is four times the separation minimum.
+
+\textbf{Reward.} The reward of aircraft $i$ at a control step is the sum of a drift penalty
+and an intrusion penalty,
+\begin{equation}
+\label{eq:env-reward}
+r_i = -0.1\,|\chi_i| \;-\; \big|\{\, j\neq i \;:\; d_{ij} < 5\ \text{NM} \,\}\big| ,
+\end{equation}
+with the drift angle $\chi_i$ in radians, wrapped to $[-\pi,\pi]$. The team reward is the
+mean of $r_i$ over the aircraft (Eq.~\eqref{eq:team-reward}).
+
+\textbf{Episode end.} The environment has no terminal state. It truncates an episode when
+all aircraft are outside the sector. Because the environment has no time limit of its own,
+we add a limit of 150 control steps (750~s of simulated time). Since both conditions are
+truncations, the target of Eq.~\eqref{eq:target} bootstraps on every transition ($e=0$).
+
+\textbf{Seeding.} The scenario generator draws from the global NumPy random number
+generator, which we seed explicitly in each environment process; the seed argument of the
+environment's reset function has no effect.

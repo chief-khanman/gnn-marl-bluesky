@@ -1,26 +1,43 @@
 \section{Nomenclature}
 
+% Symbols for deferred concepts were removed from this list:
+% m (non-cooperative intruders), \delta (latency), m^i_t (broadcast message), h^i_t as a GRU
+% belief state, z and d (global latent), s^i and \theta (safety score and threshold).
+% TODO(authors): deferred per decision 2026-11-25 (GAP-07/GAP-09/GAP-12)
 {\renewcommand\arraystretch{1.0}
 \noindent\begin{longtable*}{@{}l @{\quad=\quad} l@{}}
-$n$                      & number of cooperating UAS \\
-$m$                      & number of non-cooperative intruders \\
-$G=(V,E)$                & fleet interaction graph; $|V|=n$ \\
-$\delta$                 & communication (broadcast) latency, s \\
-$o^i_t$                  & local observation of vehicle $i$ at time $t$ \\
-$m^i_t$                  & broadcast message received by vehicle $i$ at time $t$ \\
-$h^i_t$                  & recurrent hidden (belief) state of vehicle $i$ \\
-$\pi_{\text{PID}}^i$     & local PID policy for vehicle $i$ \\
-$\pi_{\text{MARL}}$      & conditionally activated conflict-resolution policy \\
-$\mathbf{a}_{\text{PID}}$  & vector of locally proposed PID actions \\
-$\mathbf{a}_{\text{final}}$ & action vector after conflict-resolution override \\
-$z$                      & fixed-size GNN encoder latent vector \\
-$d$                      & latent vector dimension (independent of $n$) \\
-$s^i$                    & learned safety score for vehicle $i$ \\
-$\theta$                 & intervention threshold on the safety score \\
-$r_{\text{detect}}$      & per-vehicle intruder detection radius \\
-$P$                      & vehicle permutation matrix \\
-$T$                      & episode length, control steps \\
-$I$                      & number of conflict-resolution interventions per episode \\
-$\gamma$                 & discount factor
+$n$                        & number of cooperating vehicles (agents) in an episode \\
+$i,j,k$                    & vehicle indices \\
+$s$, $\mathbf{S}$          & global state and its entity-matrix form, $\mathbf{S}\in\mathbb{R}^{n\times 7}$ \\
+$o_i$, $\mathbf{O}_i$      & local observation of vehicle $i$ and its entity-matrix form \\
+$a_i$, $\mathbf{a}$        & action of vehicle $i$; joint action \\
+$r_i$, $r$                 & reward of vehicle $i$; team reward (mean of $r_i$ over vehicles) \\
+$\gamma$                   & discount factor \\
+$d_{ij}$                   & horizontal distance between vehicles $i$ and $j$ \\
+$d_{\text{sep}}$           & separation minimum (5 NM) \\
+$r_{\text{detect}}$        & sensor (detection) radius of a vehicle \\
+$\mathcal{N}_i$            & set of vehicles inside the sensor radius of vehicle $i$ \\
+$G_i=(V_i,E_i)$            & observation graph of vehicle $i$ \\
+$\mathbf{A}$, $\mathbf{D}$ & adjacency matrix and degree matrix of a graph \\
+$L$                        & number of message-passing layers ($L_{\text{GCN}}$ in the agent, $L_{\text{GAT}}$ in the mixer) \\
+$Q_i$                      & individual action-value function of vehicle $i$ \\
+$Q_{\text{tot}}$           & joint action-value function produced by the mixer \\
+$h_i$                      & embedding of vehicle $i$'s observation graph (GCN agent output) \\
+$g_i$                      & node embedding of vehicle $i$ in the mixer (GAT output) \\
+$\mathbf{W}_1$, $\mathbf{W}_2$ & non-negative mixing weights; row $i$ of $\mathbf{W}_1$ is generated from $g_i$ \\
+$\mathbf{b}_1$, $b_2$      & mixing biases \\
+$p$                        & fixed-size graph readout (mean and max of $g_i$) \\
+$d_h$, $d_m$               & embedding dimension; mixing dimension \\
+$\theta$, $\theta^-$       & parameters of the online and target networks \\
+$\mathcal{L}$              & temporal-difference loss \\
+$\tau$                     & Polyak averaging coefficient of the target network \\
+$\epsilon$                 & exploration rate \\
+$\pi_{\text{PID}}$         & nominal PID waypoint-tracking controller \\
+$a_i^{\text{PID}}$         & heading and speed command proposed by the PID controller \\
+$a_i^{\text{final}}$       & command applied to vehicle $i$ after the override rule \\
+$c_i$                      & activation indicator of the learned policy for vehicle $i$ \\
+$I$                        & number of interventions (vehicle-steps with $c_i=1$) per episode \\
+$\mathbf{P}$               & permutation matrix \\
+$T$                        & episode length, control steps
 \end{longtable*}}
 

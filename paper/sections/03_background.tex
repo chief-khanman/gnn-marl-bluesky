@@ -1,33 +1,154 @@
 \section{Background and Related Work}
-\subsection{Multi-Agent Reinforcement Learning}
-CTDE methods such as QMIX~\cite{qmix} and MAPPO~\cite{mappo} train decentralized policies
-with a centralized component used only during learning. The QMIX mixing network and the
-MAPPO centralized critic take a joint input whose dimensionality is fixed by the training
-team size, so changing $n$ requires architectural modification and retraining. This
-hard coupling between agent count and network architecture is the primary barrier to
-scalable AAM autonomy that the present work addresses.
+\label{sec:background}
 
-\subsection{Graph Neural Networks for Multi-Agent Systems}
-Graph-based MARL~\cite{gnn_marl} represents the fleet as a graph and exploits the
-permutation equivariance of message passing to produce representations that do not depend
-on agent ordering. The present work extends this principle by positioning the GNN as an
-encoder whose global readout produces a latent vector of fixed dimension $d$, rather than
-using the GNN as a replacement for the mixer (as in GraphMIX) or as an observation
-enrichment tool (as in QMIX-GNN and InforMARL). This placement fully decouples the
-downstream Q-network from $n$ and is compatible with any CTDE value-based method.
+\subsection{Related Work}
+\label{subsec:related}
+\textbf{Value decomposition under CTDE.} In CTDE~\cite{kraemer2016,foerster2018coma} agents
+are trained with access to global information and act from local information only.
+Independent Q-learning (IQL)~\cite{iql} is the limiting case without a centralized
+component: each agent runs its own Q-learning and treats the others as part of the
+environment. VDN~\cite{vdn} defines the joint action value as the sum of the individual
+action values. QMIX~\cite{qmix} replaces the sum by a mixing network whose weights are
+produced by hypernetworks conditioned on the global state and constrained to be
+non-negative, which makes the joint value monotonic in each individual value. Later methods
+relax or restructure the monotonicity constraint, for example QTRAN~\cite{qtran} and
+QPLEX~\cite{qplex}. Actor-critic CTDE methods such as MAPPO~\cite{mappo} use a centralized
+critic instead of a mixer. In the standard form of all of these methods, the agent networks
+read concatenated observation vectors and the mixer or critic has an input whose size is
+fixed by the training team size.
 
-\subsection{Safety-Critical and Scale-Invariant Control}
-Neural Graph Control Barrier Functions~\cite{gcbf} provide distributed collision avoidance
-with a formal safety certificate by encoding inter-agent safety constraints directly into
-a graph-structured control law. In the present framework, GCBF serves a dual role: as a
-baseline for empirical comparison and as a principled mechanism for determining the
-intervention threshold $\theta$ in Eq.~\eqref{eq:switching}. Specifically, the CBF
-condition $\dot{h}^{ij} + \alpha(h^{ij}) \geq 0$, where $h^{ij}$ is the barrier function
-between vehicles $i$ and $j$ and $\alpha$ is a class-$\mathcal{K}$ function, provides a
-computable, certificate-backed criterion for when the PID controller alone is insufficient
-to guarantee separation. The learned safety score $s^i$ is trained to approximate this
-barrier condition, and $\theta$ is calibrated such that $s^i < \theta$ coincides with the
-barrier condition being at risk of violation. This grounds the switching logic of the
-hybrid controller in a formally motivated safety criterion rather than an ad hoc
-heuristic, and provides a path toward certificate-based guarantees for the hybrid
-control architecture as future work.
+\textbf{Graphs and transferable architectures.} Graph-based MARL~\cite{gnn_marl} represents
+the team as a graph and uses the permutation equivariance of message passing to produce
+representations that do not depend on agent ordering. QMIX-GNN~\cite{qmix-gnn},
+InforMARL~\cite{nayak2023scalable}, and
+GraphMIX~\cite{naderializadeh2021graphconvolutionalvaluedecomposition} use a graph network
+for observation enrichment, for a pooled critic input, and for the mixing module,
+respectively; Section~\ref{sec:intro} describes how each relates to the dependence on $n$.
+UPDeT~\cite{updet} uses a transformer in the agents within the QMIX framework but keeps the
+QMIX mixer, so the mixer must be retrained for a new team size. Agarwal et
+al.~\cite{agarwal2020} study transfer across team sizes with an entity-based graph method
+for communication problems. TransfQMix~\cite{transfqmix} is the closest method to ours: it
+uses transformers~\cite{vaswani2017} over entity matrices in both the agents and the mixer,
+builds the first-layer mixing weights from the transformed agent embeddings, and obtains
+the remaining mixing terms from recurrent tokens, so that the whole model is transferable
+across team sizes. We take from TransfQMix the entity-matrix representation, networks whose
+parameter count does not depend on the number of entities, mixing weights generated from
+per-agent embeddings, and decentralized execution. We differ in the network type (GCN and
+GAT instead of transformers), in the use of an explicit sensor-radius graph in the agent
+instead of learned attention over all entities, in the absence of recurrent tokens, in the
+application domain, and in training one model jointly over several fleet sizes.
+
+\textbf{Safety-critical multi-agent control.} Neural graph control barrier functions
+(GCBF)~\cite{gcbf} provide distributed collision avoidance with a formal safety
+certificate by encoding inter-agent safety constraints in a graph-structured control law.
+GCBF is not used as a baseline or as a component in this paper. Its possible role in the
+switching rule of the hybrid controller is discussed as future work in
+Section~\ref{sec:conclusion}.
+% NOTE (confirmed by the authors 2026-11-25, D-031): the extended abstract used GCBF both as a baseline and as the
+% mechanism that calibrates the intervention threshold \theta on a learned safety score s^i.
+% By the 2026-11-25 decision the switching rule is the sensor radius, GCBF is not a baseline,
+% and the safety-score/CBF idea is mentioned only as a possible extension in the conclusion.
+
+\subsection{Decentralized Partially Observable Markov Decision Processes}
+\label{subsec:decpomdp}
+A cooperative multi-agent task is modeled as a decentralized partially observable Markov
+decision process (Dec-POMDP)~\cite{decpomdp}, described by the tuple
+$\langle\mathcal{S},\mathcal{A},\mathcal{P},r,\Omega,O,n,\gamma\rangle$. At each step the
+environment is in a state $s\in\mathcal{S}$. Each agent $i\in\{1,\dots,n\}$ receives a local
+observation $o_i = O(s,i)\in\Omega$ and selects an action $a_i\in\mathcal{A}$; the joint
+action is $\mathbf{a}=(a_1,\dots,a_n)$. The state then changes according to
+$\mathcal{P}(s'\mid s,\mathbf{a})$ and all agents receive the same team reward
+$r(s,\mathbf{a})$. The objective is a joint policy that maximizes the expected discounted
+return $\mathbb{E}\big[\sum_{t\ge 0}\gamma^t r_t\big]$ with $\gamma\in[0,1)$. In general a
+policy conditions on the action--observation history of the agent; the method in this paper
+uses no recurrence, so each agent conditions on its current observation $o_i$ only.
+
+\subsection{Deep Q-Learning}
+\label{subsec:qlearning}
+Q-learning~\cite{watkins1992} estimates the optimal action-value function, which satisfies
+$Q^*(s,\mathbf{a}) = r(s,\mathbf{a}) + \gamma\,\mathbb{E}_{s'}\big[\max_{\mathbf{a}'}Q^*(s',\mathbf{a}')\big]$.
+With a neural network of parameters $\theta$ and a replay buffer $\mathcal{D}$ of
+transitions~\cite{mnih2015}, the parameters are found by minimizing the squared
+temporal-difference (TD) error
+\begin{equation}
+\label{eq:td}
+\mathcal{L}(\theta) = \mathbb{E}_{(s,\mathbf{o},\mathbf{a},r,s',\mathbf{o}',e)\sim\mathcal{D}}
+\Big[\big(y - Q_{\text{tot}}(s,\mathbf{o},\mathbf{a};\theta)\big)^2\Big],
+\qquad
+y = r + \gamma\,(1-e)\max_{\mathbf{a}'}Q_{\text{tot}}(s',\mathbf{o}',\mathbf{a}';\theta^-),
+\end{equation}
+where $\mathbf{o}=(o_1,\dots,o_n)$, $e\in\{0,1\}$ marks a terminal transition, and
+$\theta^-$ are the parameters of a target network that follows $\theta$ slowly.
+
+\subsection{Monotonic Value Decomposition}
+\label{subsec:monotonic}
+In value-based CTDE each agent has an individual action-value function $Q_i(o_i,a_i)$ and
+acts greedily on it at execution time. A mixing function combines the individual values of
+the chosen actions into $Q_{\text{tot}}$, which is used in Eq.~\eqref{eq:td}. Decentralized
+greedy execution is consistent with the centralized value when the individual-global-max
+(IGM) condition holds,
+\begin{equation}
+\label{eq:igm}
+\arg\max_{\mathbf{a}} Q_{\text{tot}}(s,\mathbf{o},\mathbf{a}) =
+\big(\arg\max_{a_1}Q_1(o_1,a_1),\,\dots,\,\arg\max_{a_n}Q_n(o_n,a_n)\big).
+\end{equation}
+VDN~\cite{vdn} satisfies Eq.~\eqref{eq:igm} with $Q_{\text{tot}}=\sum_i Q_i$.
+QMIX~\cite{qmix} shows that it is sufficient for the mixing function to be monotonic,
+\begin{equation}
+\label{eq:monotone}
+\frac{\partial Q_{\text{tot}}}{\partial Q_i} \ge 0 \quad \text{for all } i\in\{1,\dots,n\},
+\end{equation}
+and implements the mixing function as a two-layer network,
+\begin{equation}
+\label{eq:qmix}
+Q_{\text{tot}} = \mathrm{ELU}\big(\mathbf{q}\,\mathbf{W}_1 + \mathbf{b}_1\big)\,\mathbf{W}_2 + b_2,
+\qquad \mathbf{q} = [Q_1,\dots,Q_n],
+\end{equation}
+with $\mathbf{W}_1\in\mathbb{R}^{n\times d_m}$, $\mathbf{b}_1\in\mathbb{R}^{1\times d_m}$,
+$\mathbf{W}_2\in\mathbb{R}^{d_m\times 1}$, and $b_2\in\mathbb{R}$ produced by hypernetworks
+that take the state $s$ as input. An absolute value applied to $\mathbf{W}_1$ and
+$\mathbf{W}_2$ enforces Eq.~\eqref{eq:monotone}. The hypernetwork for $\mathbf{W}_1$ has
+$n\,d_m$ outputs and the state vector has a length that depends on $n$, so a trained QMIX
+mixer is tied to one fleet size. As observed in TransfQMix~\cite{transfqmix}, the mixer in
+Eq.~\eqref{eq:qmix} needs only $n$ row vectors of size $d_m$ for $\mathbf{W}_1$, two more
+vectors of size $d_m$, and a scalar; Section~\ref{subsec:mixer} generates these from a graph
+network.
+
+\subsection{Graph Convolution and Graph Attention}
+\label{subsec:gnn-background}
+Let a graph have $k$ nodes, adjacency matrix $\mathbf{A}\in\{0,1\}^{k\times k}$, and node
+features $\mathbf{H}^{(0)}\in\mathbb{R}^{k\times d_h}$, one row per node. A graph
+convolutional layer~\cite{gcn} updates all nodes by
+\begin{equation}
+\label{eq:gcn}
+\mathbf{H}^{(\ell+1)} = \sigma\!\Big(\tilde{\mathbf{D}}^{-1/2}\,\tilde{\mathbf{A}}\,
+\tilde{\mathbf{D}}^{-1/2}\,\mathbf{H}^{(\ell)}\,\mathbf{W}^{(\ell)}\Big),
+\qquad \tilde{\mathbf{A}} = \mathbf{A} + \mathbf{I},
+\end{equation}
+where $\tilde{\mathbf{D}}$ is the diagonal degree matrix of $\tilde{\mathbf{A}}$,
+$\mathbf{W}^{(\ell)}$ is a learned weight matrix, and $\sigma$ is a nonlinearity. Each node
+receives a normalized sum of its neighbors' features and its own; the weights of the sum
+are fixed by the graph.
+
+A graph attention layer~\cite{gat} learns the weights of the sum. For an edge from node $j$
+to node $i$ it computes an attention coefficient
+\begin{equation}
+\label{eq:gat-alpha}
+\alpha_{ij} = \frac{\exp\!\big(\mathrm{LeakyReLU}\big(\mathbf{u}_{\text{dst}}^{\top}\mathbf{W}x_i
++ \mathbf{u}_{\text{src}}^{\top}\mathbf{W}x_j\big)\big)}
+{\sum_{k\in\mathcal{N}(i)}\exp\!\big(\mathrm{LeakyReLU}\big(\mathbf{u}_{\text{dst}}^{\top}\mathbf{W}x_i
++ \mathbf{u}_{\text{src}}^{\top}\mathbf{W}x_k\big)\big)},
+\end{equation}
+where $x_i$ is the feature vector of node $i$, $\mathcal{N}(i)$ is the neighborhood of $i$
+including $i$ itself, and $\mathbf{W}$, $\mathbf{u}_{\text{src}}$, $\mathbf{u}_{\text{dst}}$
+are learned. The node update is
+\begin{equation}
+\label{eq:gat}
+x_i' = \sum_{j\in\mathcal{N}(i)} \alpha_{ij}\,\mathbf{W}x_j .
+\end{equation}
+With several attention heads, each head has its own parameters and the head outputs are
+concatenated. In both layer types the learned parameters are shared by all nodes and their
+shapes depend only on the feature dimension, not on the number of nodes $k$. Both layers
+are permutation equivariant: reordering the nodes by a permutation matrix $\mathbf{P}$, that
+is, replacing $(\mathbf{H},\mathbf{A})$ by $(\mathbf{P}\mathbf{H},\mathbf{P}\mathbf{A}\mathbf{P}^{\top})$,
+reorders the output rows in the same way.

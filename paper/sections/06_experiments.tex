@@ -1,70 +1,189 @@
-\section{Experimental Design and Expected Results}
-\subsection{Setup}
-Scenarios use fleet sizes $n\in\{5,10,20,50\}$, $m$ non-cooperative intruders, static
-obstacles of varying density, and communication latencies
-$\delta\in\{0,0.1,0.5,1.0\}$~s. The GNN encoder is trained jointly across
-$n \in \{3, 5, 8\}$ using the parallel training protocol of Section~\ref{subsec:gnn}
-and evaluated zero-shot at $n \in \{10, 20, 50\}$. Loss-of-separation events are
-deliberately induced during training to expose the conflict-resolution policy to the
-collision regime; a separate, more realistic scenario is used to evaluate the handoff
-between the PID controller and the MARL policy. Baselines are QMIX~\cite{qmix},
-MAPPO~\cite{mappo}, GCBF~\cite{gcbf}, and a local-only ablation in which the
-conflict-resolution policy is removed and the PID controller operates alone. Metrics are
-mission success rate, loss-of-separation rate, path efficiency, intervention frequency,
-and emergence measures: heading-direction entropy, trajectory mutual information, and
-deadlock count.
+\section{Experimental Setup}
+\label{sec:setup}
+All experiments use the BlueSky air traffic simulator. This replaces the two environments
+named in the extended abstract (a two-dimensional navigation benchmark and a custom
+three-dimensional UAV simulation).
+% TODO(authors): confirm UAS vs ATM framing (Q-01). The setup below describes BlueSky transport
+% aircraft; no UAS dynamics are simulated.
 
-% TODO(authors): the implementation now uses BlueSky / BlueSky-Gym (PettingZoo branch)
-% \cite{bluesky,bluesky-gym}. Decide whether BlueSky replaces the "2D navigation
-% benchmark" below or is added as a third environment, and update this paragraph.
-Validation is conducted in two environments. The first is a standard 2D multi-agent
-navigation benchmark used widely in social force and robot motion planning research,
-providing a controlled setting in which fleet size can be varied systematically. The
-second is a custom 3D UAV simulation environment developed by our research team, which
-models UAV dynamics with six-degree-of-freedom kinematics, realistic airspace geometry, and stochastic agent entry and exit
-events that mimic AAM operational patterns.
+\input{sections/06a_simulation_environment}
 
-\subsection{Hypothesized Outcomes}
-The central hypothesis is that the proposed architecture retains a high mission success
-rate as fleet size grows, because the GNN encoder produces a fixed-size latent vector
-independent of $n$ and the downstream Q-network is consequently decoupled from fleet size,
-whereas CTDE baselines with fixed-dimensional mixing or critic networks cannot be evaluated
-at a fleet size other than the one they were trained on without architectural change.
-We further expect that removing the conflict-resolution policy (the local-only ablation)
-degrades success in high-density scenarios, since the PID controller alone has no mechanism
-for fleet-level coordination. Table~\ref{tab:expected} states these expectations as a
-qualitative prediction; the entries are hypotheses to be tested, not measured results.
+\subsection{Algorithms and Hyperparameters}
+\label{subsec:algorithms}
+\textbf{Proposed methods.} GNN-QMIX (stage~1) is the method of
+Sections~\ref{subsec:entities}--\ref{subsec:training}. PID + GNN-QMIX (stage~2) adds the
+hybrid layer of Section~\ref{subsec:hybrid}. In both, one model is trained jointly at
+$n\in\{3,6,9\}$.
 
+\textbf{Baselines.} The baselines are QMIX~\cite{qmix}, VDN~\cite{vdn}, and IQL~\cite{iql},
+each with a multilayer perceptron agent. VDN sums the individual values. IQL has no mixer;
+each agent regresses on the team reward. For VDN and IQL the agent reads a \emph{fixed
+$k$-nearest observation}: the own features followed by the relative features of the $k=3$
+nearest other vehicles, nearest first, a vector of width $3+7k=24$ for every $n$ (with fewer
+than $k$ other vehicles the missing blocks are zero with a large distance entry). This is the
+observation design of the original environment. It has no layer that depends on $n$, so VDN
+and IQL are trained jointly at $n\in\{3,6,9\}$ exactly as GNN-QMIX is and can be evaluated
+zero-shot at unseen fleet sizes. They are therefore a direct test of whether the graph
+networks add anything over a fixed-width observation with parameter sharing. Unlike the
+observation graph of GNN-QMIX, the $k$-nearest observation is not limited by the sensor
+radius. QMIX uses the mixing network of Eq.~\eqref{eq:qmix} as implemented in
+CleanMARL~\cite{cleanmarl}, without modification, and an agent that reads the relative
+features of all other vehicles (width $3+7(n-1)$). Both networks are tied to $n$, so QMIX is
+trained separately at each training fleet size and cannot be evaluated at another size. The
+global state given to the QMIX mixer is the flattened entity state matrix of
+Section~\ref{subsec:entities}. All methods share parameters across agents, run in the same
+training loop, and use the same discrete action set and the same team reward.
+% NOTE: baseline observation decided by the authors on 2026-11-25 (D-027, answers Q-12).
+% NOTE: MAPPO and GCBF are not baselines (decision 2026-11-25). QMIX-GNN is not compared
+% against. TransfQMix as a baseline is on hold until the results below exist (Q-13); it is
+% then to be added for a comparison of parameter efficiency and performance.
+
+\textbf{Hyperparameters.} Table~\ref{tab:hyper} lists the settings. The network sizes of
+GNN-QMIX follow the sizes reported for TransfQMix~\cite{transfqmix} (embedding dimension 32,
+two blocks, four attention heads), as does the length of the exploration schedule. No
+per-method tuning is reported in this version.
+% TODO(authors): the sensor radius (Q-10) is a proposed value awaiting confirmation.
 
 \begin{table}[hbt!]
-\caption{\label{tab:expected} Hypothesized zero-shot mission success after training at
-$n=5$. Entries are predicted outcomes to be tested in the final manuscript, not measured
-results.}
+\caption{\label{tab:hyper} Training settings. Network-size rows apply to GNN-QMIX; the other
+rows apply to all methods.}
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{ll}
 \hline
-Method & $n=5$ & $n=10$ & $n=20$ & $n=50$ \\
+Setting & Value \\
 \hline
-Proposed (hybrid, GNN encoder) & High & High & High & Moderate--High \\
-QMIX / MAPPO & High & \multicolumn{3}{c}{Not transferable without retraining} \\
-Local-only ablation (PID only) & Moderate & Moderate & Low & Low \\
+Sensor radius $r_{\text{detect}}$ & 20 NM \\
+Minimum initial separation & 6 NM \\
+Embedding dimension $d_h$ & 32 \\
+GCN layers $L_{\text{GCN}}$ & 2 \\
+GAT layers $L_{\text{GAT}}$, attention heads & 2, 4 \\
+Mixing dimension $d_m$ & 32 \\
+Mixer graph, aggregation & fully connected, mean \\
+Baseline agent and QMIX mixer hidden size & 64 \\
+VDN and IQL observation & 3 nearest vehicles \\
+Team reward & mean over vehicles, Eq.~\eqref{eq:team-reward} \\
+Optimizer & Adam \\
+Learning rate & $5\times10^{-4}$ \\
+Discount factor $\gamma$ & 0.99 \\
+Polyak coefficient $\tau$ & 0.01 \\
+Batch size & 256 transitions per fleet size \\
+Replay buffer & 100,000 transitions per fleet size \\
+Update interval & every 8 environment steps per fleet size \\
+Learning starts & after 5,000 environment steps per fleet size \\
+Exploration rate $\epsilon$ & 1.0 to 0.05, linear over 100,000 steps per fleet size \\
+Episode time limit & 150 control steps (750 s of simulated time) \\
+Training budget & 2,000,000 environment steps per training fleet size \\
+Evaluation during training & every 20,000 steps, 10 episodes per fleet size \\
+Final evaluation & 100 episodes per fleet size and airspace \\
+Seeds & 3 per configuration \\
 \hline
 \end{tabular}
 \end{table}
 
+\subsection{Metrics}
+\label{subsec:metrics}
+All metrics are computed per episode. Let $T$ be the number of control steps of the
+episode, let $n(n-1)/2$ be the number of vehicle pairs, and let a pair be in LoS at a step
+when its separation is below 5~NM.
+\begin{itemize}
+\item \emph{Return per agent}: the sum over steps of the mean per-agent reward,
+      $\sum_{t=1}^{T}\frac{1}{n}\sum_{i=1}^{n} r_i^{\,t}$.
+\item \emph{Episode length}: $T$.
+\item \emph{LoS pair-steps}: the sum over steps of the number of pairs in LoS.
+\item \emph{LoS rate}: LoS pair-steps divided by $T\cdot n(n-1)/2$. This is the fraction of
+      pair-steps spent in LoS and is comparable across fleet sizes.
+\item \emph{LoS events}: the number of times a pair goes from separated to LoS.
+\item \emph{LoS events per agent}: LoS events divided by $n$.
+\item \emph{Conflict-free episode}: 1 if the episode has zero LoS pair-steps and 0
+      otherwise; its mean over episodes is the conflict-free episode rate.
+\item \emph{Minimum separation}: the smallest pair separation in the episode, in NM.
+\item \emph{Mean absolute drift}: the mean over steps and vehicles of the absolute track
+      deviation from the bearing to the waypoint, in degrees.
+\end{itemize}
+The primary metrics are the conflict-free episode rate and the LoS rate. The mean absolute
+drift measures the cost of conflict resolution in terms of waypoint tracking. For the
+hybrid stage we additionally report the intervention count $I$ of
+Eq.~\eqref{eq:interventions}.
+% TODO(authors): mission-success definition (GAP-18). "Mission success rate" was the headline
+% metric of the extended abstract; it is not defined for sector_cr (no per-vehicle completion
+% event) and is not reported. The "path efficiency" metric of the extended abstract is likewise
+% not among the defined metrics; mean absolute drift is the closest defined quantity.
+% TODO(authors): deferred/removed -- the emergence measures (heading-direction entropy,
+% trajectory mutual information, deadlock count) were removed by author decision (GAP-14).
 
-\subsection{Planned Evaluation and Deliverables}
-The final paper will report: (i) a quantitative scaling curve of mission success rate
-against fleet size $n$, with the empirically fitted degradation exponent for the proposed
-method and for the CTDE baselines; (ii) the effect of communication latency $\delta$ on
-success rate, compared against the theoretical degradation characterization; (iii)
-ablations isolating the conflict-resolution policy and the PID input, including a
-comparison of sample efficiency against end-to-end MARL; and (iv) emergence analysis
-quantifying lane formation through heading-direction entropy, leader--follower structure
-through trajectory mutual information, and deadlock frequency relative to baselines.
-The theoretical claims stated in Section~\ref{sec:intro} will be accompanied by formal
-statements and proofs. The simulation environment, the PID local controller, the
-decentralized broadcast channel, and the GNN encoder with its downstream Q-network are
-under active implementation, which supports completion of this evaluation by the manuscript
-deadline.
+\subsection{Protocol}
+\label{subsec:protocol}
+\textbf{Training.} GNN-QMIX, PID + GNN-QMIX, VDN, and IQL are each trained once per seed,
+jointly at $n\in\{3,6,9\}$, with one environment process per fleet size. QMIX is trained
+once per seed at each of $n=3$, $n=6$, and $n=9$. Every configuration is run with 3 seeds.
 
+\textbf{Training budget.} Every method receives 2,000,000 environment steps \emph{per
+training fleet size}: a jointly trained run collects 2,000,000 steps at each of the three
+sizes (6,000,000 in total), and the three QMIX runs collect 2,000,000 steps each. The budget
+is fixed per fleet size, and not per run, because a per-run budget would give a model
+trained at one size three times the experience at that size that a jointly trained model
+gets; with the per-size budget every method has seen the same amount of data at every
+evaluated training size and the same total amount. The number of gradient updates is also
+equal: one update every 8 steps per fleet size, with one batch of 256 transitions per fleet
+size. The value of 2,000,000 steps is the budget used in the BlueSky-Gym example training
+scripts for this family of environments and the budget of the TransfQMix
+experiments~\cite{transfqmix}. Learning curves are reported against steps per fleet size, so
+sample efficiency below the full budget can be read from them.
+
+\textbf{Evaluation during training.} Every 20,000 environment steps, training is paused and
+10 evaluation episodes are run at each training fleet size with greedy decentralized action
+selection ($\epsilon=0$).
+
+\textbf{Zero-shot evaluation.} The final checkpoint of each run is evaluated at
+$n\in\{3,6,9,10,20,50\}$ with greedy decentralized action selection and no further
+training, for 100 episodes per fleet size, with the same scenario seeds for every run. The
+sizes $n\in\{10,20,50\}$ were not seen during training. Each fleet size is evaluated in both
+airspaces of Section~\ref{subsec:env}: the fixed airspace, in which density rises with $n$,
+and the constant-density airspace, in which the sector grows with $n$. A network that is tied
+to one fleet size (QMIX) is recorded as not evaluable at any other size. We report the mean
+and the standard deviation over the 3 seeds of the per-seed episode means.
+
+\textbf{Implementation.} The training code builds on CleanMARL~\cite{cleanmarl}. BlueSky
+holds global simulator state, so each environment instance runs in its own process. Each
+run stores its resolved configuration, the training and evaluation metrics, and the final
+checkpoint.
+% TODO(authors): code and data availability statement.
+
+\subsection{Hypotheses}
+\label{subsec:hypotheses}
+The central hypothesis is that GNN-QMIX, trained jointly at $n\in\{3,6,9\}$, keeps a high
+conflict-free episode rate and a low LoS rate when it is executed at $n\in\{10,20,50\}$
+without retraining. The architectural part of this statement is established by
+Proposition~2: the model can be executed at these sizes, whereas QMIX cannot be evaluated at
+a fleet size other than the one it was trained on. Whether the executed policy performs well
+is the empirical part, and VDN and IQL on the $k$-nearest observation are the reference for
+it: we hypothesize that GNN-QMIX degrades less than they do as $n$ grows, in both airspaces.
+We further hypothesize that (i) at the training sizes GNN-QMIX performs at least as well as
+the baselines; (ii) the hybrid PID + GNN-QMIX reaches a given
+level of the primary metrics in fewer environment steps than the end-to-end GNN-QMIX
+(claim~2); and (iii) the PID controller alone, with no conflict-resolution policy, degrades
+as density grows, since it has no mechanism for coordination. Table~\ref{tab:expected}
+states these expectations qualitatively; the entries are hypotheses to be tested, not
+measured results.
+
+\begin{table}[hbt!]
+\caption{\label{tab:expected} Hypothesized performance on the primary metrics
+(conflict-free episode rate and LoS rate; ``High'' means few losses of separation) after
+training at $n\in\{3,6,9\}$. Entries are predicted outcomes to be tested, not measured
+results.}
+\centering
+\begin{tabular}{lcccc}
+\hline
+Method & $n\in\{3,6,9\}$ (training) & $n=10$ & $n=20$ & $n=50$ \\
+\hline
+GNN-QMIX (stage 1) & High & High & High & Moderate--High \\
+PID + GNN-QMIX (stage 2, hybrid) & High & High & High & Moderate--High \\
+VDN / IQL (3-nearest observation) & High & \multicolumn{3}{c}{Evaluable; hypothesized below GNN-QMIX} \\
+QMIX & High & \multicolumn{3}{c}{Not evaluable without retraining} \\
+PID only (no learned policy) & Moderate & Moderate & Low & Low \\
+\hline
+\end{tabular}
+\end{table}
+% TODO(authors): review the entries of Table~\ref{tab:expected}. The stage-1 row copies the
+% extended abstract's single "Proposed" row. The VDN / IQL row is new (the k-nearest baselines
+% are evaluable at unseen sizes, D-027) and its entry restates the central hypothesis only. The table does not distinguish the two airspaces.
