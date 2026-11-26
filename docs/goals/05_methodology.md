@@ -16,7 +16,9 @@ before any code is written (PLAN.md §6.2).
 - **Depends on:** G04.1, G04.5, G05.5. **Feeds:** G05.2.
 - **Acceptance:** unit tests on hand-built geometries (TCPA, relative heading wrap-around,
   edge count vs radius). Works for n ∈ {2…50}.
-- **Status:** defined. **Gaps:** GAP-08 (reward as a node feature at execution time).
+- **Status:** in-progress (2026-11-25): built inside the agent network as the sensor-radius observation
+  graph (`algorithms/gnn_qmix/networks.py::observation_graph`, D-020), not as `marl/graph.py`. Edge features
+  are not used yet. **Gaps:** GAP-08 (Q-09).
 
 ### G05.2: Equivariant GNN encoder + fixed-size readout → z
 - **Paper basis:** Eq. (2) $z=\mathrm{Readout}(\mathrm{GNN}(G))$, $d$ independent of $n$;
@@ -27,7 +29,8 @@ before any code is written (PLAN.md §6.2).
 - **Acceptance:** property tests: (i) node embeddings permute with P, (ii) z unchanged under
   P, (iii) z shape identical for n ∈ {2, 5, 10, 50}, (iv) padding/masking doesn't change z.
 - **Depends on:** G05.1. **Feeds:** G05.3, G05.6, G02.1.
-- **Status:** defined. **Gaps:** GAP-20 (sum pooling scales with n).
+- **Status:** in-progress (2026-11-25): `GCNAgent`; the readout is the self-node embedding h_i plus the
+  mixer's mean‖max readout (D-019). Property tests pass. GAP-20 resolved.
 
 ### G05.3: n-agnostic centralized Q-network / mixer conditioned on z ★ core
 - **Paper basis:** "The latent vector z is passed directly into the centralized Q-network …
@@ -41,7 +44,8 @@ before any code is written (PLAN.md §6.2).
 - **Depends on:** G05.2. **Feeds:** G05.4, G05.6, G02.1.
 - **Acceptance:** design doc approved by authors. Code loads a checkpoint trained at one n and
   runs forward/backward at any other n. C1 property tests pass end-to-end.
-- **Status:** defined. **Gaps:** GAP-02, GAP-03 (blocking).
+- **Status:** in-progress (2026-11-25): design approved (D-018, D-019, plan `docs/plans/G05.3_gnn_qmix.md`),
+  `GATMixer` written, monotonicity and any-n tests pass, smoke-trained. `done` needs the 3-seed HPC results.
 
 ### G05.4: Mixed-n parallel training protocol and variable-n replay buffer
 - **Paper basis:** "environments with different fleet sizes … contribute to a shared replay
@@ -51,7 +55,8 @@ before any code is written (PLAN.md §6.2).
 - **Depends on:** G05.3, INF-4. **Feeds:** G06.5.
 - **Acceptance:** a training run that draws from all training n with logged per-n sample
   share; masked agents provably contribute zero gradient (test).
-- **Status:** defined. **Gaps:** GAP-01 (which n to train on).
+- **Status:** in-progress (2026-11-25): `algorithms/gnn_qmix/train.py`, one collector process and one
+  replay buffer per fleet size, single-n batches summed per update (no padding needed). Training sizes n ∈ {3, 6, 9} (D-017).
 
 ## B. Hybrid control architecture and conditional activation (§05.2)
 

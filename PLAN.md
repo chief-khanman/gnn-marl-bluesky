@@ -16,7 +16,7 @@
 **Research goal.** CTDE value-based MARL (QMIX) has a mixer whose input size is fixed by the
 number of agents *n*, so changing *n* means retraining. We put a permutation-equivariant **GNN
 encoder + fixed-size readout** in front of the centralized Q-network, so the Q-network sees a
-latent `z ∈ R^d` whatever *n* is. That lets a model trained at n ∈ {3,5,8} run zero-shot at
+latent `z ∈ R^d` whatever *n* is. That lets a model trained at n ∈ {3,6,9} run zero-shot at
 n ∈ {10,20,50}. The full method also has a nominal waypoint controller ("PID") and a learned
 conflict-resolution override, plus a latency-δ broadcast channel fed through a GRU. The paper
 source is in `paper/`.
@@ -282,7 +282,7 @@ Commit: `feat(algorithms): CleanMARL QMIX baseline on BlueSky`.
 |---|---|---|
 | 6.1 | **Graph builder** `marl/graph.py`: from `bs.traf`, nodes = aircraft (own state, goal-relative bearing/dist, PID action, later GRU hidden); edges within `r_detect` with features (distance, relative heading, relative velocity, time to CPA). Output `torch_geometric.data.Data` or padded tensors plus a mask. Add a `get_graph()` to the adapter. | 05 §GNN encoder |
 | 6.2 | **QMIX-GNN** `algorithms/qmix_gnn/`: shared per-agent Q-network (already n-agnostic) plus a GNN encoder (L message-passing layers) → readout [sum‖mean‖max] → `z ∈ R^d` → hypernetwork mixer that conditions on `z`. Mixing over agents has to stay n-agnostic (e.g., monotonic attention / sum over agents of w_i(z,h_i)·Q_i), not fixed n slots. Write this down precisely before coding; it's the paper's core contribution. | 05, claim 1 |
-| 6.3 | **Variable-n replay buffer and mixed-n training**: one process per n ∈ {3,5,8} (SubprocVectorEnv), with episodes padded to n_max plus an agent mask in a shared buffer. | 05 parallel training protocol |
+| 6.3 | **Variable-n replay buffer and mixed-n training**: one process per n ∈ {3,6,9} (SubprocVectorEnv), with episodes padded to n_max plus an agent mask in a shared buffer. | 05 parallel training protocol |
 | 6.4 | **Zero-shot evaluation** at n ∈ {10,20,50}: success rate, LoS rate, path efficiency, intervention count. Scaling curve and fitted degradation exponent. | 06 |
 | 6.5 | **Nominal controller + conditional override**: BlueSky's autopilot already steers to waypoints (LNAV/HDG). Decide whether "PID" means that autopilot or an explicit PID on heading error that outputs HDG/SPD commands. Override only when an intruder is inside `r_detect` (BlueSky ASAS/CD can provide detection), plus an intervention cost in the reward. | 05 hybrid architecture, claim 2 |
 | 6.6 | **Broadcast channel with latency δ** and a GRU belief state (start from CleanMARL `qmix_lstm.py`). | 04, claim 3 |

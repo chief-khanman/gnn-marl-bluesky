@@ -10,7 +10,7 @@ must keep consistent with.
   the same baselines, fleet sizes, metrics and deliverables, and that the code delivers each one.
 - **Acceptance:** before each paper milestone, every promise in §00/§07 maps to a `done` goal
   or is flagged in the gap register.
-- **Status:** defined. **Gaps:** GAP-01 (fleet sizes differ across sections).
+- **Status:** defined. **Gaps:** none open (GAP-01 resolved by D-017).
 
 ### G00.2: Stated limitations stay true
 - **Paper basis:** §07: "latency analysis is expected to be empirical … experiments are planned

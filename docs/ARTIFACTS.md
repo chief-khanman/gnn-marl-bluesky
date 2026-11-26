@@ -74,7 +74,7 @@ Then set `GNN_MARL_ARTIFACTS` and `GNN_MARL_ARTIFACT_REPO` in `.env` (see [HANDO
   "submodules": {"bluesky-gym": "3a536c0…", "cleanmarl": "5cf837e…"},
   "packages": {"python": "3.12.x", "torch": "2.9.0", "numpy": "2.3.4"},
   "config_sha": "<sha256 of canonical config.json>",                // duplicate-run detection
-  "algo": "qmixgnn", "env": "sector_cr", "train_n": [3,5,8], "seed": 1,
+  "algo": "qmixgnn", "env": "sector_cr", "train_n": [3,6,9], "seed": 1,
   "env_steps": 2000000,
   "files": {"checkpoint.pt": "<sha256>", "config.json": "<sha256>"},
   "summary_metrics": {"eval/success_rate": 0.0},

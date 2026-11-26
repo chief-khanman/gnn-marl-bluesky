@@ -12,7 +12,9 @@
 - **Depends on:** INF-3. **Feeds:** nearly everything.
 - **Acceptance:** PettingZoo `parallel_api_test` passes for each config. Each paper scenario
   axis (§06 setup) can be set from config alone.
-- **Status:** defined. **Gaps:** GAP-06, GAP-09, GAP-10, GAP-19.
+- **Status:** in-progress (2026-11-25): `simulator/bluesky_marl/custom_envs.py::ConfigurableSectorCR`
+  (spawn separation D-028, area scaling D-029) through `make_env(..., **env_kwargs)`. No `SimConfig`
+  dataclass yet. **Gaps:** GAP-09, GAP-10, GAP-28.
 
 ### G04.2: Objective and reward specification
 - **Paper basis:** "The learning objective combines three terms: drive the loss-of-separation
@@ -48,4 +50,4 @@
 - **Objective:** replace adapter state v0 (concatenated observations, D-007) with
   simulator-truth state and the graph. The state must also be n-agnostic for the proposed method.
 - **Depends on:** G04.1. **Feeds:** G05.1, G05.3, G03.4.
-- **Status:** defined. **Gaps:** GAP-02.
+- **Status:** in-progress (2026-11-25): adapter `state_mode="entities"`, an n × 7 entity matrix (D-026).

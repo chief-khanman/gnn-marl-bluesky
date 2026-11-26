@@ -3,7 +3,7 @@
 > **Single source of truth** for everyone working on this project, human or agent.
 > **Read it before you start. Update it before you finish.** (S-01, S-02)
 >
-> Last updated: 2026-11-07 (2) · Current phase: **Stage 1: Framework** (see §2)
+> Last updated: 2026-11-25 · Current phase: **Stage 1: Framework** (see §2)
 
 Contents: [1 How to use](#1-how-to-use-this-record) · [2 Workflow & phase](#2-workflow-stages-and-current-phase) ·
 [3 Status board](#3-status-board) · [4 Standards](#4-standards-binding) · [5 Decisions](#5-decision-log) ·
@@ -22,6 +22,7 @@ Contents: [1 How to use](#1-how-to-use-this-record) · [2 Workflow & phase](#2-w
 | need an author decision | §7 | add a **Q-** entry; don't decide it yourself |
 | make a code or doc change | §4 "Change discipline" (S-18…S-21) | commit only after tests pass and confirmation |
 | switch machines (laptop / lab / HPC) | [HANDOFF.md](HANDOFF.md) | push branch, publish artifacts, write `State:`/`Next:` |
+| launch experiments (laptop or HPC) | [RUNBOOK.md](RUNBOOK.md) | registry entry, work log with job IDs |
 | share or reuse trained weights | [ARTIFACTS.md](ARTIFACTS.md), `artifacts/registry.toml` | registry entry in the same PR |
 | finish a session / open a PR | — | add a §8 work-log entry (who, which agent, what, IDs, `State:`, `Next:`) |
 
@@ -63,15 +64,19 @@ a running simulator.
 | INF-6 | Python 3.12 venv per PLAN.md §1.3 | **done** 2026-11-09 (aadit-mbp) | `uv venv -p 3.12 .venv` + PLAN.md §1.3 installs + `-e .`. Versions match the tested set (bluesky-simulator 1.1.1, numpy 2.3.4, torch 2.9.0). Other machines: repeat the steps until INF-7 adds a lock file |
 | INF-7 | Lock file (`uv pip compile` → `requirements.lock`, platform note for CUDA torch) | todo | needed so every machine gets the same env (HANDOFF.md) |
 | INF-8 | `tools/artifacts.py` (publish / pull / verify / find) + add `huggingface_hub` to deps | todo | after Q-07 |
-| INF-9 | Git remote (GitHub) + branch protection on `main` | todo | **no remote yet**: nothing can be pushed |
+| INF-9 | Git remote (GitHub) + branch protection on `main` | **in-progress** | remote `origin` exists (seen 2026-11-25). Branch protection not checked |
 | INF-10 | `tools/check_docs.py`: ID and link consistency check (S-20 Tier 0) | **done** 2026-11-07 | |
 
 ### Paper goals (see `docs/goals/`)
 All `G*`, `T*` and `D*` goals are **defined** (Stage 1), except: G01.1 **done** (naming
 contract), G00.3 **in-progress** (logging convention active), G06.10 **blocked** (Q-04),
-G03.2 **in-progress** (plan approved 2026-11-09, `algorithms/mappo_bluesky.py` smoke-tested;
-3-seed curves are G06.4).
-G05.3 is the critical-path item and is blocked by GAP-03 until a design is approved.
+G03.2 **deferred** (MAPPO is not a baseline for now, D-024; the smoke-tested script stays),
+G03.3 **deferred** (D-024), G06.8 **retired** (D-025).
+As of 2026-11-25 (plan `docs/plans/G05.3_gnn_qmix.md`, approved): G05.1, G05.2, G05.3, G05.4,
+G04.5, G03.1, G06.2, G06.3 are **in-progress**: code written and smoke-tested, 3-seed HPC results
+outstanding ([RUNBOOK.md](RUNBOOK.md)). G06.10 **unblocked** (D-023). G04.1 **in-progress** (configurable `sector_cr`: spawn separation,
+area scaling). Work order (D-022):
+(1) GNN-QMIX, (2) PID + GNN-QMIX (G05.5–G05.9, needs its own plan), then the deferred items.
 
 ---
 
@@ -216,6 +221,22 @@ Format: **D-xxx** · date · status (`adopted` / `proposed` / `superseded by D-y
 | D-013 | 2026-11-07 | **proposed** (pending Q-07) | Artifact store = one private Hugging Face Hub model repo under a project org. Git-tracked `artifacts/registry.toml` as the index. Bundle/manifest format per ARTIFACTS.md | user direction 2026-11-07 (item 2). Rationale and alternatives in ARTIFACTS.md §2 |
 | D-014 | 2026-11-07 | adopted | Run IDs gain a `_<machine>` suffix. Every run records `config_sha` (amends S-10) | unique IDs across machines; detect duplicate runs |
 | D-015 | 2026-11-07 | adopted | Multi-machine handoff protocol (HANDOFF.md, S-22). Work-log entries end with `State:` and `Next:` | user direction 2026-11-07 (item 1) |
+| D-016 | 2026-11-17 | adopted (amends D-007) | Adapter observation = own builder that sees **all** other agents: `obs_dim = 3 + 7·(n−1)` (17, 38, 59 for n = 3, 6, 9). Default `obs_mode="all_agents"`; `"env"` keeps the raw observation. State stays "concatenated obs" (now `n·obs_dim`) | raw env obs is capped at 3 neighbors and is the wrong shape for n ≤ 3 (GAP-21). User direction 2026-11-17. Plan `docs/plans/GAP-01_observation_builder.md` |
+| D-017 | 2026-11-17 | adopted | Training fleet sizes are **n ∈ {3, 6, 9}**, trained jointly (n = MARL-controlled agents). The paper is the source of truth for this. Zero-shot evaluation sizes stay {10, 20, 50} | author decision 2026-11-17. Resolves GAP-01, answers Q-05 |
+| D-018 | 2026-11-25 | adopted | Execution model: centralized training, **decentralized execution**, following the TransfQMix principle (arXiv:2301.05334v1). Each vehicle takes the argmax of its own Q_i from its own observation graph. The mixer is used in training only | author decision 2026-11-25. Resolves GAP-02, answers Q-06 |
+| D-019 | 2026-11-25 | adopted | Proposed method = **GNN-QMIX**: a shared GCN in each agent encodes the agent's observation graph; a GAT mixer over the agent graph generates the monotonic mixing weights from per-agent node embeddings (W1 row per agent, mean‖max readout for b1, W2, b2, absolute values). No layer depends on n. Replaces "fixed latent z into a centralized Q-network" | author decision 2026-11-25 ("double GNN"). Resolves GAP-03 and GAP-20. Plan `docs/plans/G05.3_gnn_qmix.md` |
+| D-020 | 2026-11-25 | adopted | The sensor radius r_detect decides who is in a vehicle's observation graph: another vehicle is added when it is inside the radius. The same per-vehicle rule is the activation trigger of the hybrid variant. The learned safety score is not the switching rule | author decision 2026-11-25. Resolves GAP-04. GAP-05 deferred |
+| D-021 | 2026-11-25 | adopted | The PID controller and the learned policy both act through BlueSky's heading and speed commands (HDG/SPD). The paper's thrust/pitch/roll/yaw-rate and 6-DOF statements are removed | author decision 2026-11-25. Resolves GAP-06. Answers the dynamics part of Q-01; the UAS vs ATM framing stays open |
+| D-022 | 2026-11-25 | adopted | Work order: (1) GNN-QMIX, (2) PID + GNN-QMIX. On hold until both work: latency / broadcast / GRU (GAP-07), intruders and obstacles (GAP-09), action design and continuous methods (GAP-12; the 15 discrete actions of D-007 stay) | author decision 2026-11-25 |
+| D-023 | 2026-11-25 | adopted | BlueSky **replaces** both the 2D navigation benchmark and the custom 3D UAV environment | author decision 2026-11-25. Resolves GAP-11, answers Q-04. GAP-10 becomes accepted-risk |
+| D-024 | 2026-11-25 | adopted | Baselines are **QMIX, VDN and IQL** only. MAPPO and GCBF are not compared for now (G03.2, G03.3 deferred). QMIX-GNN (MDPI) is not compared. Reported baseline results come from `algorithms/gnn_qmix/train.py` (same loop, state and metrics for every method; CleanMARL's mixer logic unchanged, D-008); `qmix_bluesky.py` and `mappo_bluesky.py` stay as smoke scripts | author decision 2026-11-25. Resolves GAP-13 |
+| D-025 | 2026-11-25 | adopted | Emergence analysis (heading-direction entropy, trajectory mutual information, deadlock count) is removed from the paper. G06.8 retired | author decision 2026-11-25. GAP-14 deferred |
+| D-026 | 2026-11-25 | adopted, amended by D-027…D-030 (r_detect still pending Q-10) | Experiment protocol: 2 000 000 environment steps per run (BlueSky-Gym's examples use `total_timesteps=2e6`; TransfQMix trains 2M), 150 steps per episode, 3 seeds, team reward = mean over agents, global state = n × 7 entity matrix (`state_mode="entities"`), r_detect = 20 NM, metrics and result files per plan §3.5–3.6, final evaluation 100 episodes per fleet size | plan `docs/plans/G05.3_gnn_qmix.md` §4. The entity state resolves GAP-24(b) |
+| D-027 | 2026-11-25 | adopted | Baseline observation: **VDN and IQL read a fixed k-nearest observation** (own features + the k = 3 nearest other agents, width 24 for any n), are trained jointly at n ∈ {3, 6, 9} and are evaluated zero-shot. QMIX keeps the full observation and its fixed-n mixer, one run per fleet size. Node features follow TransfQMix: no reward and no action features | author decisions 2026-11-25. Answers Q-12 and Q-09; resolves GAP-08 and GAP-24(a) |
+| D-028 | 2026-11-25 | adopted | No pair of aircraft starts in conflict: `ConfigurableSectorCR` (`simulator/bluesky_marl/custom_envs.py`, a subclass, S-06) spawns aircraft at least `spawn_min_sep_nm` = 6 NM apart, for every method in training and evaluation. Metrics then count only conflicts that arise under the policy. Reported safety metrics: LoS rate, LoS events, conflict-free episode rate | author decision 2026-11-25. Answers Q-14; resolves GAP-25. The 6 NM value (1 NM above the minimum) is proposed |
+| D-029 | 2026-11-25 | adopted | Zero-shot evaluation uses **both** airspace rules: `fixed` (original sector, density rises with n) and `density` (sector area × n / 9, constant density). Training uses `fixed` | author decision 2026-11-25. Answers Q-11; resolves GAP-19. The reference size 9 (largest training size) is proposed |
+| D-030 | 2026-11-25 | adopted (amends D-026) | Training budget = **2 000 000 environment steps per training fleet size** for every method (joint runs 6M in total, each QMIX run 2M). Reason: a per-run budget would give a single-size model three times the experience at its size; per-size, every method sees the same data at every size, the same total, and the same number of updates. All step counts in configs and logs are per fleet size | author direction 2026-11-25 ("budget should properly reflect experiment and have valid reasoning"). Answers Q-15 |
+| D-031 | 2026-11-25 | adopted | The paper scope changes of 2026-11-25 are approved: claim 3 (latency) removed, claim 1 restated as two propositions, the "no prior work" novelty sentence removed, safety score / CBF as future work, MAPPO and GCBF in related work only. TransfQMix as a baseline is on hold until the first results exist; it is then added to compare parameter efficiency and performance | author decision 2026-11-25. Answers Q-16; Q-13 on hold |
 
 ---
 
@@ -229,29 +250,35 @@ Severity: **H** blocks a core claim or goal · **M** affects an experiment or it
 
 | ID | sev | observation | affects | status |
 |---|---|---|---|---|
-| GAP-01 | M | Training fleet sizes are inconsistent: §02 and Table 1 say "training at n=5"; §05 says n∈{2,4,8,16,…,n_max}; §06 says n∈{3,5,8}. | G05.4, G06.1, G06.9 | open |
-| GAP-02 | H | Execution model is unclear: §05 says that at activation the policy builds G and "queries the centralized Q-network to select the optimal joint corrective action". That is centralized execution, which conflicts with the CTDE framing and the decentralized broadcast channel (in QMIX the mixer is used only in training). | G05.3, G04.5, C1 | open |
-| GAP-03 | H | A centralized Q-network on a fixed z can't by itself output per-agent actions for variable n. The paper doesn't say how per-agent utilities, z and $Q_{tot}$ combine, or how monotonicity/IGM is kept. | G05.3, T1 | open (blocking) |
-| GAP-04 | M | Two activation triggers: "when any other agent enters $r_{\text{detect}}$" vs the per-vehicle rule $s^i<\theta$ (Eq. 4). Which governs, and is activation per-vehicle or fleet-wide? | G05.6 | open |
-| GAP-05 | M | Training of $s^i$ is under-specified: §03 says it approximates the CBF condition (needs a supervised/auxiliary loss and a defined $h^{ij}$); §05 gives no loss. Also, $h^{ij}$ (CBF) collides with $h^i_t$ (GRU) in notation. | G03.4, G05.6, G01.1 | open |
-| GAP-06 | H | Dynamics mismatch: the paper's PID outputs thrust/pitch/roll/yaw rate (6-DOF UAS). BlueSky is a point-mass airliner model with HDG/SPD/ALT commands (A320, FL350, 5 NM separation, 150 kt). | G05.5, G03.3, G04.1, G00.2 | open → Q-01 |
-| GAP-07 | M | Latency scale: δ∈{0,0.1,0.5,1.0} s, but a `sector_cr` control step is `ACTION_FREQUENCY`=5 × `DT`=1 s = **5 s** of sim time. All proposed δ fall inside one step unless step timing changes. | G04.3, G06.6, T3 | open |
-| GAP-08 | L | Node features include "received reward" and "current action". Reward isn't available at decentralized execution time, and current action is circular at decision time. | G05.1 | open |
-| GAP-09 | M | Static obstacles and non-cooperative intruders (m) don't exist in the BlueSky envs. They must be added (e.g. `bs.traf.cre` aircraft not in `env.agents`). | G04.1, G04.3 | open |
-| GAP-10 | M | The motivation (and the §06 custom 3D env) relies on vehicles entering and leaving mid-episode. The BlueSky envs have fixed n per episode and all-or-nothing termination (PLAN.md fact 7), and there's no per-agent death masking. | G04.1, G05.4, G06.10 | open |
-| GAP-11 | M | Validation environments: the paper names a 2D navigation benchmark + a custom 3D 6-DOF env. The implementation uses BlueSky. Replace or add? (`% TODO(authors)` in `06_experiments.tex`) | G06.10, G00.2 | open → Q-04 |
-| GAP-12 | M | Action design: 15 discrete absolute actions (D-007) vs "corrective commands relative to the PID baseline". MAPPO/GCBF are naturally continuous. | G05.7, G03.2 | open → Q-03 |
-| GAP-13 | H | Baseline fairness: VDN/IQL and parameter-shared IPPO/MAPPO-with-local-critic *are* n-transferable. The "QMIX/MAPPO not transferable" row may be challenged, and InforMARL/GraphMIX/QMIX-GNN are discussed but not compared against. | G03.1, G03.2, G06.4, G06.9 | open |
-| GAP-14 | M | Emergence metrics (heading-direction entropy, trajectory MI, deadlock) have no operational definitions yet. | G06.2, G06.8 | open |
-| GAP-15 | M | C2 needs a defined "end-to-end MARL" comparator and a rule for transitions where no agent is overridden (do they train the Q-net?). | G05.11, G06.7, T2 | open |
+| GAP-01 | M | Training fleet sizes are inconsistent: §02 and Table 1 say "training at n=5"; §05 says n∈{2,4,8,16,…,n_max}; §06 says n∈{3,5,8}. | G05.4, G06.1, G06.9 | **resolved** (D-017): paper §02, §05, §06 and Table 1 now all say n ∈ {3, 6, 9} |
+| GAP-02 | H | Execution model is unclear: §05 says that at activation the policy builds G and "queries the centralized Q-network to select the optimal joint corrective action". That is centralized execution, which conflicts with the CTDE framing and the decentralized broadcast channel (in QMIX the mixer is used only in training). | G05.3, G04.5, C1 | **resolved** (D-018): decentralized execution, mixer in training only |
+| GAP-03 | H | A centralized Q-network on a fixed z can't by itself output per-agent actions for variable n. The paper doesn't say how per-agent utilities, z and $Q_{tot}$ combine, or how monotonicity/IGM is kept. | G05.3, T1 | **resolved** (D-019): per-agent utilities from the GCN agent, monotonic GAT mixer; monotonicity and any-n forward/backward are tested |
+| GAP-04 | M | Two activation triggers: "when any other agent enters $r_{\text{detect}}$" vs the per-vehicle rule $s^i<\theta$ (Eq. 4). Which governs, and is activation per-vehicle or fleet-wide? | G05.6 | **resolved** (D-020): the sensor-radius rule governs, per vehicle |
+| GAP-05 | M | Training of $s^i$ is under-specified: §03 says it approximates the CBF condition (needs a supervised/auxiliary loss and a defined $h^{ij}$); §05 gives no loss. Also, $h^{ij}$ (CBF) collides with $h^i_t$ (GRU) in notation. | G03.4, G05.6, G01.1 | deferred (D-020): the safety score is no longer the switch; kept as a possible extension. Notation clash still to fix if it returns |
+| GAP-06 | H | Dynamics mismatch: the paper's PID outputs thrust/pitch/roll/yaw rate (6-DOF UAS). BlueSky is a point-mass airliner model with HDG/SPD/ALT commands (A320, FL350, 5 NM separation, 150 kt). | G05.5, G03.3, G04.1, G00.2 | **resolved** (D-021): HDG/SPD commands; paper updated. Framing part stays in Q-01 |
+| GAP-07 | M | Latency scale: δ∈{0,0.1,0.5,1.0} s, but a `sector_cr` control step is `ACTION_FREQUENCY`=5 × `DT`=1 s = **5 s** of sim time. All proposed δ fall inside one step unless step timing changes. | G04.3, G06.6, T3 | deferred (D-022) |
+| GAP-08 | L | Node features include "received reward" and "current action". Reward isn't available at decentralized execution time, and current action is circular at decision time. | G05.1 | **resolved** (D-027): both features dropped, as in TransfQMix |
+| GAP-09 | M | Static obstacles and non-cooperative intruders (m) don't exist in the BlueSky envs. They must be added (e.g. `bs.traf.cre` aircraft not in `env.agents`). | G04.1, G04.3 | deferred (D-022) |
+| GAP-10 | M | The motivation (and the §06 custom 3D env) relies on vehicles entering and leaving mid-episode. The BlueSky envs have fixed n per episode and all-or-nothing termination (PLAN.md fact 7), and there's no per-agent death masking. | G04.1, G05.4, G06.10 | accepted-risk (D-023): fleet size is fixed within an episode and varies between episodes; the observation graph still changes as vehicles enter and leave the sensor radius. Stated as a limitation in the paper |
+| GAP-11 | M | Validation environments: the paper names a 2D navigation benchmark + a custom 3D 6-DOF env. The implementation uses BlueSky. Replace or add? (`% TODO(authors)` in `06_experiments.tex`) | G06.10, G00.2 | **resolved** (D-023) |
+| GAP-12 | M | Action design: 15 discrete absolute actions (D-007) vs "corrective commands relative to the PID baseline". MAPPO/GCBF are naturally continuous. | G05.7, G03.2 | deferred (D-022) |
+| GAP-13 | H | Baseline fairness: VDN/IQL and parameter-shared IPPO/MAPPO-with-local-critic *are* n-transferable. The "QMIX/MAPPO not transferable" row may be challenged, and InforMARL/GraphMIX/QMIX-GNN are discussed but not compared against. | G03.1, G03.2, G06.4, G06.9 | **resolved** (D-024, D-027): baselines QMIX, VDN, IQL; VDN and IQL on the fixed k-nearest observation are evaluated zero-shot |
+| GAP-14 | M | Emergence metrics (heading-direction entropy, trajectory MI, deadlock) have no operational definitions yet. | G06.2, G06.8 | deferred (D-025): concepts removed from the paper |
+| GAP-15 | M | C2 needs a defined "end-to-end MARL" comparator and a rule for transitions where no agent is overridden (do they train the Q-net?). | G05.11, G06.7, T2 | half resolved: the end-to-end comparator is GNN-QMIX without the PID layer (D-022). The rule for transitions with no active vehicle is open (PID + GNN-QMIX plan) |
 | GAP-16 | L | Bibliography TODO-VERIFY: `qmix-gnn`, `gnn_marl` (placeholders), GCBF author list, GraphMIX year/venue. | paper | open (authors) |
-| GAP-17 | L | Missing nomenclature symbols: $L$ (GNN layers), $h^{ij}$, $\alpha$, $d$ readout composition. | G01.1 | open |
-| GAP-18 | M | "Mission success" per env: `merge` ends for everyone when any aircraft finishes; `sector_cr` truncates when all have left. Per-agent success needs a definition. | G04.2, G06.2 | open → Q-02 |
-| GAP-19 | M | Scaling rule for zero-shot tests: does airspace size grow with n (constant density) or stay fixed (rising density)? This changes what "generalization" means. | G06.1, G04.1, D1 | open |
-| GAP-20 | M | Sum pooling in the readout scales with n, so z's distribution shifts at unseen n. That may hurt zero-shot even though the dimension is fixed (C1 is about dimension/invariance, not distribution). | G05.2, T1, D1 | open |
-| GAP-21 | M | Env observations hold only the `NUM_AC_STATE`=3 nearest *agents*. For n≤3 the obs is shorter than the declared `Box(24,)` (17 at n=3, 10 at n=2), which breaks fixed-shape code for the n=3 sweep (INF-4) and the {3,5,8} / {2,4,…} training sets. For n>4, agents beyond the 3rd neighbor are invisible to the policy. | INF-4, D-007, G04.1, G05.1 | open |
+| GAP-17 | L | Missing nomenclature symbols: $L$ (GNN layers), $h^{ij}$, $\alpha$, $d$ readout composition. | G01.1 | open: the paper's nomenclature was rewritten on 2026-11-25; `docs/goals/01_nomenclature.md` still has to follow |
+| GAP-18 | M | "Mission success" per env: `merge` ends for everyone when any aircraft finishes; `sector_cr` truncates when all have left. Per-agent success needs a definition. | G04.2, G06.2 | open → Q-02. No mission-success rate for now; safety metrics per D-028 |
+| GAP-19 | M | Scaling rule for zero-shot tests: does airspace size grow with n (constant density) or stay fixed (rising density)? This changes what "generalization" means. | G06.1, G04.1, D1 | **resolved** (D-029): both rules are evaluated |
+| GAP-20 | M | Sum pooling in the readout scales with n, so z's distribution shifts at unseen n. That may hurt zero-shot even though the dimension is fixed (C1 is about dimension/invariance, not distribution). | G05.2, T1, D1 | **resolved** (D-019): mean and max readouts, mean aggregation in the mixer, mean team reward |
+| GAP-21 | M | Env observations hold only the `NUM_AC_STATE`=3 nearest *agents*. For n≤3 the obs is shorter than the declared `Box(24,)` (17 at n=3, 10 at n=2), which breaks fixed-shape code for the n=3 sweep (INF-4) and the {3,5,8} / {2,4,…} training sets. For n>4, agents beyond the 3rd neighbor are invisible to the policy. | INF-4, D-007, G04.1, G05.1 | **resolved** for the adapter (D-016). The raw env (`obs_mode="env"`) is unchanged |
 | GAP-22 | L | Env-wrapper unit/doc mismatches: the speed action adds a "kt" delta (20/3) to CAS in m/s before converting, so the effective step is ≈±13 kt, not ±6.7 kt. `merge` compares `DISTANCE_MARGIN` (labeled km) with a distance in NM. The obs docstrings say "heading difference", but the code computes the relative-velocity track angle. The `merge` docstring lists FAF distance and a FAF-reached flag that the obs doesn't contain. | G04.1, G05.1, G05.7 | open |
+| GAP-24 | M | With D-016 the per-agent obs width depends on n. (a) Any network that reads `obs` directly (QMIX/MAPPO agents, not only the mixer/critic) is now n-specific, so the baselines' "not transferable" result is partly a product of our observation design; a reviewer may ask for a fixed-width (k-nearest or pooled) baseline. This changes the GAP-13 picture. (b) The concatenated state grows as n·(7n−4): 51, 228, 531 for n = 3, 6, 9 and 17 300 at n = 50. | G03.1, G03.2, G04.5, G05.1, G06.4 | **resolved**: (a) D-027 (k-nearest observation for VDN and IQL; QMIX stays n-specific by design), (b) D-026 (entity state) |
 | GAP-23 | L | `algorithms/qmix_bluesky.py` has no origin header (source path, pinned commit, list of changes), which S-06 requires. `mappo_bluesky.py` has one to copy from. | G03.1 | open |
+| GAP-25 | M | `sector_cr` spawns aircraft uniformly at random, so pairs can start inside the 5 NM minimum. Such pairs count in `los_pair_steps` and make `conflict_free` 0 whatever the policy does (seen in smoke runs at n = 9; expected for almost every episode at n = 20 and 50), but they are not counted in `los_events`. The conflict-free rate cannot be a primary metric at large n unless spawning or the metric changes. | G06.2, G06.5, G06.9, G04.1 | **resolved** (D-028): 6 NM minimum spawn separation; tested at n = 9 and n = 50 |
+| GAP-26 | L | `algorithms/gnn_qmix/train.py` cannot resume from a checkpoint. A killed HPC job has to start again. | G05.4 | open |
+| GAP-27 | L | The paper was rewritten on 2026-11-25 (new sections `06a`, `06b`, new claims and contribution list). `docs/goals/*` still quote the old text in their "Paper basis" lines, and the paper has not been compiled (INF-2). | all goals, INF-2 | open |
+| GAP-28 | L | In the fixed airspace at n = 50 with 6 NM spawn separation the sector is nearly full; sectors that cannot hold the fleet are redrawn, so the n = 50 fixed-airspace scenarios are biased toward the larger sectors (2400–3750 NM² range). | G06.5, D-028 | open |
+| GAP-29 | L | The k-nearest baselines see the 3 nearest aircraft at any distance, while GNN-QMIX sees only aircraft inside r_detect = 20 NM. The two observations differ in range as well as in structure. | G03.1, G06.4, D-027 | open |
 
 ---
 
@@ -261,14 +288,22 @@ Agents and code contributors **don't decide these**. Record the answer as a D- e
 
 | ID | question | from | status |
 |---|---|---|---|
-| Q-01 | UAS vs airliners: keep the "UAS" framing with scaled separation/speeds in BlueSky, or reframe as ATM/AAM? What dynamics level does the PID act on? | PLAN.md §6; GAP-06 | open |
+| Q-01 | UAS vs airliners: keep the "UAS" framing with scaled separation/speeds in BlueSky, or reframe as ATM/AAM? What dynamics level does the PID act on? | PLAN.md §6; GAP-06 | **partly answered** 2026-11-25 (D-021: HDG/SPD commands). Still open: keep the UAS / AAM framing and title, or reframe as ATM? |
 | Q-02 | Primary env: `sector_cr` (individual goals), `merge` (shared goal), or both? | PLAN.md §6; GAP-18 | open |
-| Q-03 | Action discretization (15 now) vs a continuous method (FACMAC / MAPPO-continuous); absolute vs residual-on-PID actions | PLAN.md §6; GAP-12 | open |
-| Q-04 | Does BlueSky replace the "2D navigation benchmark", or come in addition? What happens to the custom 3D env? | PLAN.md §6; GAP-11 | open |
-| Q-05 | Which training fleet sizes are canonical: n=5, {3,5,8}, or {2,4,8,16,…}? | GAP-01 | open |
-| Q-06 | Is execution meant to be decentralized (CTDE) or centralized-on-activation? | GAP-02 | open |
+| Q-03 | Action discretization (15 now) vs a continuous method (FACMAC / MAPPO-continuous); absolute vs residual-on-PID actions | PLAN.md §6; GAP-12 | deferred (D-022) |
+| Q-04 | Does BlueSky replace the "2D navigation benchmark", or come in addition? What happens to the custom 3D env? | PLAN.md §6; GAP-11 | **answered** 2026-11-25: BlueSky replaces both (D-023) |
+| Q-05 | Which training fleet sizes are canonical: n=5, {3,5,8}, or {2,4,8,16,…}? | GAP-01 | **answered** 2026-11-17: {3, 6, 9} (D-017) |
+| Q-06 | Is execution meant to be decentralized (CTDE) or centralized-on-activation? | GAP-02 | **answered** 2026-11-25: decentralized, TransfQMix principle (D-018) |
 | Q-07 | Confirm the artifact backend (HF Hub proposed, D-013). Who creates the org, and what is it named? | 2026-11-07 item 2 | open |
 | Q-08 | Work-coordination mechanism (who is working on what, claims, "next"): under discussion, not implemented | 2026-11-07 item 3 | open (discussion) |
+| Q-09 | GAP-08 in plain words: the old paper put each vehicle's "received reward" and "current action" on its graph node. A vehicle decides from its node features, but the reward only exists after it has acted, and the current action is the thing being decided, so neither can be an input at decision time. Options: (a) drop both (proposed, and what the code does; TransfQMix also drops last actions), (b) use the previous step's action, (c) previous action and previous reward. Which? | GAP-08 | **answered** 2026-11-25: drop both, follow TransfQMix (D-027) |
+| Q-10 | Value of the sensor radius r_detect. Proposed 20 NM (sector diameter ≈ 55–70 NM, separation minimum 5 NM, head-on closing ≈ 100 s before a 5 NM loss at 20 NM). | D-020, D-026 | open |
+| Q-11 | Zero-shot scaling rule: keep the sector size fixed (density rises with n, current behavior) or grow the area with n (constant density)? Also: are the evaluation sizes {10, 20, 50} final (is n = 12 wanted)? | GAP-19 | **answered** 2026-11-25: both rules (D-029). Evaluation sizes stay {10, 20, 50} |
+| Q-12 | Baseline observation. Now QMIX/VDN/IQL read the all-agents vector (width depends on n), so they cannot be evaluated at another n at all. Alternative: give them a fixed k-nearest observation so VDN and IQL can be evaluated zero-shot, which is the stronger comparison. Which goes in the paper? | GAP-24a, GAP-13 | **answered** 2026-11-25: fixed k-nearest observation for VDN and IQL (D-027) |
+| Q-13 | Should TransfQMix itself be a baseline? It is the closest prior method and reviewers are likely to ask. Not implemented. | D-018, D-024 | on hold (D-031): add after the first results |
+| Q-14 | Success metric. `sector_cr` has no "mission complete" event, and aircraft can spawn already in conflict (GAP-25). Options: change spawning so no pair starts inside 5 NM (needs an env subclass), ignore pairs in conflict at t = 0, or report LoS rate and LoS events only. Is a mission-success rate still wanted? | GAP-18, GAP-25 | **answered** 2026-11-25: change spawning so no pair starts in conflict (D-028) |
+| Q-15 | Step budget. A jointly trained GNN-QMIX run spends 2M steps over three fleet sizes; each baseline spends 2M at one size. Keep equal budget per run (current), or equal budget per fleet size? | D-026 | **answered** 2026-11-25: budget per fleet size (D-030) |
+| Q-16 | Paper scope changes made on 2026-11-25 need author sign-off (S-04): theoretical claim 3 (latency) removed; claim 1 restated as two propositions; the novelty sentence "no prior work resolves the agent-count coupling" removed because TransfQMix does; safety score / CBF threshold moved to future work; "PID action as input to the policy" left undecided; MAPPO and GCBF only in related work. | D-018…D-025 | **answered** 2026-11-25: approved (D-031) |
 
 ---
 
@@ -330,3 +365,62 @@ touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete
   State: `main`, uncommitted, no remote. Smoke-run outputs only in the session scratchpad (not kept).
   Next: authors decide how Table 1 treats MAPPO transfer (GAP-13); INF-5 simple_spread sanity run;
   INF-7 lock file.
+- **2026-11-17** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · aadit-mbp · branch `gap_address` ·
+  GAP-01. Probed the raw envs first: per-agent obs is 17 / 24 / 24 for n = 3 / 6 / 9 (not linear; n = 3
+  mismatches the declared 24), and extra non-agent aircraft are accepted by BlueSky but invisible to
+  obs and reward. Author decision: training sizes n ∈ {3, 6, 9} agents (D-017). Built the observation
+  builder (`marl/interfaces/observation.py`, adapter `obs_mode`, D-016; plan
+  `docs/plans/GAP-01_observation_builder.md`). **Measured** in both envs: obs width 17 / 38 / 59 / 80
+  for n = 3 / 6 / 9 / 12 (declared = actual, +21 per +3 agents); concatenated state 51 / 228 / 531 / 960
+  (quadratic, GAP-24). QMIX and MAPPO smoke runs pass at n = 3 and n = 9 (n = 3 could not run before).
+  Paper: §02, §05, §06 and Table 1 now state n ∈ {3, 6, 9}; evaluation sizes {10, 20, 50} untouched.
+  Updated README, PLAN.md, ARTIFACTS.md and goals 00/03/05/06 to match.
+  Tests: T0 pass; T1 pass (`pytest marl/tests`, 6 passed; 1 passed before the change); T2 pass
+  (`random_rollout` both envs; `pytest` 6 passed).
+  IDs: GAP-01, GAP-21, GAP-24, D-016, D-017, Q-05, G04.1, G05.1, G06.1.
+  State: `gap_address`, uncommitted, no remote.
+  Next: GAP-02 (execution model). Authors: confirm evaluation sizes (is n = 12 wanted?) and see GAP-24.
+- **2026-11-25** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2; one sub-agent rewrote `paper/`) ·
+  aadit-mbp · branch `gap_address` ·
+  Author decisions on the gap register (D-018…D-025): TransfQMix-style decentralized execution; GNN-QMIX =
+  GCN agents + monotonic GAT mixer; sensor-radius graph and trigger; HDG/SPD actions; BlueSky replaces the
+  other environments; baselines QMIX, VDN, IQL; latency, intruders/obstacles and action design on hold;
+  emergence analysis removed. By author direction this session covered several gaps and areas at once
+  (exception to S-18/S-19). Wrote and got approved `docs/plans/G05.3_gnn_qmix.md`, then built:
+  `algorithms/gnn_qmix/` (networks, train, evaluate, common), `marl/metrics.py`, adapter `state_mode="entities"`
+  plus per-step safety metrics, `configs/*.json`, `tools/plot_results.py`, `tools/hpc/` (matrix, task
+  launcher, Slurm template), `docs/RUNBOOK.md`. Step limit: 2 000 000 per run (BlueSky-Gym's examples use
+  2e6). Paper: all sections rewritten to the new scope following TransfQMix's structure; results section
+  `06b_results.tex` is an empty skeleton with `% TODO(results)` markers; no numbers entered (S-14);
+  bibliography entries added only from the TransfQMix PDF, `gcn`, `gat`, `iql` are TODO-VERIFY (S-15).
+  The paper was **not compiled** (INF-2). **Smoke runs only** (3000 steps, not results): all four algorithms
+  and the GCN + VDN ablation train; GNN-QMIX trained on {3, 6, 9} evaluates at n = 10, 20, 50 with the same
+  weights; a QMIX n = 3 checkpoint reports `not_evaluable` at n = 10; the plotting tool produced tables and
+  figures. About 200 env steps/s for the joint run on this laptop. Slurm template not run on a cluster.
+  Found: aircraft can spawn in conflict (GAP-25); no resume (GAP-26); goal files lag the paper (GAP-27).
+  Tests: T0 pass; T1 pass (`pytest marl/tests` 10 passed, `pytest algorithms/tests` 17 passed; 6 passed before
+  the change); T2 pass (`random_rollout` both envs; `pytest` 27 passed).
+  IDs: D-018…D-026, GAP-02…GAP-15, GAP-17…GAP-20, GAP-24…GAP-27, Q-01, Q-03, Q-04, Q-06, Q-09…Q-16, G03.1,
+  G04.5, G05.1…G05.4, G06.2, G06.3, G06.8, G06.10.
+  State: `gap_address`, uncommitted (includes the 2026-11-17 changes), no remote. Nothing running.
+  Next: authors answer Q-09…Q-16 (Q-12 and Q-14 change what is run). Fill the cluster lines in
+  `tools/hpc/train_array.sbatch`, then launch tasks 1–30 per `docs/RUNBOOK.md`. Then the PID + GNN-QMIX plan.
+- **2026-11-25 (2)** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · aadit-mbp · branch `gap_address` ·
+  Applied the author's answers to Q-09…Q-16 (D-027…D-031). (1) VDN and IQL read a fixed 3-nearest
+  observation, train jointly at {3, 6, 9} and are evaluated zero-shot; QMIX stays full-observation and
+  fixed-n. (2) `simulator/bluesky_marl/custom_envs.py`: `ConfigurableSectorCR` with 6 NM minimum spawn
+  separation and sector-area scaling; **measured** minimum initial separation > 5 NM over 8 seeds each at
+  n = 9 and n = 50. (3) Zero-shot evaluation runs every fleet size in both airspaces (`fixed`, `density`).
+  (4) Budget is 2 000 000 steps per training fleet size; all step counts are per fleet size. (5) Paper
+  updated for all of this; signed-off items marked. Run matrix is now 18 core tasks + 3 ablation tasks.
+  Table 1 gained a VDN / IQL row that only restates the central hypothesis (authors to review).
+  **Smoke runs only** (1500 steps per size, not results): tasks 1, 4, 7, 10, 19 ran through
+  `tools/hpc/run_task.sh` (train, evaluate at n = 3…50 in both airspaces, aggregate). Logged GAP-28, GAP-29.
+  Still open: Q-10 (r_detect = 20 NM is a proposed value), Q-01 framing/title, Q-02, Q-07, Q-08.
+  Tests: T0 pass; T1 pass (`simulator/tests` 4, `marl/tests` 10, `algorithms/tests` 22); T2 pass
+  (`random_rollout` both envs; `pytest` 36 passed).
+  IDs: D-026…D-031, GAP-08, GAP-13, GAP-18, GAP-19, GAP-24, GAP-25, GAP-28, GAP-29, Q-09…Q-16, G03.1, G04.1,
+  G06.1, G06.3.
+  State: `gap_address`, committed and pushed to `origin` (see `git log`). Nothing running.
+  Next: confirm Q-10; fill the cluster lines in `tools/hpc/train_array.sbatch` and launch tasks 1–18
+  (`docs/RUNBOOK.md`). Then the PID + GNN-QMIX plan (G05.5–G05.9).

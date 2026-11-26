@@ -46,7 +46,7 @@ Status values: `defined` → `planned` (approved plan in `docs/plans/`) → `in-
 | **M3** GNN spatial + GRU temporal integration | G04.4, G05.10 | D2; latency ablation |
 | **M4** single-level training with PID action as input | G05.5, G05.7 | D3 "PID-input" ablation |
 | Exp. program: baselines | G03.1, G03.2, G03.3, G06.4 | Table 1, D1 |
-| Exp. program: zero-shot n=5 → {10,20,50} | G05.4, G06.1, G06.3, G06.5 | D1, Table 1 |
+| Exp. program: zero-shot n∈{3,6,9} → {10,20,50} | G05.4, G06.1, G06.3, G06.5 | D1, Table 1 |
 | Exp. program: emergent coordination | G06.2, G06.8 | D4 |
 
 ## Dependency order (high level)

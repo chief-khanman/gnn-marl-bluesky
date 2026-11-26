@@ -7,21 +7,24 @@ the intervention threshold θ**.
 - **Paper basis:** "The QMIX mixing network … take a joint input whose dimensionality is fixed
   by the training team size, so changing n requires architectural modification and retraining."
 - **Objective:** a QMIX baseline on the BlueSky env with CleanMARL's `MixingNetwork(n_agents,
-  s_dim)` kept as is (D-008), plus a recorded demonstration that an n=5 checkpoint
+  s_dim)` kept as is (D-008), plus a recorded demonstration that a checkpoint trained at a paper training size (n ∈ {3, 6, 9}, D-017)
   **cannot be evaluated** at n=10 (mixer input mismatch). That demonstration is the Table 1
   "Not transferable" row.
 - **Interface:** `algorithms/qmix_bluesky.py` (exists) → checkpoints + tensorboard in `runs/`.
 - **Depends on:** INF-5. **Feeds:** G06.4, G06.9.
-- **Acceptance:** curves for 3 seeds at n=5 with team return, intrusions/episode and drift
+- **Acceptance:** curves for 3 seeds at the training sizes (D-017) with team return, intrusions/episode and drift
   logged; a logged failure on n=10 load.
-- **Status:** defined (smoke run exists per PLAN.md §5). **Gaps:** GAP-13.
+- **Status:** in-progress (2026-11-25): QMIX, VDN and IQL baselines (D-024) run from
+  `algorithms/gnn_qmix/train.py`; the `not_evaluable` outcome at another n is recorded by
+  `algorithms/gnn_qmix/evaluate.py`. VDN and IQL use the fixed 3-nearest observation and are
+  evaluated zero-shot; QMIX stays fixed-n (D-027). 3-seed runs outstanding. **Gaps:** GAP-29.
 
 ### G03.2: MAPPO baseline
 - **Paper basis:** "MAPPO centralized critic take[s] a joint input whose dimensionality is fixed."
 - **Objective:** copy CleanMARL `mappo.py` → `algorithms/mappo_bluesky.py` with the same
   `bluesky` env branch as QMIX. Centralized critic kept fixed-n.
 - **Depends on:** INF-5. **Feeds:** G06.4.
-- **Status:** in-progress. Plan `docs/plans/G03.2_mappo_baseline.md` approved 2026-11-09;
+- **Status:** deferred (D-024: MAPPO is not a baseline for now). Plan `docs/plans/G03.2_mappo_baseline.md` approved 2026-11-09;
   `algorithms/mappo_bluesky.py` smoke-tested on both envs. **Gaps:** GAP-12 (continuous vs discrete), GAP-13.
 
 ### G03.3: GCBF baseline
@@ -30,7 +33,7 @@ the intervention threshold θ**.
 - **Objective:** run GCBF (external implementation; not in CleanMARL) on the same scenarios
   and metrics. This needs an adapter from GCBF's dynamics/action interface to BlueSky's.
 - **Depends on:** G04.1, G06.2. **Feeds:** G06.4.
-- **Status:** defined. **Gaps:** GAP-06 (dynamics model mismatch), GAP-16 (citation).
+- **Status:** deferred (D-024). **Gaps:** GAP-16 (citation).
 
 ### G03.4: CBF-grounded intervention threshold θ
 - **Paper basis:** "the CBF condition $\dot h^{ij}+\alpha(h^{ij})\ge 0$ … provides a

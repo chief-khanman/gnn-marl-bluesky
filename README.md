@@ -28,7 +28,7 @@ demand grows, or drop out.
    (grounded in a control-barrier-function condition), with a cost per intervention.
 3. **Broadcast channel with latency δ.** Intruder detections reach the fleet after δ.
    Each vehicle integrates messages through a GRU whose hidden state becomes a node feature.
-4. **Mixed-n training.** Trained jointly at several fleet sizes (e.g. n∈{3,5,8}) and evaluated
+4. **Mixed-n training.** Trained jointly at several fleet sizes (n∈{3,6,9}) and evaluated
    zero-shot at n∈{10,20,50} against QMIX, MAPPO, GCBF and a PID-only ablation.
 
 Three theoretical claims accompany the method: fleet-size invariance (C1), the
