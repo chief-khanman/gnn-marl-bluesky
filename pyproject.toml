@@ -37,4 +37,4 @@ include = ["simulator*", "marl*", "algorithms*"]
 exclude = ["*third_party*"]
 
 [tool.pytest.ini_options]
-testpaths = ["marl/tests"]
+testpaths = ["marl/tests", "algorithms/tests", "simulator/tests"]
