@@ -1,0 +1,15 @@
+{
+  "_goals": "G03.1, G06.4. IQL baseline, MLP agent on the fixed 3-nearest observation (D-027), trained jointly at n in {3, 6, 9}; can be evaluated zero-shot.",
+  "env_name": "sector_cr",
+  "steps_per_size": 2000000,
+  "max_episode_steps": 150,
+  "r_detect_nm": 20.0,
+  "spawn_min_sep_nm": 6.0,
+  "algo": "iql",
+  "baseline_k_nearest": 3,
+  "train_n": [
+    3,
+    6,
+    9
+  ]
+}

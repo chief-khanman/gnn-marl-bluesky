@@ -1,0 +1,15 @@
+{
+  "_goals": "G06.7 (ablation). GCN agent with a VDN sum instead of the GAT mixer; trained jointly. Isolates the mixer.",
+  "env_name": "sector_cr",
+  "steps_per_size": 2000000,
+  "max_episode_steps": 150,
+  "r_detect_nm": 20.0,
+  "spawn_min_sep_nm": 6.0,
+  "algo": "vdn",
+  "agent_net": "gcn",
+  "train_n": [
+    3,
+    6,
+    9
+  ]
+}
