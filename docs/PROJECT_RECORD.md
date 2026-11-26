@@ -424,3 +424,29 @@ touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete
   State: `gap_address`, committed and pushed to `origin` (see `git log`). Nothing running.
   Next: confirm Q-10; fill the cluster lines in `tools/hpc/train_array.sbatch` and launch tasks 1–18
   (`docs/RUNBOOK.md`). Then the PID + GNN-QMIX plan (G05.5–G05.9).
+- **2026-11-25 (3)** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · nova (ISU Nova HPC, first use) · branch `gap_address` ·
+  Set the project up on the cluster and launched the run matrix. Clone at `/work/flemingc/akhan1/gnn_marl`
+  (commit `5eb5f5f`), venv `.venv` with the D-005 pins and CPU-only `torch==2.9.0`. Filled the cluster lines of
+  `tools/hpc/train_array.sbatch` (partition `nova`, account `flemingc`, 72 h, optional `RUNS_DIR` and extra
+  training flags) and the "Cluster specifics" of `docs/HANDOFF.md`. No config, method or hyperparameter changed;
+  `artifacts/registry.toml` has no entry, so nothing to reuse (S-23).
+  Launched 18:47 CST, one Slurm array per method, results under
+  `/work/flemingc/akhan1/gnn_marl_experiments/Nov25_<METHOD>/`: GNN-QMIX tasks 1–3 job `17768552`, VDN 4–6 job
+  `17768553`, IQL 7–9 job `17768554`, QMIX 10–18 job `17768555`, ablation 19–21 job `17768571`. All 21 started;
+  status table in `Nov25_STATUS.md` in that folder (refresh with `make_status.py`).
+  **Measured** in the first 10 minutes (not results): 18 to 29 steps/s per fleet size for the joint runs, 48 to
+  121 for QMIX, which is 2 to 3 times slower than the `aadit-mbp` estimate in the runbook; projected end of
+  training Thu Nov 26 for most runs, about 02:00 Fri Nov 27 for the slowest joint runs, inside the 72 h limit.
+  Observed, not investigated: (a) BlueSky prints a caught `ArgumentError: txt2hdg needs either a float`
+  traceback now and then (tasks 8, 18) and training continues; (b) the QMIX training loss grew to 1e5–1e6 in
+  all nine QMIX runs within 40 000 steps while the joint methods stay near 0.02. Neither has a GAP entry yet.
+  Tests: T0 pass (`check_docs` 0 problems, before and after); T2 pass (`random_rollout`; `pytest` 36 passed);
+  smoke task 1 through the Slurm script (job `17768517`, 1500 steps per size) ended with `wrote …/eval_zero_shot.csv`.
+  IDs: G05.4, G06.3, G06.4, G03.1, D-005, D-030, GAP-26, S-22, S-23.
+  State: `gap_address`, committed and pushed to `origin` (see `git log`); the jobs run the code of `5eb5f5f`.
+  Running: Slurm jobs `17768552`, `17768553`, `17768554`, `17768555`, `17768571` on Nova, writing to
+  `/work/flemingc/akhan1/gnn_marl_experiments/Nov25_*`; they are killed at about 18:47 on Sat Nov 28 if unfinished.
+  Next: after the jobs end, rerun `make_status.py` and check that all 21 run directories have `final.pt` and
+  `eval_zero_shot.csv`; resubmit any dead task id (no resume, GAP-26). Authors to look at the QMIX loss before
+  its numbers are used. Then aggregate per RUNBOOK §6 over a folder of symlinks to the run directories, and
+  publish the checkpoints (Q-07 still open).

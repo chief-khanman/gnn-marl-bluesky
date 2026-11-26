@@ -75,8 +75,23 @@ Run IDs must be unique across all machines. The run directory name is
 - Cluster-specific details (cluster name, `module load` lines, partition, GPU flags) go in the
   section below, written by whoever sets it up first. **Don't guess them.**
 
-### Cluster specifics (to be filled in)
-- Cluster: _TBD_
-- Modules / Python setup: _TBD_
-- Storage paths: _TBD_
-- Example job script: _TBD_ (goes in `tools/hpc/` once written)
+### Cluster specifics
+
+Filled in on 2026-11-25 for the first cluster used. Verified there unless marked otherwise.
+
+- Cluster: **ISU Nova** (Slurm). Machine tag in run IDs: `nova`. Repo clone: `/work/flemingc/akhan1/gnn_marl`.
+- Access used: VS Code tunnel, which is itself a 2-hour Slurm job on a compute node
+  (submit host `nova-vscode.its.iastate.edu`). That compute node had internet, so the installs
+  were done there. A tmux session started inside the tunnel job ends with that job; batch jobs do not.
+- Partition / account: `nova` / `flemingc`. Partition wall-time limit 31 days; default 4 h, so always pass `--time`.
+- Modules / Python setup: no `module load` lines. Python 3.12.4 from `/work/flemingc/akhan1/miniconda`,
+  venv at `<repo>/.venv` (found by `tools/hpc/run_task.sh` without `PYTHON=`), pip installs from README
+  "Setup" with `torch==2.9.0` from `https://download.pytorch.org/whl/cpu` (CPU-only build, D-005 pins otherwise).
+- Storage paths: experiments in `/work/flemingc/akhan1/gnn_marl_experiments/<Mon><DD>_<METHOD>/`
+  (`logs/task_<id>.log` plus one run directory per task); smoke runs in `/work/flemingc/akhan1/gnn_marl_smoke`.
+  BlueSky cache in `~/bluesky` (home is shared with the compute nodes).
+- Job script: `tools/hpc/train_array.sbatch` (10 CPUs, 72 h). One array per method, launched by
+  `/work/flemingc/akhan1/gnn_marl_experiments/submit_all.sh` (outside git), which adds `--mem=32G` for joint
+  runs and `--cpus-per-task=4 --mem=16G` for QMIX. Measured in the smoke job: peak memory 3.4 GB for a joint run.
+- Monitoring: `/work/flemingc/akhan1/gnn_marl_experiments/watch.sh` recreates the tmux session `gnn_marl`
+  (one `squeue` window, one log window per method) on the node you are logged in to.
