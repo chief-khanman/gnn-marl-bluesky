@@ -52,7 +52,8 @@ size. The `step` in the logs is the per-fleet-size count. No pair of aircraft st
 `config_sha` (S-23).
 
 Resources per task: a jointly trained run starts 10 processes (1 learner, 3 collectors,
-6 evaluators); a QMIX run starts 4. No GPU is needed (the networks have 4 000 to 33 000
+6 evaluators); a QMIX run starts 4. Measured on Nova: the processes mostly wait on each other, so a joint run
+uses about 1.1 CPU cores and 4.2 GB (request 4 CPUs, 8 GB) and a QMIX run 1.0 core and 2.0 GB (request 2 CPUs, 4 GB). No GPU is needed (the networks have 4 000 to 33 000
 parameters). Measured on `aadit-mbp`: about 200 environment steps per second in total for a
 joint run, so roughly 8 to 9 hours of collection for 6M steps, plus evaluation; a QMIX run
 is about a third of that. The 24-hour limit in the Slurm template is an estimate with margin;

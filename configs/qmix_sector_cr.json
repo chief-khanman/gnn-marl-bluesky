@@ -1,11 +1,13 @@
 {
-  "_goals": "G03.1, G06.4. QMIX baseline: MLP agent on the full observation and CleanMARL's fixed-n mixer (D-008). One run per fleet size (--train-n 3 | 6 | 9); not evaluable at another n.",
+  "_goals": "G03.1, G06.4. QMIX baseline: MLP agent on the full observation and CleanMARL's fixed-n mixer (D-008). One run per fleet size (--train-n 3 | 6 | 9); not evaluable at another n. Since D-032 (GAP-30): the mixer reads the airspeed state entry divided by 10 and the target networks follow at polyak 0.001; without both the mixer's value estimate diverges.",
   "env_name": "sector_cr",
   "steps_per_size": 2000000,
   "max_episode_steps": 150,
   "r_detect_nm": 20.0,
   "spawn_min_sep_nm": 6.0,
   "algo": "qmix",
+  "qmix_airspeed_div": 10.0,
+  "polyak": 0.001,
   "train_n": [
     3
   ]

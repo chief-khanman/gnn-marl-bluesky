@@ -4,13 +4,15 @@
 # Submit one array per method so each writes into its own parent folder, e.g.
 #   D=/work/flemingc/akhan1/gnn_marl_experiments/Nov25_GNN-QMIX; mkdir -p $D/logs
 #   sbatch --array=1-3 --export=ALL,RUNS_DIR=$D --output=$D/logs/task_%a.log tools/hpc/train_array.sbatch
-# QMIX tasks (10-18) start 4 processes: add --cpus-per-task=4 --mem=8G.
+# Measured on Nova (2026-11-25 runs): a joint run used about 1.1 CPU cores on average and 4.2 GB at peak
+# (10 processes, mostly waiting on each other); a QMIX run about 1.0 core and 2.0 GB (4 processes).
+# The defaults below fit a joint run. For QMIX tasks (10-18) add --cpus-per-task=2 --mem=4G --time=24:00:00.
 # Extra training flags can be passed after the script name (used for smoke runs only).
 #SBATCH --job-name=gnn-qmix
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
-#SBATCH --mem=16G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=8G
 #SBATCH --time=72:00:00
 #SBATCH --output=slurm_logs/%x_%A_%a.out
 #SBATCH --partition=nova

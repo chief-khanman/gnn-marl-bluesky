@@ -237,6 +237,7 @@ Format: **D-xxx** · date · status (`adopted` / `proposed` / `superseded by D-y
 | D-029 | 2026-11-25 | adopted | Zero-shot evaluation uses **both** airspace rules: `fixed` (original sector, density rises with n) and `density` (sector area × n / 9, constant density). Training uses `fixed` | author decision 2026-11-25. Answers Q-11; resolves GAP-19. The reference size 9 (largest training size) is proposed |
 | D-030 | 2026-11-25 | adopted (amends D-026) | Training budget = **2 000 000 environment steps per training fleet size** for every method (joint runs 6M in total, each QMIX run 2M). Reason: a per-run budget would give a single-size model three times the experience at its size; per-size, every method sees the same data at every size, the same total, and the same number of updates. All step counts in configs and logs are per fleet size | author direction 2026-11-25 ("budget should properly reflect experiment and have valid reasoning"). Answers Q-15 |
 | D-031 | 2026-11-25 | adopted | The paper scope changes of 2026-11-25 are approved: claim 3 (latency) removed, claim 1 restated as two propositions, the "no prior work" novelty sentence removed, safety score / CBF as future work, MAPPO and GCBF in related work only. TransfQMix as a baseline is on hold until the first results exist; it is then added to compare parameter efficiency and performance | author decision 2026-11-25. Answers Q-16; Q-13 on hold |
+| D-032 | 2026-11-26 | adopted by author direction ("fix so that all policies train properly"); the two values were chosen by the agent from short diagnostic runs and **need author review** | QMIX baseline only: (1) the mixer reads the entity state with the airspeed entry divided by 10 (`qmix_airspeed_div = 10`), (2) its target networks follow at `polyak = 0.001` instead of 0.01. Both are set in `configs/qmix_sector_cr.json`; the defaults (1.0, 0.01) and every other method are unchanged, so the 2026-11-25 GNN-QMIX, VDN, IQL and ablation runs stay valid. The QMIX runs of 2026-11-25 (`Nov25_QMIX`) are superseded and must not be reported. Double Q-learning was tested and not adopted: it did not stop the divergence on its own and would have made QMIX's target rule differ from the other methods | GAP-30. Diagnostics (n = 6, seed 1, 200 000 steps, not results) in `/work/flemingc/akhan1/gnn_marl_diag/` on Nova. QMIX now differs from the other methods in one training hyperparameter (polyak); say so in the paper's baseline description (S-04) |
 
 ---
 
@@ -279,6 +280,8 @@ Severity: **H** blocks a core claim or goal · **M** affects an experiment or it
 | GAP-27 | L | The paper was rewritten on 2026-11-25 (new sections `06a`, `06b`, new claims and contribution list). `docs/goals/*` still quote the old text in their "Paper basis" lines, and the paper has not been compiled (INF-2). | all goals, INF-2 | open |
 | GAP-28 | L | In the fixed airspace at n = 50 with 6 NM spawn separation the sector is nearly full; sectors that cannot hold the fleet are redrawn, so the n = 50 fixed-airspace scenarios are biased toward the larger sectors (2400–3750 NM² range). | G06.5, D-028 | open |
 | GAP-29 | L | The k-nearest baselines see the 3 nearest aircraft at any distance, while GNN-QMIX sees only aircraft inside r_detect = 20 NM. The two observations differ in range as well as in structure. | G03.1, G06.4, D-027 | open |
+| GAP-30 | H | The QMIX baseline's value estimate diverged in all nine runs of 2026-11-25 (loss 1e5 to 1e11, Q_tot of 1e4 to 1e6 where the true value is about -14). Measured causes: (a) the env's airspeed feature, (tas - 150) / 6, has std 4.3 and max 13.7 in the entity state while all other entries are within about ±3, and CleanMARL's mixer builds its weights as abs(Linear(state)), so at initialization dQ_tot/dq_i is about 53; (b) with (a) removed the loss still rises (2 to 300 over 200 000 steps at n = 6) unless the target networks move more slowly. | G03.1, G06.4, D-008, D-032 | fixed for QMIX by D-032, **verified only to 200 000 steps at n = 6, seed 1**; confirm on the full 2026-11-26 runs. The same airspeed feature is still unscaled in every agent's observation and in the GAT mixer's state (no divergence seen there) |
+| GAP-31 | M | VDN (3-nearest) drifts late in training in the 2026-11-25 runs: loss rises from about 0.005 to 3.8 and 5.2 (seeds 3 and 2) and to 0.12 (seed 1) by 2 000 000 steps, and the training-time evaluation return gets worse after about 800 000 steps in seed 2 (n = 9: -3.5 to -11.4). The final checkpoint is therefore not the best VDN policy. IQL, GNN-QMIX and the GCN + VDN ablation show no such drift. Cause not investigated. | G03.1, G06.4 | open; decide before VDN numbers are reported (report as is, select the checkpoint by a rule, or stabilize and rerun) |
 
 ---
 
@@ -479,3 +482,29 @@ touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete
   render script.
   State: `gap_address`, committed and pushed to `origin` (see `git log`). Nothing running.
   Next: fill the missing bibliography years from the publisher pages (S-15). Otherwise unchanged from entry 2026-11-25 (3) (Nova jobs still running).
+- **2026-11-26** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · nova · branch `qmix_fix` (from `gap_address` @ `a1ddb01`, clone `/work/flemingc/akhan1/gnn_marl_nov26`) ·
+  Status of the 2026-11-25 jobs at 15:40 CST: QMIX 10–18, VDN 4–6 and IQL 7–9 completed (exit 0, `final.pt` and
+  `eval_zero_shot.csv` present); GNN-QMIX 1–3 and ablation 19–21 still running. Investigated the QMIX divergence
+  (GAP-30) with offline replays and 15 short online runs, and by author direction fixed it for QMIX only
+  (D-032): `QMixer(airspeed_div=…)`, `Args.qmix_airspeed_div`, two lines in `configs/qmix_sector_cr.json`, two
+  tests. The work was done in a second clone with its own `.venv` because the running jobs execute
+  `tools/hpc/run_task.sh` and the final evaluation from the first clone; do not edit code in a clone that has jobs running.
+  **Measured** (diagnostics, n = 6, seed 1, not results): loss at 150 000 steps 2.6e6 unchanged, 52 with the
+  airspeed entry ÷ 10 and double Q, 0.07 with ÷ 10 and polyak 0.001 (adopted), 0.04 with both plus double Q.
+  With polyak 0.001 the return improves later than with 0.01 (about -15 at 140 000–160 000 steps, from -31).
+  Other methods unchanged: `td_loss` and its gradients are bit-identical between the two clones for GNN-QMIX,
+  VDN, IQL and the ablation at n = 3, 6, 9, and smoke tasks 1, 4, 7, 19 print identical training and evaluation
+  lines from both clones. Found GAP-31 (VDN drifts late in training). Slurm defaults reduced to the measured
+  need: joint run 4 CPUs / 8 GB (used about 1.1 cores, 4.2 GB peak), QMIX 2 CPUs / 4 GB / 24 h (1.0 core, 2.0 GB, at most 10 h).
+  Account limits on Nova: group `flemingc` 9026 CPUs and about 41 TB memory in use at once, 80 running jobs per user.
+  Launched 16:16 CST: QMIX tasks 10–18 as Slurm array `17784474`, writing to
+  `/work/flemingc/akhan1/gnn_marl_experiments/Nov26_QMIX/`; launched from the uncommitted tree
+  (`repo_dirty: true` in each `config.json`; the exact diff is saved there as `code_changes_vs_a1ddb01.patch`).
+  Tests: T0 pass (before and after); T1 pass (`algorithms/tests` 24); T2 pass (`random_rollout`; `pytest` 38
+  passed, 36 before); smoke through Slurm for tasks 1, 4, 7, 10, 13, 16, 19, each ending with `wrote …/eval_zero_shot.csv`.
+  IDs: GAP-30, GAP-31, D-032, D-008, G03.1, G06.4, S-10, S-22.
+  State: `qmix_fix`, committed and pushed to `origin` (see `git log`); `gap_address` unchanged. Running on Nova: `17768552`
+  (GNN-QMIX 1–3), `17768571` (ablation 19–21) into `Nov25_*`; `17784474` (QMIX 10–18) into `Nov26_QMIX`.
+  Next: confirm on the full Nov26 QMIX runs that the loss stays bounded at n = 3, 6, 9 and that the return keeps
+  improving; authors review D-032 and decide GAP-31. Results set for aggregation: `Nov25_GNN-QMIX`, `Nov25_VDN`,
+  `Nov25_IQL`, `Nov25_ABL-VDN-GCN`, `Nov26_QMIX` (not `Nov25_QMIX`).

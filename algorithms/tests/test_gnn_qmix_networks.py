@@ -119,6 +119,36 @@ def test_qmix_baseline_is_tied_to_its_fleet_size():
         mixer(torch.randn(2, 6), torch.randn(2, 6 * N_STATE))
 
 
+def test_qmix_airspeed_div_rescales_only_the_airspeed_state_entry():
+    """GAP-30 / D-032: airspeed_div = k gives the mixer the state with every entity's last entry divided by k."""
+    n, b = 3, 5
+    torch.manual_seed(0)
+    plain = QMixer(n_agents=n, s_dim=n * N_STATE)
+    torch.manual_seed(0)
+    scaled = QMixer(n_agents=n, s_dim=n * N_STATE, airspeed_div=10.0)
+    assert set(plain.state_dict()) == set(scaled.state_dict())  # same checkpoint format
+    q, state = torch.randn(b, n), torch.randn(b, n * N_STATE)
+    by_hand = state.reshape(b, n, N_STATE).clone()
+    by_hand[..., -1] /= 10.0
+    assert torch.allclose(scaled(q, state), plain(q, by_hand.reshape(b, -1)), atol=1e-6)
+    assert not torch.allclose(scaled(q, state), plain(q, state))
+    with pytest.raises(ValueError):
+        QMixer(n_agents=n, s_dim=n * N_STATE + 1, airspeed_div=10.0)
+
+
+def test_qmix_config_sets_the_stabilizing_options_and_other_configs_do_not():
+    import json
+    from pathlib import Path
+
+    configs = Path(__file__).resolve().parents[2] / "configs"
+    qmix = json.loads((configs / "qmix_sector_cr.json").read_text())
+    assert qmix["qmix_airspeed_div"] == 10.0 and qmix["polyak"] == 0.001
+    for name in ("gnn_qmix", "vdn", "iql", "ablation_vdn_gcn"):
+        other = json.loads((configs / f"{name}_sector_cr.json").read_text())
+        assert "qmix_airspeed_div" not in other and "polyak" not in other
+    assert Args().qmix_airspeed_div == 1.0 and Args().polyak == 0.01
+
+
 @pytest.mark.parametrize("algo", ["gnn_qmix", "qmix", "vdn", "iql"])
 def test_td_loss_backpropagates_for_every_algorithm(algo):
     import copy

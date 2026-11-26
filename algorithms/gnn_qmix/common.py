@@ -73,6 +73,8 @@ class Args:
     """mean or sum over agents inside the mixer"""
     hidden_dim: int = 64
     """Width of the baseline MLP agent and of the QMIX mixer"""
+    qmix_airspeed_div: float = 1.0
+    """QMIX mixer only: divide the airspeed entry of the entity state by this (GAP-30, D-032). 1.0 = unchanged"""
     # Training
     steps_per_size: int = 2_000_000
     """Environment steps PER training fleet size (D-030). Every step count below is also per fleet size"""
@@ -201,7 +203,7 @@ def build_networks(args: Args, obs_dim: int, state_dim: int, n_agents: int, n_ac
         mixer = GATMixer(args.embed_dim, args.mix_dim, args.gat_layers, args.gat_heads, args.mixer_graph,
                          args.mixer_agg, args.r_detect_norm())
     elif args.algo == "qmix":
-        mixer = QMixer(n_agents, state_dim, args.hidden_dim)
+        mixer = QMixer(n_agents, state_dim, args.hidden_dim, args.qmix_airspeed_div)
     elif args.algo == "vdn":
         mixer = VDNMixer()
     else:

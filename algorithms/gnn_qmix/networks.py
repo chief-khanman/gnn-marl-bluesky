@@ -192,12 +192,24 @@ class MLPAgent(nn.Module):
 
 
 class QMixer(nn.Module):
-    """CleanMARL `MixingNetwork` (cleanmarl/qmix.py @ 5cf837e). Fixed n_agents and state size."""
+    """CleanMARL `MixingNetwork` (cleanmarl/qmix.py @ 5cf837e). Fixed n_agents and state size.
 
-    def __init__(self, n_agents: int, s_dim: int, hidden_dim: int = 64):
+    The mixing weights are |Linear(state)|, so they grow with the size of the state entries. The env's
+    airspeed feature, (tas - 150) / 6, is about ten times larger than every other entry of the entity
+    state; `airspeed_div` > 1 divides that entry before the hypernetworks read it (GAP-30, D-032).
+    It needs the entity state (s_dim = n_agents * N_STATE). 1.0 = the state as given.
+    """
+
+    def __init__(self, n_agents: int, s_dim: int, hidden_dim: int = 64, airspeed_div: float = 1.0):
         super().__init__()
         self.n_agents = n_agents
         self.hidden_dim = hidden_dim
+        if airspeed_div != 1.0 and s_dim not in (0, n_agents * N_STATE):  # 0: evaluation builds no real mixer
+            raise ValueError("airspeed_div needs state_mode='entities'")
+        scale = torch.ones(s_dim)
+        if airspeed_div != 1.0 and s_dim > 0:
+            scale[N_STATE - 1::N_STATE] = 1.0 / airspeed_div  # airspeed is the last entry of each entity row
+        self.register_buffer("state_scale", scale, persistent=False)
         self.hypernet_weight_1 = nn.Linear(s_dim, n_agents * hidden_dim)
         self.hypernet_bias_1 = nn.Linear(s_dim, hidden_dim)
         self.hypernet_weight_2 = nn.Linear(s_dim, hidden_dim)
@@ -205,6 +217,7 @@ class QMixer(nn.Module):
 
     def forward(self, q: torch.Tensor, state: torch.Tensor, h: torch.Tensor | None = None) -> torch.Tensor:
         q = q.reshape(-1, 1, self.n_agents)
+        state = state * self.state_scale
         w1 = torch.abs(self.hypernet_weight_1(state)).reshape(-1, self.n_agents, self.hidden_dim)
         b1 = self.hypernet_bias_1(state).reshape(-1, 1, self.hidden_dim)
         hidden = F.elu(torch.bmm(q, w1) + b1)
