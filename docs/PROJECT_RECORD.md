@@ -547,3 +547,43 @@ touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete
   State: plan and record edits committed and pushed on `main` (see `git log`), on top of `4f6d321`. Nothing running.
   Next: author approves the plan (set its status) in the Nova session, which then implements
   §3, runs §5.1–5.2 and launches §4.3. Authors answer Q-17 and Q-18 when the runs are in.
+- **2026-11-27 (2)** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · nova · branch `fix/GAP-31-training-stability`, merged to `main` ·
+  Executed `docs/plans/GAP-31_training_stability.md` (approved by the author in this session, status line
+  updated). Change A (`995c67b`): `double_q`, `lr_final_frac`, `obs_airspeed_div`, `checkpoint_every`,
+  `log_diagnostics`; `td_loss` split into `next_values` / `_td_terms`, new `lr_at`, `td_diagnostics`. Change B
+  (`ef12e3a`): `mixer_airspeed_div`, `mixer_detach_h`, `mixer_norm` for the GAT mixer. Change C (`a53f1f8`,
+  `a01c148`): `configs/gap31/` (8 files), `tools/hpc/matrix_gap31.txt`, `tools/select_checkpoint.py`,
+  `tools/hpc/submit_gap31.sh`, `run_task.sh` (MATRIX, second evaluation of the rule-chosen checkpoint),
+  `--requeue` in the Slurm script, runbook section. Every flag defaults to the previous behavior: with the
+  defaults the loss and its gradients are bit-identical to `d1d66b1` for all five base configs at n = 3, 6, 9.
+  `config_sha` of every config changed because `Args` gained fields.
+  Deviations from the plan, told to the author before approval: joint tasks request 8 GB instead of 16 GB
+  (measured peak 4.2 GB); each smoke task has its own folder and ran as a Slurm job; four commits as named in
+  §5.1. Also: the author's "implement, smoke, then run the jobs" was taken as the one commit confirmation of
+  §5.1, so the commits, the merge to `main` and the push were made without a second question.
+  Launched 11:45 CST from the dedicated clone `/work/flemingc/akhan1/gnn_marl_gap31` @ `a01c148`
+  (`repo_dirty: false` in all 30 `config.json`), results in
+  `/work/flemingc/akhan1/gnn_marl_experiments/Nov27_GAP31_<suffix>/`: GNNQMIX-R tasks 1–3 job `17804441`,
+  GNNQMIX-A 4–6 `17804442`, GNNQMIX-B 7–9 `17804443`, GNNQMIX-C 10–12 `17804444`, VDN 13–15 `17804445`, IQL
+  16–18 `17804446`, ABL-VDN-GCN 19–21 `17804447`, QMIX 22–30 `17804448`. Joint tasks 4 CPUs / 8 GB / 72 h,
+  QMIX 2 CPUs / 4 GB / 24 h. All 30 started; each has its `run_dir:` line, the step-0 evaluations,
+  `step_*.pt` files and the diagnostic rows. Job `17804449` resubmits once any task that ends FAILED or
+  OUT_OF_MEMORY (script `gap31_retry_failed.sh` in the experiments folder, dry-run tested only); job
+  `17804450` writes `Nov27_GAP31_FINAL_REPORT.md`.
+  **Measured** in the first 12 minutes (not results): joint runs 18 to 34 steps/s per fleet size, QMIX 52 to
+  118. Projected end of training: QMIX 16:30 to 22:30 on Nov 27, joint runs 04:00 to 19:00 on Nov 28, plus
+  about 4 h for the two zero-shot evaluations of a joint run (estimate from the 2026-11-25 runs).
+  Arm R is not bit-identical to the 2026-11-25 GNN-QMIX runs: the diagnostics draw extra replay batches,
+  which shifts the random stream; the settings are the same.
+  Tests: T0 pass (before and after each change); T1 pass (`algorithms/tests` 49; 24 before); T2 pass
+  (`random_rollout`; `pytest` 63 passed, 38 before, in both clones). Smoke §5.2 from the dedicated clone,
+  tasks 1, 10, 22 (jobs `17804188`–`17804190`): each ended with two `wrote …` lines and has both step
+  checkpoints, `best_checkpoint.json`, both zero-shot files and the diagnostic rows; `plot_results.py` ran on
+  each folder. A wider smoke before the commits covered tasks 1, 4, 7, 10, 13, 16, 19, 22, 28.
+  IDs: GAP-31, GAP-32, GAP-26, GAP-30, D-030, D-032, Q-17, Q-18, G05.3, G05.4, G03.1, G06.3, G06.4, G06.7, S-05, S-10, S-21.
+  State: `main` = `a01c148` plus this entry (see `git log`). Running on Nova: `17804441`–`17804448`, then
+  `17804449`, `17804450`. Joint tasks are killed about 11:45 on Mon Nov 30 if unfinished, QMIX about 11:45 on Sat Nov 28.
+  Next: when the jobs have ended, read `Nov27_GAP31_FINAL_REPORT.md` and `Nov27_GAP31_RETRY.log`; build the
+  §5.3 evidence (250 000-step windows of loss, mixer gain, Q_tot and return per run; `plot_results.py` per
+  folder; the same table from `eval_zero_shot_best.csv`) and check H1–H3. Authors answer Q-17 and Q-18. Copy the
+  Nov27 data into `experiments/` only after that. Do not edit `/work/flemingc/akhan1/gnn_marl_gap31` before then.
