@@ -1,0 +1,19 @@
+{
+  "_goals": "G03.1, G06.4. QMIX baseline: MLP agent on the full observation and CleanMARL's fixed-n mixer (D-008). One run per fleet size (--train-n 3 | 6 | 9); not evaluable at another n. Since D-032 (GAP-30): the mixer reads the airspeed state entry divided by 10 and the target networks follow at polyak 0.001; without both the mixer's value estimate diverges. GAP-31 rerun: QMIX baseline with the shared stabilizers (keeps qmix_airspeed_div and polyak of D-032). Plan docs/plans/GAP-31_training_stability.md.",
+  "env_name": "sector_cr",
+  "steps_per_size": 2000000,
+  "max_episode_steps": 150,
+  "r_detect_nm": 20.0,
+  "spawn_min_sep_nm": 6.0,
+  "algo": "qmix",
+  "qmix_airspeed_div": 10.0,
+  "polyak": 0.001,
+  "checkpoint_every": 20000,
+  "log_diagnostics": true,
+  "double_q": true,
+  "lr_final_frac": 0.1,
+  "obs_airspeed_div": 10.0,
+  "train_n": [
+    3
+  ]
+}

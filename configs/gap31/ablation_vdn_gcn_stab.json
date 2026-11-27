@@ -1,0 +1,21 @@
+{
+  "_goals": "G06.7 (ablation). GCN agent with a VDN sum instead of the GAT mixer; trained jointly. Isolates the mixer. GAP-31 rerun: GCN + VDN ablation with the shared stabilizers. Plan docs/plans/GAP-31_training_stability.md.",
+  "env_name": "sector_cr",
+  "steps_per_size": 2000000,
+  "max_episode_steps": 150,
+  "r_detect_nm": 20.0,
+  "spawn_min_sep_nm": 6.0,
+  "algo": "vdn",
+  "agent_net": "gcn",
+  "checkpoint_every": 20000,
+  "log_diagnostics": true,
+  "double_q": true,
+  "polyak": 0.001,
+  "lr_final_frac": 0.1,
+  "obs_airspeed_div": 10.0,
+  "train_n": [
+    3,
+    6,
+    9
+  ]
+}

@@ -1,0 +1,42 @@
+# GAP-31 rerun matrix (docs/plans/GAP-31_training_stability.md §4.2). Same format as matrix.txt:
+#   <config file> <train-n, comma separated> <seed>
+# Line number (ignoring comment lines) = Slurm array task id. Use with MATRIX=tools/hpc/matrix_gap31.txt.
+# Budget: 2,000,000 environment steps per training fleet size in every run (D-030).
+# tasks 1-3, arm R
+configs/gap31/gnn_qmix_repro.json 3,6,9 1
+configs/gap31/gnn_qmix_repro.json 3,6,9 2
+configs/gap31/gnn_qmix_repro.json 3,6,9 3
+# tasks 4-6, arm A
+configs/gap31/gnn_qmix_stab.json 3,6,9 1
+configs/gap31/gnn_qmix_stab.json 3,6,9 2
+configs/gap31/gnn_qmix_stab.json 3,6,9 3
+# tasks 7-9, arm B
+configs/gap31/gnn_qmix_stab_detach.json 3,6,9 1
+configs/gap31/gnn_qmix_stab_detach.json 3,6,9 2
+configs/gap31/gnn_qmix_stab_detach.json 3,6,9 3
+# tasks 10-12, arm C
+configs/gap31/gnn_qmix_stab_detach_norm.json 3,6,9 1
+configs/gap31/gnn_qmix_stab_detach_norm.json 3,6,9 2
+configs/gap31/gnn_qmix_stab_detach_norm.json 3,6,9 3
+# tasks 13-15
+configs/gap31/vdn_stab.json 3,6,9 1
+configs/gap31/vdn_stab.json 3,6,9 2
+configs/gap31/vdn_stab.json 3,6,9 3
+# tasks 16-18
+configs/gap31/iql_stab.json 3,6,9 1
+configs/gap31/iql_stab.json 3,6,9 2
+configs/gap31/iql_stab.json 3,6,9 3
+# tasks 19-21
+configs/gap31/ablation_vdn_gcn_stab.json 3,6,9 1
+configs/gap31/ablation_vdn_gcn_stab.json 3,6,9 2
+configs/gap31/ablation_vdn_gcn_stab.json 3,6,9 3
+# tasks 22-30, QMIX at n = 3, 6, 9
+configs/gap31/qmix_stab.json 3 1
+configs/gap31/qmix_stab.json 3 2
+configs/gap31/qmix_stab.json 3 3
+configs/gap31/qmix_stab.json 6 1
+configs/gap31/qmix_stab.json 6 2
+configs/gap31/qmix_stab.json 6 3
+configs/gap31/qmix_stab.json 9 1
+configs/gap31/qmix_stab.json 9 2
+configs/gap31/qmix_stab.json 9 3
