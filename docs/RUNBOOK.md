@@ -80,6 +80,29 @@ To change a setting for every run, edit the config file and commit it before lau
 run's `config.json` and commit hash describe what ran (S-10). One-off overrides go on the
 command line, e.g. `tools/hpc/run_task.sh 1 --r-detect-nm 30`; they are recorded in `config.json`.
 
+### GAP-31 rerun (stabilized settings, kept checkpoints)
+
+Plan: [plans/GAP-31_training_stability.md](plans/GAP-31_training_stability.md). 30 tasks in
+[`tools/hpc/matrix_gap31.txt`](../tools/hpc/matrix_gap31.txt): four GNN-QMIX arms (R = the 2026-11-25
+settings, A = shared stabilizers, B = A + detached embeddings, C = B + LayerNorm in the mixer), VDN, IQL, the
+GCN + VDN ablation and QMIX, all with configs in `configs/gap31/`.
+
+```bash
+MATRIX=tools/hpc/matrix_gap31.txt tools/hpc/run_task.sh 4        # one task on any machine
+tools/hpc/submit_gap31.sh Nov27                                  # all 30 on Nova, from the dedicated clone
+SUFFIX=VDN TASKS=14 tools/hpc/submit_gap31.sh Nov27              # resubmit one task (no resume, GAP-26)
+```
+
+Each run keeps `checkpoints/step_<step>.pt` every 20 000 steps and writes the diagnostics `lr`, `grad_norm`,
+`q_taken_mean`, `q_tot_mean`, `td_target_mean`, `mixer_gain_mean`, `mixer_gain_max` to `metrics.csv`
+(`split=train`, `n_agents=0`). After the usual evaluation of `final.pt`, `run_task.sh` runs
+`tools/select_checkpoint.py` (centred 5-evaluation mean of the return at the training sizes, steps ≥ 100 000)
+and evaluates that checkpoint too: `best_checkpoint.json`, `eval_zero_shot_best.csv`. `eval_zero_shot.csv`
+still means "final checkpoint". The four GNN-QMIX arms share the method name `gnn_qmix`; they are told apart
+by parent folder and `config.json`, so run `tools/plot_results.py` on one arm's folder at a time.
+A task that Slurm requeues after a node failure starts again from step 0 in a **new** run directory
+(the log is appended to); the unfinished directory stays and must be left out of the aggregation.
+
 ## 5. Watch a run
 
 ```bash

@@ -346,3 +346,91 @@ def test_gat_mixer_options_are_rejected_for_other_algorithms():
             with pytest.raises(ValueError):
                 Args(algo=algo, **extra, **options).validate()
 
+
+# ---------------------------------------------------------------- GAP-31 rerun configs and checkpoint selection
+
+GAP31_KEEP = {"checkpoint_every": 20000, "log_diagnostics": True}
+GAP31_STAB = {**GAP31_KEEP, "double_q": True, "polyak": 0.001, "lr_final_frac": 0.1, "obs_airspeed_div": 10.0}
+GAP31_CONFIGS = {  # file -> (base config, keys it sets on top of the base)
+    "gnn_qmix_repro": ("gnn_qmix", GAP31_KEEP),
+    "gnn_qmix_stab": ("gnn_qmix", {**GAP31_STAB, "mixer_airspeed_div": 10.0}),
+    "gnn_qmix_stab_detach": ("gnn_qmix", {**GAP31_STAB, "mixer_airspeed_div": 10.0, "mixer_detach_h": True}),
+    "gnn_qmix_stab_detach_norm": ("gnn_qmix", {**GAP31_STAB, "mixer_airspeed_div": 10.0, "mixer_detach_h": True,
+                                               "mixer_norm": True}),
+    "vdn_stab": ("vdn", GAP31_STAB),
+    "iql_stab": ("iql", GAP31_STAB),
+    "ablation_vdn_gcn_stab": ("ablation_vdn_gcn", GAP31_STAB),
+    "qmix_stab": ("qmix", GAP31_STAB),
+}
+
+
+def test_gap31_configs_load_and_differ_from_their_base_only_by_the_planned_keys():
+    import json
+    from pathlib import Path
+
+    from algorithms.gnn_qmix.common import args_from_dict
+
+    configs = Path(__file__).resolve().parents[2] / "configs"
+    assert {f.stem for f in (configs / "gap31").glob("*.json")} == set(GAP31_CONFIGS)
+    for name, (base_name, added) in GAP31_CONFIGS.items():
+        cfg = json.loads((configs / "gap31" / f"{name}.json").read_text())
+        base = json.loads((configs / f"{base_name}_sector_cr.json").read_text())
+        args_from_dict(cfg).validate()
+        assert "GAP-31" in cfg["_goals"]
+        changed = {k: v for k, v in cfg.items() if k != "_goals" and base.get(k, "<absent>") != v}
+        assert changed == {k: v for k, v in added.items() if base.get(k, "<absent>") != v}, name
+        assert all(cfg[k] == v for k, v in added.items()), name
+        assert {k for k in base if k != "_goals"} <= set(cfg), name
+    matrix = [line.split() for line in (configs.parent / "tools/hpc/matrix_gap31.txt").read_text().splitlines()
+              if line and not line.startswith("#")]
+    assert len(matrix) == 30 and all((configs.parent / cfg).exists() for cfg, _, _ in matrix)
+    assert [m[2] for m in matrix] == ["1", "2", "3"] * 10
+    assert [m[1] for m in matrix[21:]] == ["3"] * 3 + ["6"] * 3 + ["9"] * 3
+
+
+def _load_select_checkpoint():
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "tools" / "select_checkpoint.py"
+    spec = importlib.util.spec_from_file_location("select_checkpoint", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_select_checkpoint_uses_a_centred_window_training_sizes_and_existing_files(tmp_path):
+    import json
+
+    sc = _load_select_checkpoint()
+    (tmp_path / "checkpoints").mkdir()
+    (tmp_path / "config.json").write_text(json.dumps({"args": {"train_n": [3, 6]}}))
+    #        step:   0    10    20    30    40    50    60
+    returns_n3 = [-9.0, -5.0, -1.0, -5.0, -4.0, -4.0, -4.0]   # one lucky spike at step 20
+    returns_n6 = [-9.0, -5.0, -1.0, -5.0, -4.0, -4.0, -4.0]
+    rows = ["step,split,n_agents,metric,value,n_episodes"]
+    for i, (a, b) in enumerate(zip(returns_n3, returns_n6)):
+        rows += [f"{i * 10},eval,3,ep_return_per_agent,{a},10", f"{i * 10},eval,6,ep_return_per_agent,{b},10",
+                 f"{i * 10},eval,9,ep_return_per_agent,100,10",          # not a training size: ignored
+                 f"{i * 10},eval,3,conflict_free,1,10", f"{i * 10},train,3,ep_return_per_agent,50,4"]
+        (tmp_path / "checkpoints" / f"step_{i * 10:07d}.pt").touch()
+    (tmp_path / "metrics.csv").write_text("\n".join(rows) + "\n")
+
+    assert sc.main(["--run-dir", str(tmp_path), "--window", "3", "--min-step", "0"]) == 0
+    best = json.loads((tmp_path / "best_checkpoint.json").read_text())
+    # windows of 3: step 10 -> -5, 20 -> -11/3, 30 -> -10/3, 40 -> -13/3, 50 -> -4. Step 0 and 60 have no full window.
+    assert best["checkpoint"] == "step_0000030.pt" and best["step"] == 30
+    assert best["score"] == pytest.approx(-10 / 3) and best["window"] == 3 and best["rule"] == sc.RULE
+
+    sc.main(["--run-dir", str(tmp_path), "--window", "1", "--min-step", "0"])   # no smoothing: the spike wins
+    assert json.loads((tmp_path / "best_checkpoint.json").read_text())["step"] == 20
+    sc.main(["--run-dir", str(tmp_path), "--window", "3", "--min-step", "40"])   # min-step
+    assert json.loads((tmp_path / "best_checkpoint.json").read_text())["step"] == 50
+    (tmp_path / "checkpoints" / "step_0000030.pt").unlink()                      # only kept files are candidates
+    sc.main(["--run-dir", str(tmp_path), "--window", "3", "--min-step", "0"])
+    assert json.loads((tmp_path / "best_checkpoint.json").read_text())["step"] == 20
+    curve = sc.eval_curve(tmp_path, [3, 6])
+    assert sc.select({s: -1.0 for s in curve}, set(curve), 1, 0) == (60, -1.0)   # tie: the later step
+    with pytest.raises(ValueError):
+        sc.select(curve, set(), 3, 0)
+

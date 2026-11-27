@@ -17,6 +17,7 @@
 #SBATCH --output=slurm_logs/%x_%A_%a.out
 #SBATCH --partition=nova
 #SBATCH --account=flemingc
+#SBATCH --requeue
 set -euo pipefail
 # Nova: no module lines needed; Python comes from the repo's .venv (tools/hpc/run_task.sh default).
 cd "${SLURM_SUBMIT_DIR}"
