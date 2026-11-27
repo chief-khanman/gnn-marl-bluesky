@@ -1,0 +1,392 @@
+job 17784015_7 on nova18-72 started Thu Nov 26 04:02:36 PM CST 2026
+run_dir: /work/flemingc/akhan1/gnn_marl_smoke/nov26/G03.1_iql-k3_sector_cr_n3-6-9_s1_20261126-1602_smoke
+algo=iql agent=mlp train_n=[3, 6, 9] parameters=6735
+[eval] step=0 n=3 return/agent=-21.914 los_rate=0.0000 conflict_free=1.00
+[eval] step=0 n=6 return/agent=-33.258 los_rate=0.0100 conflict_free=0.50
+[eval] step=0 n=9 return/agent=-37.925 los_rate=0.0101 conflict_free=0.00
+/work/flemingc/akhan1/gnn_marl_nov26/algorithms/gnn_qmix/train.py:198: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  losses.append(float(loss))
+[eval] step=750 n=3 return/agent=-20.808 los_rate=0.0000 conflict_free=1.00
+[eval] step=750 n=6 return/agent=-25.580 los_rate=0.0049 conflict_free=0.00
+[eval] step=750 n=9 return/agent=-28.793 los_rate=0.0048 conflict_free=0.00
+[eval] step=1500 n=3 return/agent=-13.412 los_rate=0.0000 conflict_free=1.00
+[eval] step=1500 n=6 return/agent=-23.699 los_rate=0.0082 conflict_free=0.50
+[eval] step=1500 n=9 return/agent=-56.596 los_rate=0.0309 conflict_free=0.00
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+done: 1500 steps per fleet size (4500 in total) in 66 s -> /work/flemingc/akhan1/gnn_marl_smoke/nov26/G03.1_iql-k3_sector_cr_n3-6-9_s1_20261126-1602_smoke
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=3: episodes=2 los_rate=0.0000 conflict_free=1.00 return/agent=-10.81
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=6: episodes=2 los_rate=0.0000 conflict_free=1.00 return/agent=-17.61
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=9: episodes=2 los_rate=0.0261 conflict_free=0.00 return/agent=-50.12
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=10: episodes=2 los_rate=0.0107 conflict_free=0.00 return/agent=-32.94
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=20: episodes=2 los_rate=0.0204 conflict_free=0.00 return/agent=-74.92
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=50: episodes=2 los_rate=0.0122 conflict_free=0.00 return/agent=-106.75
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=3: episodes=2 los_rate=0.0000 conflict_free=1.00 return/agent=-9.49
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=6: episodes=2 los_rate=0.0062 conflict_free=0.50 return/agent=-18.45
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=9: episodes=2 los_rate=0.0261 conflict_free=0.00 return/agent=-50.12
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=10: episodes=2 los_rate=0.0079 conflict_free=0.00 return/agent=-28.91
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=20: episodes=2 los_rate=0.0067 conflict_free=0.00 return/agent=-35.14
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=50: episodes=2 los_rate=0.0027 conflict_free=0.00 return/agent=-36.96
+wrote /work/flemingc/akhan1/gnn_marl_smoke/nov26/G03.1_iql-k3_sector_cr_n3-6-9_s1_20261126-1602_smoke/eval_zero_shot.csv

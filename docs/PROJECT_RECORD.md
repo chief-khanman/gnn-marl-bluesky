@@ -281,7 +281,7 @@ Severity: **H** blocks a core claim or goal · **M** affects an experiment or it
 | GAP-28 | L | In the fixed airspace at n = 50 with 6 NM spawn separation the sector is nearly full; sectors that cannot hold the fleet are redrawn, so the n = 50 fixed-airspace scenarios are biased toward the larger sectors (2400–3750 NM² range). | G06.5, D-028 | open |
 | GAP-29 | L | The k-nearest baselines see the 3 nearest aircraft at any distance, while GNN-QMIX sees only aircraft inside r_detect = 20 NM. The two observations differ in range as well as in structure. | G03.1, G06.4, D-027 | open |
 | GAP-30 | H | The QMIX baseline's value estimate diverged in all nine runs of 2026-11-25 (loss 1e5 to 1e11, Q_tot of 1e4 to 1e6 where the true value is about -14). Measured causes: (a) the env's airspeed feature, (tas - 150) / 6, has std 4.3 and max 13.7 in the entity state while all other entries are within about ±3, and CleanMARL's mixer builds its weights as abs(Linear(state)), so at initialization dQ_tot/dq_i is about 53; (b) with (a) removed the loss still rises (2 to 300 over 200 000 steps at n = 6) unless the target networks move more slowly. | G03.1, G06.4, D-008, D-032 | fixed for QMIX by D-032, **verified only to 200 000 steps at n = 6, seed 1**; confirm on the full 2026-11-26 runs. The same airspeed feature is still unscaled in every agent's observation and in the GAT mixer's state (no divergence seen there) |
-| GAP-31 | M | VDN (3-nearest) drifts late in training in the 2026-11-25 runs: loss rises from about 0.005 to 3.8 and 5.2 (seeds 3 and 2) and to 0.12 (seed 1) by 2 000 000 steps, and the training-time evaluation return gets worse after about 800 000 steps in seed 2 (n = 9: -3.5 to -11.4). The final checkpoint is therefore not the best VDN policy. IQL, GNN-QMIX and the GCN + VDN ablation show no such drift. Cause not investigated. | G03.1, G06.4 | open; decide before VDN numbers are reported (report as is, select the checkpoint by a rule, or stabilize and rerun) |
+| GAP-31 | M | VDN (3-nearest) drifts late in training in the 2026-11-25 runs: loss rises from about 0.005 to 3.8 and 5.2 (seeds 3 and 2) and to 0.12 (seed 1) by 2 000 000 steps, and the training-time evaluation return gets worse after about 800 000 steps in seed 2 (n = 9: -3.5 to -11.4). The final checkpoint is therefore not the best VDN policy. IQL and the GCN + VDN ablation show no such drift. Update 2026-11-27: GNN-QMIX seeds 2 and 3 show it too (loss up to 1.2 and 2.2; seed 3 at n = 9: best return -4.2 at 1 560 000 steps, -14.2 over the last ten evaluations). Cause not investigated. | G03.1, G06.4 | open; decide before VDN numbers are reported (report as is, select the checkpoint by a rule, or stabilize and rerun) |
 
 ---
 
@@ -508,3 +508,25 @@ touched, then `State:` (branch, last commit, running jobs) and `Next:` (concrete
   Next: confirm on the full Nov26 QMIX runs that the loss stays bounded at n = 3, 6, 9 and that the return keeps
   improving; authors review D-032 and decide GAP-31. Results set for aggregation: `Nov25_GNN-QMIX`, `Nov25_VDN`,
   `Nov25_IQL`, `Nov25_ABL-VDN-GCN`, `Nov26_QMIX` (not `Nov25_QMIX`).
+- **2026-11-27** · Aadit-Farhan Khan with Claude Code (Claude Fable 5.2) · nova · branch `main` ·
+  All 30 result tasks of 2026-11-25 and 2026-11-26 ended `COMPLETED` (exit 0), each with `final.pt` and
+  `eval_zero_shot.csv`. `main` was fast-forwarded to `qmix_fix` (which contains `gap_address`), so `main` now
+  holds all work; no merge commit was needed. By author direction the run data were copied from
+  `/work/flemingc/akhan1/gnn_marl_{experiments,diag,smoke}` into `experiments/nova_2026-11/` (results,
+  diagnostics, smoke runs, launch scripts; inventory and file schemas in its `README.md`, run list in
+  `runs_index.csv`). This is an exception to "results travel through the artifact store" (S-23), which does not
+  exist yet (Q-07). Weights (`*.pt`) stay out of git (S-21) and exist only on Nova; TensorBoard files are not
+  committed (same numbers as `metrics.csv`).
+  **Measured** (final checkpoint, 3 seeds, 100 episodes each, fixed airspace, return per agent at n = 9):
+  GCN + VDN ablation -4.68 ± 0.31, IQL -5.41 ± 1.7, QMIX -8.92 ± 0.31, VDN -9.63 ± 3.6, GNN-QMIX -15.2 ± 6.1.
+  These come from an ad-hoc aggregation of the zero-shot files, not from `tools/plot_results.py`; no number has
+  been entered in the paper (S-14). The QMIX fix (D-032) held for 2 000 000 steps in all nine runs (final loss
+  0.03 to 0.6). GNN-QMIX seeds 2 and 3 show the same late loss rise as VDN (GAP-31 now covers both); only final
+  weights were kept, so the best-during-training policies cannot be recovered.
+  Tests: T0 pass (before and after); T2 pass (`random_rollout`; `pytest` 38 passed).
+  IDs: G05.4, G06.3, G06.4, G03.1, D-032, GAP-30, GAP-31, S-14, S-21, S-23, Q-07.
+  State: `main` = `d1d66b1` plus this entry and `experiments/` (see `git log`). Nothing running on Nova.
+  Next: authors review D-032 and decide GAP-31 (GNN-QMIX and VDN late drift: report final checkpoints, or rerun
+  with intermediate checkpoints kept). Run `tools/plot_results.py` over the five result sets (not `Nov25_QMIX`)
+  before any number goes into the paper. Branches `gap_address` and `qmix_fix` are fully contained in `main` and
+  can be deleted.

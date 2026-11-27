@@ -1,0 +1,144 @@
+diff --git a/algorithms/gnn_qmix/common.py b/algorithms/gnn_qmix/common.py
+index 2e81b2e..45789c5 100644
+--- a/algorithms/gnn_qmix/common.py
++++ b/algorithms/gnn_qmix/common.py
+@@ -73,6 +73,8 @@ class Args:
+     """mean or sum over agents inside the mixer"""
+     hidden_dim: int = 64
+     """Width of the baseline MLP agent and of the QMIX mixer"""
++    qmix_airspeed_div: float = 1.0
++    """QMIX mixer only: divide the airspeed entry of the entity state by this (GAP-30, D-032). 1.0 = unchanged"""
+     # Training
+     steps_per_size: int = 2_000_000
+     """Environment steps PER training fleet size (D-030). Every step count below is also per fleet size"""
+@@ -201,7 +203,7 @@ def build_networks(args: Args, obs_dim: int, state_dim: int, n_agents: int, n_ac
+         mixer = GATMixer(args.embed_dim, args.mix_dim, args.gat_layers, args.gat_heads, args.mixer_graph,
+                          args.mixer_agg, args.r_detect_norm())
+     elif args.algo == "qmix":
+-        mixer = QMixer(n_agents, state_dim, args.hidden_dim)
++        mixer = QMixer(n_agents, state_dim, args.hidden_dim, args.qmix_airspeed_div)
+     elif args.algo == "vdn":
+         mixer = VDNMixer()
+     else:
+diff --git a/algorithms/gnn_qmix/networks.py b/algorithms/gnn_qmix/networks.py
+index 46cc6c0..d59b737 100644
+--- a/algorithms/gnn_qmix/networks.py
++++ b/algorithms/gnn_qmix/networks.py
+@@ -192,12 +192,24 @@ class MLPAgent(nn.Module):
+ 
+ 
+ class QMixer(nn.Module):
+-    """CleanMARL `MixingNetwork` (cleanmarl/qmix.py @ 5cf837e). Fixed n_agents and state size."""
++    """CleanMARL `MixingNetwork` (cleanmarl/qmix.py @ 5cf837e). Fixed n_agents and state size.
+ 
+-    def __init__(self, n_agents: int, s_dim: int, hidden_dim: int = 64):
++    The mixing weights are |Linear(state)|, so they grow with the size of the state entries. The env's
++    airspeed feature, (tas - 150) / 6, is about ten times larger than every other entry of the entity
++    state; `airspeed_div` > 1 divides that entry before the hypernetworks read it (GAP-30, D-032).
++    It needs the entity state (s_dim = n_agents * N_STATE). 1.0 = the state as given.
++    """
++
++    def __init__(self, n_agents: int, s_dim: int, hidden_dim: int = 64, airspeed_div: float = 1.0):
+         super().__init__()
+         self.n_agents = n_agents
+         self.hidden_dim = hidden_dim
++        if airspeed_div != 1.0 and s_dim not in (0, n_agents * N_STATE):  # 0: evaluation builds no real mixer
++            raise ValueError("airspeed_div needs state_mode='entities'")
++        scale = torch.ones(s_dim)
++        if airspeed_div != 1.0 and s_dim > 0:
++            scale[N_STATE - 1::N_STATE] = 1.0 / airspeed_div  # airspeed is the last entry of each entity row
++        self.register_buffer("state_scale", scale, persistent=False)
+         self.hypernet_weight_1 = nn.Linear(s_dim, n_agents * hidden_dim)
+         self.hypernet_bias_1 = nn.Linear(s_dim, hidden_dim)
+         self.hypernet_weight_2 = nn.Linear(s_dim, hidden_dim)
+@@ -205,6 +217,7 @@ class QMixer(nn.Module):
+ 
+     def forward(self, q: torch.Tensor, state: torch.Tensor, h: torch.Tensor | None = None) -> torch.Tensor:
+         q = q.reshape(-1, 1, self.n_agents)
++        state = state * self.state_scale
+         w1 = torch.abs(self.hypernet_weight_1(state)).reshape(-1, self.n_agents, self.hidden_dim)
+         b1 = self.hypernet_bias_1(state).reshape(-1, 1, self.hidden_dim)
+         hidden = F.elu(torch.bmm(q, w1) + b1)
+diff --git a/algorithms/tests/test_gnn_qmix_networks.py b/algorithms/tests/test_gnn_qmix_networks.py
+index 6ad5aec..92c794a 100644
+--- a/algorithms/tests/test_gnn_qmix_networks.py
++++ b/algorithms/tests/test_gnn_qmix_networks.py
+@@ -119,6 +119,36 @@ def test_qmix_baseline_is_tied_to_its_fleet_size():
+         mixer(torch.randn(2, 6), torch.randn(2, 6 * N_STATE))
+ 
+ 
++def test_qmix_airspeed_div_rescales_only_the_airspeed_state_entry():
++    """GAP-30 / D-032: airspeed_div = k gives the mixer the state with every entity's last entry divided by k."""
++    n, b = 3, 5
++    torch.manual_seed(0)
++    plain = QMixer(n_agents=n, s_dim=n * N_STATE)
++    torch.manual_seed(0)
++    scaled = QMixer(n_agents=n, s_dim=n * N_STATE, airspeed_div=10.0)
++    assert set(plain.state_dict()) == set(scaled.state_dict())  # same checkpoint format
++    q, state = torch.randn(b, n), torch.randn(b, n * N_STATE)
++    by_hand = state.reshape(b, n, N_STATE).clone()
++    by_hand[..., -1] /= 10.0
++    assert torch.allclose(scaled(q, state), plain(q, by_hand.reshape(b, -1)), atol=1e-6)
++    assert not torch.allclose(scaled(q, state), plain(q, state))
++    with pytest.raises(ValueError):
++        QMixer(n_agents=n, s_dim=n * N_STATE + 1, airspeed_div=10.0)
++
++
++def test_qmix_config_sets_the_stabilizing_options_and_other_configs_do_not():
++    import json
++    from pathlib import Path
++
++    configs = Path(__file__).resolve().parents[2] / "configs"
++    qmix = json.loads((configs / "qmix_sector_cr.json").read_text())
++    assert qmix["qmix_airspeed_div"] == 10.0 and qmix["polyak"] == 0.001
++    for name in ("gnn_qmix", "vdn", "iql", "ablation_vdn_gcn"):
++        other = json.loads((configs / f"{name}_sector_cr.json").read_text())
++        assert "qmix_airspeed_div" not in other and "polyak" not in other
++    assert Args().qmix_airspeed_div == 1.0 and Args().polyak == 0.01
++
++
+ @pytest.mark.parametrize("algo", ["gnn_qmix", "qmix", "vdn", "iql"])
+ def test_td_loss_backpropagates_for_every_algorithm(algo):
+     import copy
+diff --git a/configs/qmix_sector_cr.json b/configs/qmix_sector_cr.json
+index 7ec7735..05f7163 100644
+--- a/configs/qmix_sector_cr.json
++++ b/configs/qmix_sector_cr.json
+@@ -1,11 +1,13 @@
+ {
+-  "_goals": "G03.1, G06.4. QMIX baseline: MLP agent on the full observation and CleanMARL's fixed-n mixer (D-008). One run per fleet size (--train-n 3 | 6 | 9); not evaluable at another n.",
++  "_goals": "G03.1, G06.4. QMIX baseline: MLP agent on the full observation and CleanMARL's fixed-n mixer (D-008). One run per fleet size (--train-n 3 | 6 | 9); not evaluable at another n. Since D-032 (GAP-30): the mixer reads the airspeed state entry divided by 10 and the target networks follow at polyak 0.001; without both the mixer's value estimate diverges.",
+   "env_name": "sector_cr",
+   "steps_per_size": 2000000,
+   "max_episode_steps": 150,
+   "r_detect_nm": 20.0,
+   "spawn_min_sep_nm": 6.0,
+   "algo": "qmix",
++  "qmix_airspeed_div": 10.0,
++  "polyak": 0.001,
+   "train_n": [
+     3
+   ]
+diff --git a/tools/hpc/train_array.sbatch b/tools/hpc/train_array.sbatch
+index cb3daca..c093ad3 100644
+--- a/tools/hpc/train_array.sbatch
++++ b/tools/hpc/train_array.sbatch
+@@ -4,13 +4,15 @@
+ # Submit one array per method so each writes into its own parent folder, e.g.
+ #   D=/work/flemingc/akhan1/gnn_marl_experiments/Nov25_GNN-QMIX; mkdir -p $D/logs
+ #   sbatch --array=1-3 --export=ALL,RUNS_DIR=$D --output=$D/logs/task_%a.log tools/hpc/train_array.sbatch
+-# QMIX tasks (10-18) start 4 processes: add --cpus-per-task=4 --mem=8G.
++# Measured on Nova (2026-11-25 runs): a joint run used about 1.1 CPU cores on average and 4.2 GB at peak
++# (10 processes, mostly waiting on each other); a QMIX run about 1.0 core and 2.0 GB (4 processes).
++# The defaults below fit a joint run. For QMIX tasks (10-18) add --cpus-per-task=2 --mem=4G --time=24:00:00.
+ # Extra training flags can be passed after the script name (used for smoke runs only).
+ #SBATCH --job-name=gnn-qmix
+ #SBATCH --nodes=1
+ #SBATCH --ntasks=1
+-#SBATCH --cpus-per-task=10
+-#SBATCH --mem=16G
++#SBATCH --cpus-per-task=4
++#SBATCH --mem=8G
+ #SBATCH --time=72:00:00
+ #SBATCH --output=slurm_logs/%x_%A_%a.out
+ #SBATCH --partition=nova

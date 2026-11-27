@@ -1,0 +1,102 @@
+job 17784017_13 on nova18-wide-23 started Thu Nov 26 04:02:36 PM CST 2026
+run_dir: /work/flemingc/akhan1/gnn_marl_smoke/nov26/G03.1_qmix_sector_cr_n6_s1_20261126-1602_smoke
+algo=qmix agent=mlp train_n=[6] parameters=32464
+[eval] step=0 n=6 return/agent=-21.294 los_rate=0.0058 conflict_free=0.50
+/work/flemingc/akhan1/gnn_marl_nov26/algorithms/gnn_qmix/train.py:198: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  losses.append(float(loss))
+[eval] step=750 n=6 return/agent=-53.192 los_rate=0.0389 conflict_free=0.00
+[eval] step=1500 n=6 return/agent=-22.776 los_rate=0.0000 conflict_free=1.00
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+done: 1500 steps per fleet size (1500 in total) in 28 s -> /work/flemingc/akhan1/gnn_marl_smoke/nov26/G03.1_qmix_sector_cr_n6_s1_20261126-1602_smoke
+eval_n=3: not_evaluable (network input is 38 wide, n=3 needs 17)
+/work/flemingc/akhan1/gnn_marl_nov26/.venv/lib/python3.12/site-packages/torch/nn/init.py:566: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=6: episodes=2 los_rate=0.0044 conflict_free=0.50 return/agent=-24.88
+eval_n=9: not_evaluable (network input is 38 wide, n=9 needs 59)
+eval_n=10: not_evaluable (network input is 38 wide, n=10 needs 66)
+eval_n=20: not_evaluable (network input is 38 wide, n=20 needs 136)
+eval_n=50: not_evaluable (network input is 38 wide, n=50 needs 346)
+eval_n=3: not_evaluable (network input is 38 wide, n=3 needs 17)
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=6: episodes=2 los_rate=0.0256 conflict_free=0.50 return/agent=-41.18
+eval_n=9: not_evaluable (network input is 38 wide, n=9 needs 59)
+eval_n=10: not_evaluable (network input is 38 wide, n=10 needs 66)
+eval_n=20: not_evaluable (network input is 38 wide, n=20 needs 136)
+eval_n=50: not_evaluable (network input is 38 wide, n=50 needs 346)
+wrote /work/flemingc/akhan1/gnn_marl_smoke/nov26/G03.1_qmix_sector_cr_n6_s1_20261126-1602_smoke/eval_zero_shot.csv

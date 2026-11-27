@@ -1,0 +1,1277 @@
+job 17768555_14 on nova18-wide-5 started Wed Nov 25 06:47:07 PM CST 2026
+run_dir: /work/flemingc/akhan1/gnn_marl_experiments/Nov25_QMIX/G03.1_qmix_sector_cr_n6_s2_20261125-1847_nova
+algo=qmix agent=mlp train_n=[6] parameters=32464
+[eval] step=0 n=6 return/agent=-29.505 los_rate=0.0089 conflict_free=0.70
+step=2000 eps=0.981 loss=nan steps/s=76
+step=4000 eps=0.962 loss=nan steps/s=105
+/work/flemingc/akhan1/gnn_marl/algorithms/gnn_qmix/train.py:198: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  losses.append(float(loss))
+step=6000 eps=0.943 loss=832.4718 steps/s=98
+step=8000 eps=0.924 loss=155.9294 steps/s=95
+step=10000 eps=0.905 loss=458.2459 steps/s=99
+step=12000 eps=0.886 loss=1401.6150 steps/s=94
+step=14000 eps=0.867 loss=4222.9259 steps/s=95
+step=16000 eps=0.848 loss=10704.1529 steps/s=97
+step=18000 eps=0.829 loss=26988.9143 steps/s=96
+step=20000 eps=0.810 loss=62337.7932 steps/s=94
+[eval] step=20000 n=6 return/agent=-21.056 los_rate=0.0155 conflict_free=0.40
+step=22000 eps=0.791 loss=125173.8964 steps/s=72
+step=24000 eps=0.772 loss=243981.1448 steps/s=93
+step=26000 eps=0.753 loss=417473.2652 steps/s=94
+step=28000 eps=0.734 loss=686627.5644 steps/s=97
+step=30000 eps=0.715 loss=1035467.4090 steps/s=95
+step=32000 eps=0.696 loss=1455041.2905 steps/s=93
+step=34000 eps=0.677 loss=1863785.4570 steps/s=99
+step=36000 eps=0.658 loss=2248119.2190 steps/s=95
+step=38000 eps=0.639 loss=2641904.7275 steps/s=94
+step=40000 eps=0.620 loss=2947773.8100 steps/s=99
+[eval] step=40000 n=6 return/agent=-25.520 los_rate=0.0153 conflict_free=0.30
+step=42000 eps=0.601 loss=3235250.7810 steps/s=71
+step=44000 eps=0.582 loss=3519713.1740 steps/s=93
+step=46000 eps=0.563 loss=3766289.3460 steps/s=99
+step=48000 eps=0.544 loss=4146701.2720 steps/s=94
+step=50000 eps=0.525 loss=4462848.0360 steps/s=93
+step=52000 eps=0.506 loss=4754393.2370 steps/s=96
+step=54000 eps=0.487 loss=5120951.6310 steps/s=98
+step=56000 eps=0.468 loss=5458644.4140 steps/s=94
+step=58000 eps=0.449 loss=6068150.4320 steps/s=95
+step=60000 eps=0.430 loss=6191957.6720 steps/s=97
+[eval] step=60000 n=6 return/agent=-32.315 los_rate=0.0258 conflict_free=0.20
+step=62000 eps=0.411 loss=6686821.9700 steps/s=70
+step=64000 eps=0.392 loss=6907774.2300 steps/s=94
+step=66000 eps=0.373 loss=7146812.3300 steps/s=98
+step=68000 eps=0.354 loss=7474884.0660 steps/s=95
+step=70000 eps=0.335 loss=8075233.2000 steps/s=93
+step=72000 eps=0.316 loss=8022500.9720 steps/s=93
+step=74000 eps=0.297 loss=8286733.9520 steps/s=95
+step=76000 eps=0.278 loss=8652264.9820 steps/s=93
+step=78000 eps=0.259 loss=9004727.6520 steps/s=97
+step=80000 eps=0.240 loss=9273624.8580 steps/s=97
+[eval] step=80000 n=6 return/agent=-46.236 los_rate=0.0129 conflict_free=0.30
+step=82000 eps=0.221 loss=9642037.9240 steps/s=69
+step=84000 eps=0.202 loss=9996998.0960 steps/s=98
+step=86000 eps=0.183 loss=10343511.2600 steps/s=94
+step=88000 eps=0.164 loss=11174753.2380 steps/s=91
+step=90000 eps=0.145 loss=11204090.0300 steps/s=92
+step=92000 eps=0.126 loss=11594195.9640 steps/s=96
+step=94000 eps=0.107 loss=12025330.8000 steps/s=92
+step=96000 eps=0.088 loss=12328580.7520 steps/s=91
+step=98000 eps=0.069 loss=12339963.6480 steps/s=95
+step=100000 eps=0.050 loss=12653854.2960 steps/s=93
+[eval] step=100000 n=6 return/agent=-11.637 los_rate=0.0057 conflict_free=0.50
+step=102000 eps=0.050 loss=12838303.3000 steps/s=68
+step=104000 eps=0.050 loss=12539174.2200 steps/s=96
+step=106000 eps=0.050 loss=12599837.3440 steps/s=92
+step=108000 eps=0.050 loss=11987504.1760 steps/s=92
+step=110000 eps=0.050 loss=11323823.8840 steps/s=95
+step=112000 eps=0.050 loss=11093933.1600 steps/s=93
+step=114000 eps=0.050 loss=11022133.1880 steps/s=92
+step=116000 eps=0.050 loss=10873217.3280 steps/s=98
+step=118000 eps=0.050 loss=11248373.9920 steps/s=94
+step=120000 eps=0.050 loss=11171115.2620 steps/s=91
+[eval] step=120000 n=6 return/agent=-15.899 los_rate=0.0117 conflict_free=0.40
+step=122000 eps=0.050 loss=10830782.2660 steps/s=71
+step=124000 eps=0.050 loss=10360734.9940 steps/s=94
+step=126000 eps=0.050 loss=10024625.3660 steps/s=91
+step=128000 eps=0.050 loss=9923461.2080 steps/s=98
+step=130000 eps=0.050 loss=10390935.2520 steps/s=95
+step=132000 eps=0.050 loss=9743070.6380 steps/s=91
+step=134000 eps=0.050 loss=9837519.6180 steps/s=93
+step=136000 eps=0.050 loss=9319279.2440 steps/s=96
+step=138000 eps=0.050 loss=9552531.5720 steps/s=93
+step=140000 eps=0.050 loss=9209274.7980 steps/s=92
+[eval] step=140000 n=6 return/agent=-23.629 los_rate=0.0112 conflict_free=0.50
+step=142000 eps=0.050 loss=9150112.7160 steps/s=71
+step=144000 eps=0.050 loss=9491765.3220 steps/s=92
+step=146000 eps=0.050 loss=9363577.5200 steps/s=92
+step=148000 eps=0.050 loss=9249035.8580 steps/s=95
+step=150000 eps=0.050 loss=9184158.9980 steps/s=93
+step=152000 eps=0.050 loss=9034727.0580 steps/s=91
+step=154000 eps=0.050 loss=9244521.4780 steps/s=96
+step=156000 eps=0.050 loss=9012577.8580 steps/s=93
+step=158000 eps=0.050 loss=8608782.0260 steps/s=91
+step=160000 eps=0.050 loss=8547910.7380 steps/s=96
+[eval] step=160000 n=6 return/agent=-16.513 los_rate=0.0067 conflict_free=0.50
+step=162000 eps=0.050 loss=8617232.2720 steps/s=62
+step=164000 eps=0.050 loss=8607581.0360 steps/s=91
+step=166000 eps=0.050 loss=8509489.0100 steps/s=96
+step=168000 eps=0.050 loss=8497892.0640 steps/s=93
+step=170000 eps=0.050 loss=8388972.2820 steps/s=90
+step=172000 eps=0.050 loss=8329357.4960 steps/s=95
+step=174000 eps=0.050 loss=8502592.3620 steps/s=95
+step=176000 eps=0.050 loss=8340985.1980 steps/s=91
+step=178000 eps=0.050 loss=8149799.1320 steps/s=92
+step=180000 eps=0.050 loss=8152196.6300 steps/s=95
+[eval] step=180000 n=6 return/agent=-19.166 los_rate=0.0115 conflict_free=0.30
+step=182000 eps=0.050 loss=8143101.4040 steps/s=68
+step=184000 eps=0.050 loss=8195919.2860 steps/s=92
+step=186000 eps=0.050 loss=7786215.4020 steps/s=97
+step=188000 eps=0.050 loss=7954819.2920 steps/s=93
+step=190000 eps=0.050 loss=7897633.6100 steps/s=91
+step=192000 eps=0.050 loss=7913235.5440 steps/s=95
+step=194000 eps=0.050 loss=7781783.5760 steps/s=93
+step=196000 eps=0.050 loss=7811706.5500 steps/s=91
+step=198000 eps=0.050 loss=7907265.1480 steps/s=96
+step=200000 eps=0.050 loss=7853432.4660 steps/s=94
+[eval] step=200000 n=6 return/agent=-10.298 los_rate=0.0055 conflict_free=0.60
+step=202000 eps=0.050 loss=7858929.3700 steps/s=70
+step=204000 eps=0.050 loss=8022519.7940 steps/s=97
+step=206000 eps=0.050 loss=8473445.4520 steps/s=93
+step=208000 eps=0.050 loss=8167527.1220 steps/s=90
+step=210000 eps=0.050 loss=8467448.4860 steps/s=95
+step=212000 eps=0.050 loss=8300835.6140 steps/s=94
+step=214000 eps=0.050 loss=8632466.0300 steps/s=91
+step=216000 eps=0.050 loss=8563033.1940 steps/s=94
+step=218000 eps=0.050 loss=9444621.2660 steps/s=97
+step=220000 eps=0.050 loss=8586406.7180 steps/s=95
+[eval] step=220000 n=6 return/agent=-11.938 los_rate=0.0062 conflict_free=0.60
+step=222000 eps=0.050 loss=8690802.1660 steps/s=69
+step=224000 eps=0.050 loss=8549921.3380 steps/s=95
+step=226000 eps=0.050 loss=9064410.9980 steps/s=93
+step=228000 eps=0.050 loss=8291406.6720 steps/s=92
+step=230000 eps=0.050 loss=9378514.6440 steps/s=96
+step=232000 eps=0.050 loss=8722339.3500 steps/s=93
+step=234000 eps=0.050 loss=8303368.0600 steps/s=91
+step=236000 eps=0.050 loss=8512027.5020 steps/s=93
+step=238000 eps=0.050 loss=8573951.6560 steps/s=96
+step=240000 eps=0.050 loss=8489050.8880 steps/s=91
+[eval] step=240000 n=6 return/agent=-10.805 los_rate=0.0040 conflict_free=0.50
+step=242000 eps=0.050 loss=8914799.0920 steps/s=70
+step=244000 eps=0.050 loss=8636194.3780 steps/s=95
+step=246000 eps=0.050 loss=8737190.4480 steps/s=91
+step=248000 eps=0.050 loss=8800699.5780 steps/s=92
+step=250000 eps=0.050 loss=9262468.0680 steps/s=96
+step=252000 eps=0.050 loss=8915274.7160 steps/s=92
+step=254000 eps=0.050 loss=8907394.3060 steps/s=92
+step=256000 eps=0.050 loss=8931582.4780 steps/s=98
+step=258000 eps=0.050 loss=9390321.2660 steps/s=94
+step=260000 eps=0.050 loss=8835457.8520 steps/s=91
+[eval] step=260000 n=6 return/agent=-13.888 los_rate=0.0089 conflict_free=0.50
+step=262000 eps=0.050 loss=9108156.3860 steps/s=71
+step=264000 eps=0.050 loss=9412587.7500 steps/s=93
+step=266000 eps=0.050 loss=9131258.2040 steps/s=90
+step=268000 eps=0.050 loss=9024847.2540 steps/s=93
+step=270000 eps=0.050 loss=9064427.7680 steps/s=96
+step=272000 eps=0.050 loss=8673176.2000 steps/s=91
+step=274000 eps=0.050 loss=8813150.0300 steps/s=92
+step=276000 eps=0.050 loss=9365263.7560 steps/s=97
+step=278000 eps=0.050 loss=9081701.8340 steps/s=96
+step=280000 eps=0.050 loss=8821571.5360 steps/s=91
+[eval] step=280000 n=6 return/agent=-11.657 los_rate=0.0067 conflict_free=0.50
+step=282000 eps=0.050 loss=9294307.4320 steps/s=70
+step=284000 eps=0.050 loss=8900090.7280 steps/s=94
+step=286000 eps=0.050 loss=8603702.4280 steps/s=91
+step=288000 eps=0.050 loss=8825528.1920 steps/s=96
+step=290000 eps=0.050 loss=8784959.1540 steps/s=93
+step=292000 eps=0.050 loss=8804929.9360 steps/s=90
+step=294000 eps=0.050 loss=8877413.8080 steps/s=93
+step=296000 eps=0.050 loss=8627588.8860 steps/s=99
+step=298000 eps=0.050 loss=8406497.2360 steps/s=91
+step=300000 eps=0.050 loss=8533322.6340 steps/s=91
+[eval] step=300000 n=6 return/agent=-14.352 los_rate=0.0103 conflict_free=0.40
+step=302000 eps=0.050 loss=8286497.0740 steps/s=72
+step=304000 eps=0.050 loss=8531531.6900 steps/s=91
+step=306000 eps=0.050 loss=8460094.7360 steps/s=92
+step=308000 eps=0.050 loss=8578540.9460 steps/s=96
+step=310000 eps=0.050 loss=8766064.3120 steps/s=94
+step=312000 eps=0.050 loss=8503439.7220 steps/s=91
+step=314000 eps=0.050 loss=8303166.8740 steps/s=95
+step=316000 eps=0.050 loss=8571174.1460 steps/s=93
+step=318000 eps=0.050 loss=8421057.5420 steps/s=90
+step=320000 eps=0.050 loss=8319948.4580 steps/s=92
+[eval] step=320000 n=6 return/agent=-12.299 los_rate=0.0079 conflict_free=0.30
+step=322000 eps=0.050 loss=8354697.8860 steps/s=73
+step=324000 eps=0.050 loss=8754448.5420 steps/s=90
+step=326000 eps=0.050 loss=8338308.0920 steps/s=92
+step=328000 eps=0.050 loss=8571717.7900 steps/s=96
+step=330000 eps=0.050 loss=8221995.6380 steps/s=93
+step=332000 eps=0.050 loss=8153444.4980 steps/s=91
+step=334000 eps=0.050 loss=8000439.9020 steps/s=96
+step=336000 eps=0.050 loss=7863380.9820 steps/s=93
+step=338000 eps=0.050 loss=7838828.8040 steps/s=91
+step=340000 eps=0.050 loss=7946643.1940 steps/s=96
+[eval] step=340000 n=6 return/agent=-8.264 los_rate=0.0055 conflict_free=0.60
+step=342000 eps=0.050 loss=7804346.7560 steps/s=71
+step=344000 eps=0.050 loss=7698307.6260 steps/s=90
+step=346000 eps=0.050 loss=7746698.9080 steps/s=95
+step=348000 eps=0.050 loss=7999390.9760 steps/s=93
+step=350000 eps=0.050 loss=7978487.7860 steps/s=90
+step=352000 eps=0.050 loss=8221982.9280 steps/s=92
+step=354000 eps=0.050 loss=7817049.9800 steps/s=96
+step=356000 eps=0.050 loss=7867519.6940 steps/s=91
+step=358000 eps=0.050 loss=7635925.6080 steps/s=92
+step=360000 eps=0.050 loss=7709191.2900 steps/s=96
+[eval] step=360000 n=6 return/agent=-8.974 los_rate=0.0056 conflict_free=0.40
+step=362000 eps=0.050 loss=7796815.0320 steps/s=71
+step=364000 eps=0.050 loss=7798613.4060 steps/s=92
+step=366000 eps=0.050 loss=7745640.4820 steps/s=95
+step=368000 eps=0.050 loss=7883413.7240 steps/s=93
+step=370000 eps=0.050 loss=7669200.4920 steps/s=90
+step=372000 eps=0.050 loss=7848299.5600 steps/s=95
+step=374000 eps=0.050 loss=7923349.1920 steps/s=93
+step=376000 eps=0.050 loss=8048131.8580 steps/s=91
+step=378000 eps=0.050 loss=8388236.4720 steps/s=105
+step=380000 eps=0.050 loss=8332171.6200 steps/s=112
+[eval] step=380000 n=6 return/agent=-7.102 los_rate=0.0039 conflict_free=0.50
+step=382000 eps=0.050 loss=8378962.9200 steps/s=86
+step=384000 eps=0.050 loss=8419827.3820 steps/s=111
+step=386000 eps=0.050 loss=8435968.7600 steps/s=110
+step=388000 eps=0.050 loss=8652274.5660 steps/s=111
+step=390000 eps=0.050 loss=8366447.7000 steps/s=111
+step=392000 eps=0.050 loss=8866159.3900 steps/s=111
+step=394000 eps=0.050 loss=8598082.9080 steps/s=111
+step=396000 eps=0.050 loss=9150071.1060 steps/s=111
+step=398000 eps=0.050 loss=8860913.6320 steps/s=111
+step=400000 eps=0.050 loss=9091226.8820 steps/s=111
+[eval] step=400000 n=6 return/agent=-8.217 los_rate=0.0048 conflict_free=0.60
+step=402000 eps=0.050 loss=9062251.2240 steps/s=85
+step=404000 eps=0.050 loss=9203719.7340 steps/s=111
+step=406000 eps=0.050 loss=8879851.9320 steps/s=111
+step=408000 eps=0.050 loss=9123690.4880 steps/s=111
+step=410000 eps=0.050 loss=8794018.8040 steps/s=111
+step=412000 eps=0.050 loss=8947131.9320 steps/s=110
+step=414000 eps=0.050 loss=9381315.9300 steps/s=111
+step=416000 eps=0.050 loss=9176502.0260 steps/s=111
+step=418000 eps=0.050 loss=9491150.9620 steps/s=111
+step=420000 eps=0.050 loss=9357100.5260 steps/s=111
+[eval] step=420000 n=6 return/agent=-12.046 los_rate=0.0118 conflict_free=0.50
+Traceback (most recent call last):
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/simstack.py", line 73, in process
+    success, echotext = cmdobj(argstring)
+                        ^^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/cmdparser.py", line 70, in __call__
+    result = param(argstring)
+             ^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/argparser.py", line 87, in __call__
+    raise ArgumentError(error)
+bluesky.stack.argparser.ArgumentError: 
+txt2hdg needs either a float, optionally with an M/T prefix or a position
+step=422000 eps=0.050 loss=9590476.2340 steps/s=84
+step=424000 eps=0.050 loss=9508145.0380 steps/s=110
+step=426000 eps=0.050 loss=9767245.7340 steps/s=111
+step=428000 eps=0.050 loss=9888743.6640 steps/s=110
+step=430000 eps=0.050 loss=9912256.6660 steps/s=110
+step=432000 eps=0.050 loss=9942089.9540 steps/s=110
+step=434000 eps=0.050 loss=9917927.9660 steps/s=110
+step=436000 eps=0.050 loss=9842229.6300 steps/s=110
+step=438000 eps=0.050 loss=9791891.8440 steps/s=110
+step=440000 eps=0.050 loss=9998231.1720 steps/s=110
+[eval] step=440000 n=6 return/agent=-8.439 los_rate=0.0056 conflict_free=0.50
+step=442000 eps=0.050 loss=10132617.2640 steps/s=86
+step=444000 eps=0.050 loss=10651373.8540 steps/s=110
+step=446000 eps=0.050 loss=9760960.5280 steps/s=110
+step=448000 eps=0.050 loss=9934136.7040 steps/s=110
+step=450000 eps=0.050 loss=9995870.3380 steps/s=110
+step=452000 eps=0.050 loss=9981466.0920 steps/s=110
+step=454000 eps=0.050 loss=10084938.4440 steps/s=110
+step=456000 eps=0.050 loss=10243403.1160 steps/s=110
+step=458000 eps=0.050 loss=10106502.5280 steps/s=110
+step=460000 eps=0.050 loss=10098214.2280 steps/s=110
+[eval] step=460000 n=6 return/agent=-12.591 los_rate=0.0113 conflict_free=0.40
+step=462000 eps=0.050 loss=10087646.5340 steps/s=86
+step=464000 eps=0.050 loss=10141205.4660 steps/s=110
+step=466000 eps=0.050 loss=9972211.6020 steps/s=110
+step=468000 eps=0.050 loss=10420805.5560 steps/s=110
+step=470000 eps=0.050 loss=10138256.7020 steps/s=110
+step=472000 eps=0.050 loss=10440608.4580 steps/s=111
+step=474000 eps=0.050 loss=10351741.9440 steps/s=110
+step=476000 eps=0.050 loss=10642891.1460 steps/s=110
+step=478000 eps=0.050 loss=10308715.5220 steps/s=110
+step=480000 eps=0.050 loss=10393636.4100 steps/s=110
+[eval] step=480000 n=6 return/agent=-8.535 los_rate=0.0064 conflict_free=0.50
+step=482000 eps=0.050 loss=10735825.1020 steps/s=84
+step=484000 eps=0.050 loss=10658460.7940 steps/s=110
+step=486000 eps=0.050 loss=10824402.1020 steps/s=110
+step=488000 eps=0.050 loss=10597981.0640 steps/s=110
+step=490000 eps=0.050 loss=10829373.3200 steps/s=109
+step=492000 eps=0.050 loss=10574832.3420 steps/s=110
+step=494000 eps=0.050 loss=10688981.8340 steps/s=111
+step=496000 eps=0.050 loss=11006540.5560 steps/s=110
+step=498000 eps=0.050 loss=10670796.3840 steps/s=110
+step=500000 eps=0.050 loss=10773607.8060 steps/s=110
+[eval] step=500000 n=6 return/agent=-7.433 los_rate=0.0029 conflict_free=0.60
+step=502000 eps=0.050 loss=10957249.0980 steps/s=84
+step=504000 eps=0.050 loss=10900564.0820 steps/s=110
+step=506000 eps=0.050 loss=11197008.2760 steps/s=110
+step=508000 eps=0.050 loss=11428108.4700 steps/s=109
+step=510000 eps=0.050 loss=11087990.1740 steps/s=110
+step=512000 eps=0.050 loss=11212852.7020 steps/s=110
+step=514000 eps=0.050 loss=11231550.8680 steps/s=110
+step=516000 eps=0.050 loss=11511726.7960 steps/s=110
+step=518000 eps=0.050 loss=11007268.8560 steps/s=110
+step=520000 eps=0.050 loss=11019240.3320 steps/s=110
+[eval] step=520000 n=6 return/agent=-7.049 los_rate=0.0039 conflict_free=0.60
+step=522000 eps=0.050 loss=11357914.7560 steps/s=86
+step=524000 eps=0.050 loss=11240139.1720 steps/s=110
+step=526000 eps=0.050 loss=10880184.2840 steps/s=110
+step=528000 eps=0.050 loss=11163633.7980 steps/s=110
+step=530000 eps=0.050 loss=11034024.7500 steps/s=110
+step=532000 eps=0.050 loss=11065663.5020 steps/s=108
+step=534000 eps=0.050 loss=11601167.1080 steps/s=110
+step=536000 eps=0.050 loss=11165288.0420 steps/s=110
+step=538000 eps=0.050 loss=11499267.6380 steps/s=110
+step=540000 eps=0.050 loss=11619494.7600 steps/s=110
+[eval] step=540000 n=6 return/agent=-8.003 los_rate=0.0070 conflict_free=0.50
+step=542000 eps=0.050 loss=11464197.3200 steps/s=85
+step=544000 eps=0.050 loss=11327324.1140 steps/s=109
+step=546000 eps=0.050 loss=11228250.1000 steps/s=103
+step=548000 eps=0.050 loss=11434077.2160 steps/s=109
+step=550000 eps=0.050 loss=11470946.3040 steps/s=109
+step=552000 eps=0.050 loss=11317515.9020 steps/s=108
+step=554000 eps=0.050 loss=11398483.3000 steps/s=108
+step=556000 eps=0.050 loss=11522661.6680 steps/s=109
+step=558000 eps=0.050 loss=11568055.5520 steps/s=109
+step=560000 eps=0.050 loss=11541402.8940 steps/s=109
+[eval] step=560000 n=6 return/agent=-7.486 los_rate=0.0062 conflict_free=0.50
+step=562000 eps=0.050 loss=11384718.0520 steps/s=85
+step=564000 eps=0.050 loss=11775221.0320 steps/s=109
+step=566000 eps=0.050 loss=11361784.9800 steps/s=109
+step=568000 eps=0.050 loss=11647716.5000 steps/s=108
+step=570000 eps=0.050 loss=11667508.3180 steps/s=108
+step=572000 eps=0.050 loss=11929782.8480 steps/s=109
+step=574000 eps=0.050 loss=11537423.0120 steps/s=109
+step=576000 eps=0.050 loss=12145938.2520 steps/s=109
+step=578000 eps=0.050 loss=12285125.6520 steps/s=109
+step=580000 eps=0.050 loss=12273830.2240 steps/s=109
+[eval] step=580000 n=6 return/agent=-7.245 los_rate=0.0051 conflict_free=0.60
+step=582000 eps=0.050 loss=12241499.5480 steps/s=83
+step=584000 eps=0.050 loss=12274831.2000 steps/s=109
+step=586000 eps=0.050 loss=12411266.0640 steps/s=109
+step=588000 eps=0.050 loss=12522255.7240 steps/s=109
+step=590000 eps=0.050 loss=12652107.8800 steps/s=109
+step=592000 eps=0.050 loss=12416946.1560 steps/s=109
+step=594000 eps=0.050 loss=12536439.1880 steps/s=109
+step=596000 eps=0.050 loss=12615960.5640 steps/s=109
+step=598000 eps=0.050 loss=12680682.2080 steps/s=109
+step=600000 eps=0.050 loss=12689568.6040 steps/s=109
+[eval] step=600000 n=6 return/agent=-6.461 los_rate=0.0051 conflict_free=0.50
+step=602000 eps=0.050 loss=12655799.6400 steps/s=86
+step=604000 eps=0.050 loss=12853977.7520 steps/s=109
+step=606000 eps=0.050 loss=12507652.6120 steps/s=109
+step=608000 eps=0.050 loss=12662215.2280 steps/s=109
+step=610000 eps=0.050 loss=12968734.8880 steps/s=110
+step=612000 eps=0.050 loss=12752657.0440 steps/s=109
+step=614000 eps=0.050 loss=12980513.8840 steps/s=109
+step=616000 eps=0.050 loss=13159131.1520 steps/s=108
+step=618000 eps=0.050 loss=13113080.4360 steps/s=109
+step=620000 eps=0.050 loss=13047805.4840 steps/s=109
+[eval] step=620000 n=6 return/agent=-7.996 los_rate=0.0052 conflict_free=0.40
+step=622000 eps=0.050 loss=12750486.2080 steps/s=83
+step=624000 eps=0.050 loss=13096726.4080 steps/s=109
+step=626000 eps=0.050 loss=13338545.2360 steps/s=109
+Traceback (most recent call last):
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/simstack.py", line 73, in process
+    success, echotext = cmdobj(argstring)
+                        ^^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/cmdparser.py", line 70, in __call__
+    result = param(argstring)
+             ^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/argparser.py", line 87, in __call__
+    raise ArgumentError(error)
+bluesky.stack.argparser.ArgumentError: 
+txt2hdg needs either a float, optionally with an M/T prefix or a position
+step=628000 eps=0.050 loss=13248541.0760 steps/s=109
+step=630000 eps=0.050 loss=13396310.4400 steps/s=109
+step=632000 eps=0.050 loss=13185517.7480 steps/s=108
+step=634000 eps=0.050 loss=12919685.2320 steps/s=109
+step=636000 eps=0.050 loss=13105887.1560 steps/s=109
+step=638000 eps=0.050 loss=12932049.8440 steps/s=109
+step=640000 eps=0.050 loss=12891402.6080 steps/s=109
+[eval] step=640000 n=6 return/agent=-5.969 los_rate=0.0041 conflict_free=0.70
+step=642000 eps=0.050 loss=13219593.4960 steps/s=86
+step=644000 eps=0.050 loss=13078590.7000 steps/s=109
+step=646000 eps=0.050 loss=13190844.1960 steps/s=109
+step=648000 eps=0.050 loss=13247673.8560 steps/s=109
+step=650000 eps=0.050 loss=13076135.7720 steps/s=109
+step=652000 eps=0.050 loss=13119137.3560 steps/s=110
+step=654000 eps=0.050 loss=13166942.5880 steps/s=110
+step=656000 eps=0.050 loss=13461734.5600 steps/s=109
+step=658000 eps=0.050 loss=13477612.8520 steps/s=108
+step=660000 eps=0.050 loss=13380922.8200 steps/s=108
+[eval] step=660000 n=6 return/agent=-8.275 los_rate=0.0075 conflict_free=0.40
+step=662000 eps=0.050 loss=13777735.7720 steps/s=86
+step=664000 eps=0.050 loss=13333511.9840 steps/s=110
+step=666000 eps=0.050 loss=14537656.6440 steps/s=109
+step=668000 eps=0.050 loss=13522739.2920 steps/s=109
+step=670000 eps=0.050 loss=13570426.3600 steps/s=109
+step=672000 eps=0.050 loss=13209637.1920 steps/s=109
+step=674000 eps=0.050 loss=13490497.0160 steps/s=110
+step=676000 eps=0.050 loss=14092751.8120 steps/s=109
+step=678000 eps=0.050 loss=13634910.1840 steps/s=109
+step=680000 eps=0.050 loss=13333822.9560 steps/s=109
+[eval] step=680000 n=6 return/agent=-8.102 los_rate=0.0064 conflict_free=0.40
+step=682000 eps=0.050 loss=13528299.2960 steps/s=84
+step=684000 eps=0.050 loss=13467103.2120 steps/s=109
+step=686000 eps=0.050 loss=13269732.1680 steps/s=109
+step=688000 eps=0.050 loss=13794927.5400 steps/s=110
+step=690000 eps=0.050 loss=13352082.5880 steps/s=108
+step=692000 eps=0.050 loss=13400657.2360 steps/s=109
+step=694000 eps=0.050 loss=13754749.3640 steps/s=109
+step=696000 eps=0.050 loss=13488396.0400 steps/s=110
+step=698000 eps=0.050 loss=13689987.9480 steps/s=109
+step=700000 eps=0.050 loss=13363779.2400 steps/s=109
+[eval] step=700000 n=6 return/agent=-9.655 los_rate=0.0080 conflict_free=0.30
+step=702000 eps=0.050 loss=13697233.9160 steps/s=84
+step=704000 eps=0.050 loss=13681496.4880 steps/s=108
+step=706000 eps=0.050 loss=13560767.9680 steps/s=108
+step=708000 eps=0.050 loss=13288787.7640 steps/s=108
+step=710000 eps=0.050 loss=14151352.9720 steps/s=108
+step=712000 eps=0.050 loss=13740305.6960 steps/s=108
+step=714000 eps=0.050 loss=14685622.3200 steps/s=108
+step=716000 eps=0.050 loss=13556214.9880 steps/s=108
+step=718000 eps=0.050 loss=13667390.1320 steps/s=108
+step=720000 eps=0.050 loss=13613028.9280 steps/s=108
+[eval] step=720000 n=6 return/agent=-6.936 los_rate=0.0056 conflict_free=0.50
+step=722000 eps=0.050 loss=13606588.8280 steps/s=84
+step=724000 eps=0.050 loss=13781726.6560 steps/s=109
+step=726000 eps=0.050 loss=13652910.9560 steps/s=109
+step=728000 eps=0.050 loss=14066207.7120 steps/s=108
+step=730000 eps=0.050 loss=13951447.8000 steps/s=109
+step=732000 eps=0.050 loss=13898389.8040 steps/s=109
+step=734000 eps=0.050 loss=13860369.4640 steps/s=105
+step=736000 eps=0.050 loss=13834099.1720 steps/s=93
+step=738000 eps=0.050 loss=14036691.0240 steps/s=101
+step=740000 eps=0.050 loss=13975580.0520 steps/s=110
+[eval] step=740000 n=6 return/agent=-8.865 los_rate=0.0086 conflict_free=0.50
+step=742000 eps=0.050 loss=13707552.9880 steps/s=86
+step=744000 eps=0.050 loss=14196982.1760 steps/s=110
+step=746000 eps=0.050 loss=14181036.2080 steps/s=109
+step=748000 eps=0.050 loss=14173257.5200 steps/s=109
+step=750000 eps=0.050 loss=14421840.1600 steps/s=110
+step=752000 eps=0.050 loss=14230437.2320 steps/s=109
+step=754000 eps=0.050 loss=14287665.4240 steps/s=109
+step=756000 eps=0.050 loss=15030940.6000 steps/s=109
+step=758000 eps=0.050 loss=14070528.6720 steps/s=109
+step=760000 eps=0.050 loss=14657321.9080 steps/s=109
+[eval] step=760000 n=6 return/agent=-6.914 los_rate=0.0061 conflict_free=0.30
+step=762000 eps=0.050 loss=14975681.3720 steps/s=86
+step=764000 eps=0.050 loss=15178324.2240 steps/s=92
+step=766000 eps=0.050 loss=15501082.3240 steps/s=77
+step=768000 eps=0.050 loss=15443621.8520 steps/s=78
+step=770000 eps=0.050 loss=14986905.5560 steps/s=78
+step=772000 eps=0.050 loss=15170395.1920 steps/s=77
+step=774000 eps=0.050 loss=15283840.8760 steps/s=77
+Traceback (most recent call last):
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/simstack.py", line 73, in process
+    success, echotext = cmdobj(argstring)
+                        ^^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/cmdparser.py", line 70, in __call__
+    result = param(argstring)
+             ^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/argparser.py", line 87, in __call__
+    raise ArgumentError(error)
+bluesky.stack.argparser.ArgumentError: 
+txt2hdg needs either a float, optionally with an M/T prefix or a position
+step=776000 eps=0.050 loss=15810203.8560 steps/s=78
+step=778000 eps=0.050 loss=15537985.7160 steps/s=79
+step=780000 eps=0.050 loss=15643080.1960 steps/s=78
+[eval] step=780000 n=6 return/agent=-6.553 los_rate=0.0044 conflict_free=0.40
+step=782000 eps=0.050 loss=15629456.9680 steps/s=61
+step=784000 eps=0.050 loss=16317813.0560 steps/s=78
+step=786000 eps=0.050 loss=16212091.0560 steps/s=78
+step=788000 eps=0.050 loss=16143504.0920 steps/s=79
+step=790000 eps=0.050 loss=16342976.4120 steps/s=78
+step=792000 eps=0.050 loss=16470644.5320 steps/s=77
+step=794000 eps=0.050 loss=16715255.2800 steps/s=78
+step=796000 eps=0.050 loss=16740364.7160 steps/s=78
+step=798000 eps=0.050 loss=16285688.3920 steps/s=77
+step=800000 eps=0.050 loss=16458427.2200 steps/s=78
+[eval] step=800000 n=6 return/agent=-8.934 los_rate=0.0095 conflict_free=0.30
+step=802000 eps=0.050 loss=16395620.8880 steps/s=62
+step=804000 eps=0.050 loss=16730872.8400 steps/s=78
+step=806000 eps=0.050 loss=16334194.2560 steps/s=78
+step=808000 eps=0.050 loss=16366718.9920 steps/s=78
+step=810000 eps=0.050 loss=16406460.7120 steps/s=78
+step=812000 eps=0.050 loss=16445357.5400 steps/s=78
+step=814000 eps=0.050 loss=17462966.2800 steps/s=78
+step=816000 eps=0.050 loss=16566225.3040 steps/s=78
+step=818000 eps=0.050 loss=16543926.2920 steps/s=77
+step=820000 eps=0.050 loss=16925841.7280 steps/s=77
+[eval] step=820000 n=6 return/agent=-8.357 los_rate=0.0079 conflict_free=0.30
+step=822000 eps=0.050 loss=16379056.9600 steps/s=60
+step=824000 eps=0.050 loss=16720357.1800 steps/s=77
+step=826000 eps=0.050 loss=16853524.9880 steps/s=78
+step=828000 eps=0.050 loss=16612705.1080 steps/s=78
+step=830000 eps=0.050 loss=16005891.3640 steps/s=78
+step=832000 eps=0.050 loss=16435303.3800 steps/s=78
+step=834000 eps=0.050 loss=16096090.0520 steps/s=80
+step=836000 eps=0.050 loss=16396259.1920 steps/s=87
+step=838000 eps=0.050 loss=16356313.6760 steps/s=88
+step=840000 eps=0.050 loss=16494223.5320 steps/s=95
+[eval] step=840000 n=6 return/agent=-9.082 los_rate=0.0089 conflict_free=0.50
+step=842000 eps=0.050 loss=16340697.6000 steps/s=80
+step=844000 eps=0.050 loss=16675253.8960 steps/s=105
+step=846000 eps=0.050 loss=16513058.2440 steps/s=109
+step=848000 eps=0.050 loss=16940450.0920 steps/s=109
+step=850000 eps=0.050 loss=16732715.4040 steps/s=109
+step=852000 eps=0.050 loss=16696230.4000 steps/s=109
+step=854000 eps=0.050 loss=16630747.2280 steps/s=109
+step=856000 eps=0.050 loss=16669622.2480 steps/s=109
+step=858000 eps=0.050 loss=17169664.0840 steps/s=109
+step=860000 eps=0.050 loss=17199333.6160 steps/s=109
+[eval] step=860000 n=6 return/agent=-7.237 los_rate=0.0060 conflict_free=0.60
+step=862000 eps=0.050 loss=16640338.7920 steps/s=85
+step=864000 eps=0.050 loss=16804207.0240 steps/s=109
+step=866000 eps=0.050 loss=17227200.8720 steps/s=111
+step=868000 eps=0.050 loss=17391110.1560 steps/s=110
+step=870000 eps=0.050 loss=17364776.2000 steps/s=109
+step=872000 eps=0.050 loss=17659733.3040 steps/s=110
+step=874000 eps=0.050 loss=17002717.0040 steps/s=109
+step=876000 eps=0.050 loss=17068676.8120 steps/s=111
+step=878000 eps=0.050 loss=17322041.6880 steps/s=110
+step=880000 eps=0.050 loss=17163951.9200 steps/s=110
+[eval] step=880000 n=6 return/agent=-7.976 los_rate=0.0072 conflict_free=0.50
+step=882000 eps=0.050 loss=16725758.4680 steps/s=87
+step=884000 eps=0.050 loss=16409000.1320 steps/s=111
+step=886000 eps=0.050 loss=17825344.2840 steps/s=111
+step=888000 eps=0.050 loss=16512781.4360 steps/s=111
+step=890000 eps=0.050 loss=17193702.4880 steps/s=111
+step=892000 eps=0.050 loss=17167643.5680 steps/s=111
+step=894000 eps=0.050 loss=16540796.8640 steps/s=110
+step=896000 eps=0.050 loss=16459819.9680 steps/s=111
+step=898000 eps=0.050 loss=16455679.4280 steps/s=111
+step=900000 eps=0.050 loss=15864219.8600 steps/s=111
+[eval] step=900000 n=6 return/agent=-8.454 los_rate=0.0086 conflict_free=0.30
+step=902000 eps=0.050 loss=16431234.4560 steps/s=87
+step=904000 eps=0.050 loss=16358949.8320 steps/s=111
+step=906000 eps=0.050 loss=16225000.5720 steps/s=111
+step=908000 eps=0.050 loss=16050436.8960 steps/s=111
+step=910000 eps=0.050 loss=15848606.1040 steps/s=111
+step=912000 eps=0.050 loss=16385336.7880 steps/s=111
+step=914000 eps=0.050 loss=15720061.6080 steps/s=111
+step=916000 eps=0.050 loss=16553503.1080 steps/s=111
+step=918000 eps=0.050 loss=17014222.6520 steps/s=111
+step=920000 eps=0.050 loss=17014724.9520 steps/s=111
+[eval] step=920000 n=6 return/agent=-7.886 los_rate=0.0071 conflict_free=0.20
+step=922000 eps=0.050 loss=16626892.9840 steps/s=87
+step=924000 eps=0.050 loss=16722441.6320 steps/s=111
+step=926000 eps=0.050 loss=17417065.8480 steps/s=111
+step=928000 eps=0.050 loss=16757948.3120 steps/s=112
+step=930000 eps=0.050 loss=16344971.4400 steps/s=111
+step=932000 eps=0.050 loss=16710374.4000 steps/s=110
+step=934000 eps=0.050 loss=16611245.0920 steps/s=111
+step=936000 eps=0.050 loss=16498064.0480 steps/s=112
+step=938000 eps=0.050 loss=16342179.2560 steps/s=111
+step=940000 eps=0.050 loss=16191115.7800 steps/s=111
+[eval] step=940000 n=6 return/agent=-8.200 los_rate=0.0072 conflict_free=0.20
+step=942000 eps=0.050 loss=16127486.5840 steps/s=86
+step=944000 eps=0.050 loss=15891954.3720 steps/s=112
+step=946000 eps=0.050 loss=15961455.9680 steps/s=111
+step=948000 eps=0.050 loss=15766804.3760 steps/s=111
+step=950000 eps=0.050 loss=15739777.9520 steps/s=111
+step=952000 eps=0.050 loss=15440576.8840 steps/s=111
+step=954000 eps=0.050 loss=15654133.4080 steps/s=111
+step=956000 eps=0.050 loss=15718055.5760 steps/s=111
+step=958000 eps=0.050 loss=15562690.6720 steps/s=111
+step=960000 eps=0.050 loss=15545503.6480 steps/s=111
+[eval] step=960000 n=6 return/agent=-8.129 los_rate=0.0082 conflict_free=0.20
+step=962000 eps=0.050 loss=16067738.2920 steps/s=87
+step=964000 eps=0.050 loss=15739149.1600 steps/s=110
+step=966000 eps=0.050 loss=15627565.2080 steps/s=110
+step=968000 eps=0.050 loss=15791909.9920 steps/s=111
+step=970000 eps=0.050 loss=15392628.7400 steps/s=111
+step=972000 eps=0.050 loss=15232019.2600 steps/s=111
+step=974000 eps=0.050 loss=14899761.8880 steps/s=111
+step=976000 eps=0.050 loss=14507527.9440 steps/s=111
+step=978000 eps=0.050 loss=14859440.6400 steps/s=111
+step=980000 eps=0.050 loss=15103053.1400 steps/s=111
+[eval] step=980000 n=6 return/agent=-7.733 los_rate=0.0070 conflict_free=0.30
+step=982000 eps=0.050 loss=14752773.7840 steps/s=73
+step=984000 eps=0.050 loss=14562403.9400 steps/s=88
+step=986000 eps=0.050 loss=14134578.8200 steps/s=88
+step=988000 eps=0.050 loss=14500196.3960 steps/s=88
+step=990000 eps=0.050 loss=13797654.6280 steps/s=89
+step=992000 eps=0.050 loss=14143701.8840 steps/s=88
+step=994000 eps=0.050 loss=14269543.1960 steps/s=88
+step=996000 eps=0.050 loss=14600802.4440 steps/s=89
+step=998000 eps=0.050 loss=14218490.6920 steps/s=88
+step=1000000 eps=0.050 loss=14574782.0880 steps/s=88
+[eval] step=1000000 n=6 return/agent=-10.519 los_rate=0.0111 conflict_free=0.40
+step=1002000 eps=0.050 loss=14498229.4560 steps/s=63
+step=1004000 eps=0.050 loss=13828771.8480 steps/s=88
+step=1006000 eps=0.050 loss=13817406.4560 steps/s=89
+step=1008000 eps=0.050 loss=14181479.1720 steps/s=88
+step=1010000 eps=0.050 loss=14638818.7240 steps/s=89
+step=1012000 eps=0.050 loss=14159121.6360 steps/s=88
+step=1014000 eps=0.050 loss=13964842.2760 steps/s=89
+step=1016000 eps=0.050 loss=14831731.1920 steps/s=89
+step=1018000 eps=0.050 loss=13939796.7520 steps/s=89
+step=1020000 eps=0.050 loss=14138253.0120 steps/s=89
+[eval] step=1020000 n=6 return/agent=-9.362 los_rate=0.0090 conflict_free=0.40
+step=1022000 eps=0.050 loss=13578107.0760 steps/s=70
+step=1024000 eps=0.050 loss=13481464.6280 steps/s=88
+step=1026000 eps=0.050 loss=13617952.7600 steps/s=89
+step=1028000 eps=0.050 loss=13859336.2520 steps/s=89
+step=1030000 eps=0.050 loss=13686713.9320 steps/s=87
+step=1032000 eps=0.050 loss=13823551.0360 steps/s=88
+step=1034000 eps=0.050 loss=13720222.3600 steps/s=88
+step=1036000 eps=0.050 loss=13727436.8960 steps/s=89
+step=1038000 eps=0.050 loss=13196715.3640 steps/s=88
+step=1040000 eps=0.050 loss=14866814.1040 steps/s=88
+[eval] step=1040000 n=6 return/agent=-9.052 los_rate=0.0084 conflict_free=0.40
+step=1042000 eps=0.050 loss=14039365.9320 steps/s=71
+step=1044000 eps=0.050 loss=14334471.4400 steps/s=88
+step=1046000 eps=0.050 loss=14407447.5520 steps/s=88
+step=1048000 eps=0.050 loss=14860842.8560 steps/s=88
+step=1050000 eps=0.050 loss=15252050.0600 steps/s=101
+step=1052000 eps=0.050 loss=15132252.3840 steps/s=102
+step=1054000 eps=0.050 loss=16277185.0560 steps/s=107
+step=1056000 eps=0.050 loss=16147898.3200 steps/s=112
+step=1058000 eps=0.050 loss=16010162.3840 steps/s=111
+step=1060000 eps=0.050 loss=16491091.8560 steps/s=111
+[eval] step=1060000 n=6 return/agent=-5.462 los_rate=0.0030 conflict_free=0.70
+step=1062000 eps=0.050 loss=16248189.2600 steps/s=87
+step=1064000 eps=0.050 loss=16874986.5960 steps/s=112
+step=1066000 eps=0.050 loss=16330090.3440 steps/s=111
+step=1068000 eps=0.050 loss=16900000.1040 steps/s=111
+step=1070000 eps=0.050 loss=17062891.6680 steps/s=111
+step=1072000 eps=0.050 loss=17214775.6960 steps/s=112
+step=1074000 eps=0.050 loss=17475245.9400 steps/s=111
+step=1076000 eps=0.050 loss=17079037.9720 steps/s=112
+step=1078000 eps=0.050 loss=17478304.9280 steps/s=113
+step=1080000 eps=0.050 loss=17481552.3560 steps/s=113
+[eval] step=1080000 n=6 return/agent=-9.259 los_rate=0.0102 conflict_free=0.50
+step=1082000 eps=0.050 loss=17219774.8320 steps/s=88
+step=1084000 eps=0.050 loss=18241319.7160 steps/s=112
+step=1086000 eps=0.050 loss=17731537.1200 steps/s=111
+step=1088000 eps=0.050 loss=17756119.4640 steps/s=111
+step=1090000 eps=0.050 loss=17744949.2880 steps/s=112
+step=1092000 eps=0.050 loss=17768999.0600 steps/s=112
+step=1094000 eps=0.050 loss=17733884.7880 steps/s=111
+step=1096000 eps=0.050 loss=17336459.3320 steps/s=112
+step=1098000 eps=0.050 loss=17360091.2080 steps/s=112
+step=1100000 eps=0.050 loss=16932199.3800 steps/s=112
+[eval] step=1100000 n=6 return/agent=-7.473 los_rate=0.0055 conflict_free=0.50
+step=1102000 eps=0.050 loss=16739385.8640 steps/s=88
+step=1104000 eps=0.050 loss=16727607.6320 steps/s=111
+step=1106000 eps=0.050 loss=17006563.5360 steps/s=112
+step=1108000 eps=0.050 loss=16624548.5960 steps/s=112
+step=1110000 eps=0.050 loss=17419280.8320 steps/s=111
+step=1112000 eps=0.050 loss=16669682.8240 steps/s=112
+step=1114000 eps=0.050 loss=16995515.9040 steps/s=111
+step=1116000 eps=0.050 loss=16622457.3960 steps/s=111
+step=1118000 eps=0.050 loss=16179525.7400 steps/s=111
+step=1120000 eps=0.050 loss=16379219.3360 steps/s=111
+[eval] step=1120000 n=6 return/agent=-7.724 los_rate=0.0054 conflict_free=0.60
+step=1122000 eps=0.050 loss=16195042.7800 steps/s=88
+step=1124000 eps=0.050 loss=16005325.8880 steps/s=111
+step=1126000 eps=0.050 loss=15953975.0600 steps/s=112
+step=1128000 eps=0.050 loss=15477955.6480 steps/s=112
+step=1130000 eps=0.050 loss=15734820.0560 steps/s=111
+step=1132000 eps=0.050 loss=15854865.3560 steps/s=112
+step=1134000 eps=0.050 loss=15711735.5040 steps/s=111
+step=1136000 eps=0.050 loss=16143452.1960 steps/s=111
+step=1138000 eps=0.050 loss=15855621.2920 steps/s=112
+step=1140000 eps=0.050 loss=16088340.3000 steps/s=112
+[eval] step=1140000 n=6 return/agent=-8.477 los_rate=0.0079 conflict_free=0.60
+step=1142000 eps=0.050 loss=16082708.6480 steps/s=87
+step=1144000 eps=0.050 loss=16011050.7520 steps/s=111
+step=1146000 eps=0.050 loss=16063956.0360 steps/s=112
+step=1148000 eps=0.050 loss=16782482.7040 steps/s=111
+step=1150000 eps=0.050 loss=16799460.6960 steps/s=111
+step=1152000 eps=0.050 loss=17059514.8880 steps/s=100
+step=1154000 eps=0.050 loss=16864140.7760 steps/s=101
+step=1156000 eps=0.050 loss=16420418.4200 steps/s=107
+step=1158000 eps=0.050 loss=16883778.2480 steps/s=112
+step=1160000 eps=0.050 loss=16357548.1880 steps/s=112
+[eval] step=1160000 n=6 return/agent=-9.219 los_rate=0.0076 conflict_free=0.50
+step=1162000 eps=0.050 loss=17426897.2560 steps/s=88
+step=1164000 eps=0.050 loss=17005169.1520 steps/s=112
+step=1166000 eps=0.050 loss=16899085.4680 steps/s=112
+step=1168000 eps=0.050 loss=17155155.4920 steps/s=111
+step=1170000 eps=0.050 loss=16189002.6480 steps/s=112
+step=1172000 eps=0.050 loss=16492720.6280 steps/s=112
+step=1174000 eps=0.050 loss=16441404.2880 steps/s=111
+step=1176000 eps=0.050 loss=15628027.5920 steps/s=112
+step=1178000 eps=0.050 loss=16467015.8360 steps/s=112
+step=1180000 eps=0.050 loss=16063202.7920 steps/s=112
+[eval] step=1180000 n=6 return/agent=-6.647 los_rate=0.0043 conflict_free=0.60
+step=1182000 eps=0.050 loss=16091987.2960 steps/s=87
+step=1184000 eps=0.050 loss=16240891.4320 steps/s=111
+step=1186000 eps=0.050 loss=16330387.9480 steps/s=113
+step=1188000 eps=0.050 loss=16030352.4080 steps/s=111
+step=1190000 eps=0.050 loss=15894420.4600 steps/s=112
+step=1192000 eps=0.050 loss=15732237.9720 steps/s=112
+step=1194000 eps=0.050 loss=15824080.3520 steps/s=112
+step=1196000 eps=0.050 loss=15730402.5880 steps/s=112
+step=1198000 eps=0.050 loss=15502010.2920 steps/s=112
+step=1200000 eps=0.050 loss=15335146.5240 steps/s=112
+[eval] step=1200000 n=6 return/agent=-8.524 los_rate=0.0068 conflict_free=0.50
+step=1202000 eps=0.050 loss=15508332.5000 steps/s=88
+step=1204000 eps=0.050 loss=15231710.8920 steps/s=112
+step=1206000 eps=0.050 loss=15366909.5920 steps/s=111
+step=1208000 eps=0.050 loss=15738132.2000 steps/s=111
+step=1210000 eps=0.050 loss=15248187.8240 steps/s=111
+step=1212000 eps=0.050 loss=15323541.6600 steps/s=111
+step=1214000 eps=0.050 loss=15828113.5880 steps/s=112
+step=1216000 eps=0.050 loss=16244971.4360 steps/s=112
+step=1218000 eps=0.050 loss=15648295.8720 steps/s=112
+step=1220000 eps=0.050 loss=15425555.7640 steps/s=112
+[eval] step=1220000 n=6 return/agent=-7.809 los_rate=0.0068 conflict_free=0.60
+step=1222000 eps=0.050 loss=15459880.1680 steps/s=87
+step=1224000 eps=0.050 loss=15460722.0760 steps/s=112
+step=1226000 eps=0.050 loss=15415491.2120 steps/s=112
+step=1228000 eps=0.050 loss=15646386.0520 steps/s=112
+step=1230000 eps=0.050 loss=15342600.0960 steps/s=112
+step=1232000 eps=0.050 loss=15460168.2960 steps/s=112
+step=1234000 eps=0.050 loss=15449300.6000 steps/s=112
+step=1236000 eps=0.050 loss=15289831.0160 steps/s=112
+step=1238000 eps=0.050 loss=15165319.4480 steps/s=111
+step=1240000 eps=0.050 loss=15064361.5120 steps/s=112
+[eval] step=1240000 n=6 return/agent=-6.962 los_rate=0.0058 conflict_free=0.70
+step=1242000 eps=0.050 loss=15281307.3560 steps/s=88
+step=1244000 eps=0.050 loss=15441010.4960 steps/s=111
+step=1246000 eps=0.050 loss=14717584.1400 steps/s=101
+step=1248000 eps=0.050 loss=14940800.9120 steps/s=99
+step=1250000 eps=0.050 loss=14761045.6960 steps/s=98
+step=1252000 eps=0.050 loss=14370839.8200 steps/s=98
+step=1254000 eps=0.050 loss=14599282.3720 steps/s=98
+step=1256000 eps=0.050 loss=14161427.4320 steps/s=97
+step=1258000 eps=0.050 loss=14442827.3320 steps/s=98
+step=1260000 eps=0.050 loss=14199398.1160 steps/s=98
+[eval] step=1260000 n=6 return/agent=-9.363 los_rate=0.0080 conflict_free=0.50
+step=1262000 eps=0.050 loss=13745396.2880 steps/s=76
+step=1264000 eps=0.050 loss=14395719.0400 steps/s=97
+step=1266000 eps=0.050 loss=13959487.5760 steps/s=96
+step=1268000 eps=0.050 loss=13783824.3960 steps/s=100
+step=1270000 eps=0.050 loss=13909457.8120 steps/s=102
+step=1272000 eps=0.050 loss=13286883.1760 steps/s=102
+step=1274000 eps=0.050 loss=13788270.6040 steps/s=102
+step=1276000 eps=0.050 loss=13201949.9080 steps/s=103
+step=1278000 eps=0.050 loss=12895802.7720 steps/s=103
+step=1280000 eps=0.050 loss=12932217.8520 steps/s=102
+[eval] step=1280000 n=6 return/agent=-8.580 los_rate=0.0075 conflict_free=0.40
+step=1282000 eps=0.050 loss=13650966.3480 steps/s=80
+step=1284000 eps=0.050 loss=13387737.7040 steps/s=102
+step=1286000 eps=0.050 loss=13274483.8240 steps/s=102
+step=1288000 eps=0.050 loss=13798323.9400 steps/s=103
+step=1290000 eps=0.050 loss=13298510.0400 steps/s=103
+step=1292000 eps=0.050 loss=12767569.3120 steps/s=101
+step=1294000 eps=0.050 loss=12814956.2980 steps/s=101
+step=1296000 eps=0.050 loss=13491557.0640 steps/s=101
+step=1298000 eps=0.050 loss=13561905.9760 steps/s=102
+step=1300000 eps=0.050 loss=12924582.3560 steps/s=101
+[eval] step=1300000 n=6 return/agent=-10.832 los_rate=0.0090 conflict_free=0.30
+step=1302000 eps=0.050 loss=13268658.4000 steps/s=80
+step=1304000 eps=0.050 loss=13065335.8480 steps/s=102
+step=1306000 eps=0.050 loss=12627859.2560 steps/s=103
+step=1308000 eps=0.050 loss=12932117.4640 steps/s=104
+step=1310000 eps=0.050 loss=13308191.1960 steps/s=102
+step=1312000 eps=0.050 loss=13325482.7000 steps/s=102
+step=1314000 eps=0.050 loss=13642547.7520 steps/s=101
+step=1316000 eps=0.050 loss=13571257.6640 steps/s=101
+step=1318000 eps=0.050 loss=13200234.3640 steps/s=102
+step=1320000 eps=0.050 loss=13510990.7240 steps/s=103
+[eval] step=1320000 n=6 return/agent=-8.699 los_rate=0.0078 conflict_free=0.40
+step=1322000 eps=0.050 loss=13452355.7360 steps/s=81
+step=1324000 eps=0.050 loss=13902932.8720 steps/s=103
+step=1326000 eps=0.050 loss=14787470.8080 steps/s=102
+step=1328000 eps=0.050 loss=14496828.5000 steps/s=101
+step=1330000 eps=0.050 loss=14408414.7400 steps/s=101
+step=1332000 eps=0.050 loss=14754018.9160 steps/s=102
+step=1334000 eps=0.050 loss=14538230.6520 steps/s=101
+step=1336000 eps=0.050 loss=14760940.6720 steps/s=101
+step=1338000 eps=0.050 loss=14894868.7160 steps/s=101
+step=1340000 eps=0.050 loss=14729282.3560 steps/s=101
+[eval] step=1340000 n=6 return/agent=-10.604 los_rate=0.0084 conflict_free=0.50
+step=1342000 eps=0.050 loss=14806416.5760 steps/s=79
+step=1344000 eps=0.050 loss=14909205.4200 steps/s=101
+step=1346000 eps=0.050 loss=14796782.1680 steps/s=102
+step=1348000 eps=0.050 loss=15278154.7040 steps/s=102
+step=1350000 eps=0.050 loss=15565475.4960 steps/s=97
+step=1352000 eps=0.050 loss=15620334.7720 steps/s=102
+step=1354000 eps=0.050 loss=15721189.9400 steps/s=102
+step=1356000 eps=0.050 loss=15898209.1640 steps/s=102
+step=1358000 eps=0.050 loss=16070849.7840 steps/s=102
+step=1360000 eps=0.050 loss=16717109.5480 steps/s=102
+[eval] step=1360000 n=6 return/agent=-7.956 los_rate=0.0047 conflict_free=0.50
+step=1362000 eps=0.050 loss=16243478.0480 steps/s=82
+step=1364000 eps=0.050 loss=16682698.5840 steps/s=103
+step=1366000 eps=0.050 loss=16778088.9040 steps/s=102
+step=1368000 eps=0.050 loss=16895257.1320 steps/s=103
+step=1370000 eps=0.050 loss=17058565.9040 steps/s=103
+step=1372000 eps=0.050 loss=17050981.5000 steps/s=104
+step=1374000 eps=0.050 loss=17737868.3560 steps/s=102
+step=1376000 eps=0.050 loss=17184966.9080 steps/s=103
+step=1378000 eps=0.050 loss=17042951.7640 steps/s=102
+step=1380000 eps=0.050 loss=17487197.8720 steps/s=102
+[eval] step=1380000 n=6 return/agent=-8.565 los_rate=0.0072 conflict_free=0.60
+step=1382000 eps=0.050 loss=17602277.9480 steps/s=81
+step=1384000 eps=0.050 loss=17570890.0920 steps/s=102
+step=1386000 eps=0.050 loss=17588584.1560 steps/s=102
+step=1388000 eps=0.050 loss=18027083.7560 steps/s=102
+step=1390000 eps=0.050 loss=17430104.5680 steps/s=102
+step=1392000 eps=0.050 loss=17606139.7120 steps/s=103
+step=1394000 eps=0.050 loss=18173181.3520 steps/s=91
+step=1396000 eps=0.050 loss=18281075.7440 steps/s=86
+step=1398000 eps=0.050 loss=18710048.1120 steps/s=102
+step=1400000 eps=0.050 loss=18549905.4480 steps/s=101
+[eval] step=1400000 n=6 return/agent=-9.568 los_rate=0.0057 conflict_free=0.60
+step=1402000 eps=0.050 loss=18636051.0840 steps/s=80
+step=1404000 eps=0.050 loss=18480689.9400 steps/s=101
+step=1406000 eps=0.050 loss=18674285.8280 steps/s=102
+step=1408000 eps=0.050 loss=18870730.5840 steps/s=101
+step=1410000 eps=0.050 loss=19203530.4880 steps/s=102
+step=1412000 eps=0.050 loss=19170323.2600 steps/s=103
+step=1414000 eps=0.050 loss=19279564.7760 steps/s=102
+step=1416000 eps=0.050 loss=18948203.2840 steps/s=102
+step=1418000 eps=0.050 loss=19422356.1240 steps/s=102
+step=1420000 eps=0.050 loss=19043387.9240 steps/s=102
+[eval] step=1420000 n=6 return/agent=-8.679 los_rate=0.0051 conflict_free=0.70
+step=1422000 eps=0.050 loss=19469751.8960 steps/s=79
+step=1424000 eps=0.050 loss=19695713.8200 steps/s=96
+step=1426000 eps=0.050 loss=19097630.6920 steps/s=102
+step=1428000 eps=0.050 loss=18929111.8560 steps/s=102
+step=1430000 eps=0.050 loss=18935798.7600 steps/s=102
+step=1432000 eps=0.050 loss=19063838.0240 steps/s=102
+step=1434000 eps=0.050 loss=18918367.5160 steps/s=102
+step=1436000 eps=0.050 loss=18591548.5640 steps/s=102
+step=1438000 eps=0.050 loss=18495224.8280 steps/s=102
+step=1440000 eps=0.050 loss=17880691.6000 steps/s=102
+[eval] step=1440000 n=6 return/agent=-8.757 los_rate=0.0070 conflict_free=0.50
+step=1442000 eps=0.050 loss=18125709.9840 steps/s=81
+step=1444000 eps=0.050 loss=18339110.2880 steps/s=101
+step=1446000 eps=0.050 loss=17965832.4840 steps/s=95
+step=1448000 eps=0.050 loss=17263792.7120 steps/s=102
+step=1450000 eps=0.050 loss=17659779.6560 steps/s=101
+step=1452000 eps=0.050 loss=17358711.7800 steps/s=103
+step=1454000 eps=0.050 loss=17219945.3840 steps/s=102
+step=1456000 eps=0.050 loss=17203264.3800 steps/s=102
+step=1458000 eps=0.050 loss=17381707.1240 steps/s=102
+step=1460000 eps=0.050 loss=17170179.1440 steps/s=102
+[eval] step=1460000 n=6 return/agent=-9.988 los_rate=0.0076 conflict_free=0.40
+step=1462000 eps=0.050 loss=17094529.7080 steps/s=81
+step=1464000 eps=0.050 loss=16693732.5240 steps/s=102
+step=1466000 eps=0.050 loss=16893455.1720 steps/s=102
+step=1468000 eps=0.050 loss=16866214.1240 steps/s=101
+step=1470000 eps=0.050 loss=17510520.1080 steps/s=102
+step=1472000 eps=0.050 loss=16850127.3520 steps/s=102
+step=1474000 eps=0.050 loss=16932608.7840 steps/s=101
+step=1476000 eps=0.050 loss=16845494.9840 steps/s=102
+step=1478000 eps=0.050 loss=16416934.0880 steps/s=101
+step=1480000 eps=0.050 loss=17096231.4920 steps/s=102
+[eval] step=1480000 n=6 return/agent=-9.732 los_rate=0.0079 conflict_free=0.50
+step=1482000 eps=0.050 loss=16744547.7720 steps/s=80
+step=1484000 eps=0.050 loss=16790965.2680 steps/s=102
+step=1486000 eps=0.050 loss=16522136.4120 steps/s=102
+step=1488000 eps=0.050 loss=17002957.4200 steps/s=102
+step=1490000 eps=0.050 loss=17157462.1880 steps/s=102
+step=1492000 eps=0.050 loss=17926888.5040 steps/s=102
+step=1494000 eps=0.050 loss=17945788.2200 steps/s=102
+step=1496000 eps=0.050 loss=17393790.7320 steps/s=102
+step=1498000 eps=0.050 loss=17352315.6160 steps/s=103
+step=1500000 eps=0.050 loss=17330229.2280 steps/s=103
+[eval] step=1500000 n=6 return/agent=-10.191 los_rate=0.0069 conflict_free=0.40
+step=1502000 eps=0.050 loss=18032597.1800 steps/s=79
+step=1504000 eps=0.050 loss=18974653.2400 steps/s=102
+step=1506000 eps=0.050 loss=17897270.6160 steps/s=102
+step=1508000 eps=0.050 loss=17751268.5520 steps/s=102
+step=1510000 eps=0.050 loss=17955856.7640 steps/s=102
+step=1512000 eps=0.050 loss=17285746.2240 steps/s=103
+step=1514000 eps=0.050 loss=17239864.0160 steps/s=102
+step=1516000 eps=0.050 loss=17346614.6480 steps/s=102
+step=1518000 eps=0.050 loss=16767144.8400 steps/s=103
+step=1520000 eps=0.050 loss=16896626.1040 steps/s=102
+[eval] step=1520000 n=6 return/agent=-9.403 los_rate=0.0084 conflict_free=0.40
+step=1522000 eps=0.050 loss=17191723.2840 steps/s=82
+step=1524000 eps=0.050 loss=16755461.3640 steps/s=102
+step=1526000 eps=0.050 loss=17092518.9280 steps/s=103
+step=1528000 eps=0.050 loss=17318774.4840 steps/s=103
+step=1530000 eps=0.050 loss=16629202.1880 steps/s=102
+step=1532000 eps=0.050 loss=17038702.7520 steps/s=103
+step=1534000 eps=0.050 loss=17037459.1600 steps/s=100
+step=1536000 eps=0.050 loss=17052423.3200 steps/s=102
+step=1538000 eps=0.050 loss=17750401.5040 steps/s=101
+step=1540000 eps=0.050 loss=17644233.8720 steps/s=102
+[eval] step=1540000 n=6 return/agent=-9.531 los_rate=0.0088 conflict_free=0.40
+step=1542000 eps=0.050 loss=18133777.8320 steps/s=81
+step=1544000 eps=0.050 loss=18409442.2320 steps/s=101
+step=1546000 eps=0.050 loss=18591654.8400 steps/s=101
+step=1548000 eps=0.050 loss=19087926.4400 steps/s=101
+step=1550000 eps=0.050 loss=19619647.2960 steps/s=102
+step=1552000 eps=0.050 loss=19525364.4720 steps/s=101
+step=1554000 eps=0.050 loss=19687154.1640 steps/s=101
+step=1556000 eps=0.050 loss=20264119.0600 steps/s=102
+step=1558000 eps=0.050 loss=19965835.4760 steps/s=101
+step=1560000 eps=0.050 loss=19952277.3640 steps/s=101
+[eval] step=1560000 n=6 return/agent=-9.537 los_rate=0.0071 conflict_free=0.50
+step=1562000 eps=0.050 loss=20465686.1360 steps/s=81
+step=1564000 eps=0.050 loss=20182737.0560 steps/s=102
+step=1566000 eps=0.050 loss=20552397.8400 steps/s=102
+step=1568000 eps=0.050 loss=20952769.4760 steps/s=102
+step=1570000 eps=0.050 loss=20132096.0800 steps/s=102
+step=1572000 eps=0.050 loss=19901488.6760 steps/s=102
+step=1574000 eps=0.050 loss=20325031.4720 steps/s=103
+step=1576000 eps=0.050 loss=20164580.4280 steps/s=102
+step=1578000 eps=0.050 loss=20207324.8560 steps/s=102
+step=1580000 eps=0.050 loss=20996416.3720 steps/s=102
+[eval] step=1580000 n=6 return/agent=-8.929 los_rate=0.0092 conflict_free=0.30
+step=1582000 eps=0.050 loss=20694223.5080 steps/s=86
+step=1584000 eps=0.050 loss=20653026.7040 steps/s=107
+step=1586000 eps=0.050 loss=21140967.7560 steps/s=104
+step=1588000 eps=0.050 loss=20828694.0760 steps/s=103
+step=1590000 eps=0.050 loss=20735947.5760 steps/s=101
+step=1592000 eps=0.050 loss=20817659.7720 steps/s=103
+step=1594000 eps=0.050 loss=20457361.2120 steps/s=101
+step=1596000 eps=0.050 loss=20838261.2720 steps/s=103
+step=1598000 eps=0.050 loss=20189127.7000 steps/s=101
+step=1600000 eps=0.050 loss=20455025.4960 steps/s=103
+[eval] step=1600000 n=6 return/agent=-7.828 los_rate=0.0057 conflict_free=0.50
+step=1602000 eps=0.050 loss=20710906.7880 steps/s=81
+step=1604000 eps=0.050 loss=20040043.2440 steps/s=102
+step=1606000 eps=0.050 loss=20253011.0640 steps/s=102
+step=1608000 eps=0.050 loss=20216623.8000 steps/s=101
+step=1610000 eps=0.050 loss=20230524.5640 steps/s=103
+step=1612000 eps=0.050 loss=20281765.0520 steps/s=101
+step=1614000 eps=0.050 loss=20013753.7120 steps/s=102
+step=1616000 eps=0.050 loss=19827791.9400 steps/s=101
+step=1618000 eps=0.050 loss=20654632.7720 steps/s=103
+step=1620000 eps=0.050 loss=20576574.6320 steps/s=102
+[eval] step=1620000 n=6 return/agent=-9.072 los_rate=0.0072 conflict_free=0.50
+step=1622000 eps=0.050 loss=20546969.4480 steps/s=83
+step=1624000 eps=0.050 loss=20639337.2040 steps/s=102
+step=1626000 eps=0.050 loss=20398284.6760 steps/s=103
+step=1628000 eps=0.050 loss=20937550.2880 steps/s=102
+step=1630000 eps=0.050 loss=20216441.9800 steps/s=102
+step=1632000 eps=0.050 loss=19814310.0240 steps/s=102
+step=1634000 eps=0.050 loss=19858182.3480 steps/s=101
+step=1636000 eps=0.050 loss=20410693.1960 steps/s=101
+step=1638000 eps=0.050 loss=20413718.9040 steps/s=100
+step=1640000 eps=0.050 loss=19942338.9840 steps/s=101
+[eval] step=1640000 n=6 return/agent=-8.875 los_rate=0.0058 conflict_free=0.40
+step=1642000 eps=0.050 loss=19920296.5760 steps/s=82
+step=1644000 eps=0.050 loss=20415671.4880 steps/s=101
+step=1646000 eps=0.050 loss=19833177.5520 steps/s=101
+step=1648000 eps=0.050 loss=20109731.5360 steps/s=100
+step=1650000 eps=0.050 loss=19870863.7440 steps/s=102
+step=1652000 eps=0.050 loss=19287469.9040 steps/s=101
+step=1654000 eps=0.050 loss=19266053.0560 steps/s=102
+step=1656000 eps=0.050 loss=19639363.7560 steps/s=101
+step=1658000 eps=0.050 loss=20314990.8560 steps/s=102
+step=1660000 eps=0.050 loss=18429400.8000 steps/s=101
+[eval] step=1660000 n=6 return/agent=-9.109 los_rate=0.0078 conflict_free=0.40
+step=1662000 eps=0.050 loss=18576740.0640 steps/s=79
+step=1664000 eps=0.050 loss=18294895.9680 steps/s=102
+step=1666000 eps=0.050 loss=17812014.3240 steps/s=101
+step=1668000 eps=0.050 loss=17585654.9040 steps/s=102
+step=1670000 eps=0.050 loss=17429563.0560 steps/s=102
+step=1672000 eps=0.050 loss=18254015.0040 steps/s=103
+step=1674000 eps=0.050 loss=17132310.5480 steps/s=101
+step=1676000 eps=0.050 loss=17933372.6320 steps/s=99
+step=1678000 eps=0.050 loss=17409636.5440 steps/s=102
+step=1680000 eps=0.050 loss=17671166.2160 steps/s=103
+[eval] step=1680000 n=6 return/agent=-8.904 los_rate=0.0050 conflict_free=0.60
+step=1682000 eps=0.050 loss=17297854.7800 steps/s=82
+step=1684000 eps=0.050 loss=16994679.8320 steps/s=88
+step=1686000 eps=0.050 loss=16699245.9560 steps/s=101
+step=1688000 eps=0.050 loss=18212808.4120 steps/s=102
+step=1690000 eps=0.050 loss=17153403.7360 steps/s=101
+step=1692000 eps=0.050 loss=16616948.0760 steps/s=103
+step=1694000 eps=0.050 loss=16459269.9800 steps/s=103
+step=1696000 eps=0.050 loss=16803559.5600 steps/s=103
+step=1698000 eps=0.050 loss=16727716.6160 steps/s=103
+step=1700000 eps=0.050 loss=16351392.7760 steps/s=102
+[eval] step=1700000 n=6 return/agent=-9.999 los_rate=0.0086 conflict_free=0.30
+step=1702000 eps=0.050 loss=16499157.6520 steps/s=83
+step=1704000 eps=0.050 loss=16784296.8880 steps/s=88
+step=1706000 eps=0.050 loss=16818507.2800 steps/s=102
+step=1708000 eps=0.050 loss=16378774.9400 steps/s=102
+step=1710000 eps=0.050 loss=16617731.3040 steps/s=103
+step=1712000 eps=0.050 loss=16242012.7720 steps/s=103
+step=1714000 eps=0.050 loss=16535063.0200 steps/s=91
+step=1716000 eps=0.050 loss=16121175.3120 steps/s=103
+step=1718000 eps=0.050 loss=16327923.5280 steps/s=102
+step=1720000 eps=0.050 loss=16259874.0720 steps/s=102
+[eval] step=1720000 n=6 return/agent=-9.761 los_rate=0.0064 conflict_free=0.40
+step=1722000 eps=0.050 loss=16159338.4880 steps/s=81
+step=1724000 eps=0.050 loss=16166277.5600 steps/s=103
+step=1726000 eps=0.050 loss=16242580.9160 steps/s=102
+step=1728000 eps=0.050 loss=17157708.5320 steps/s=104
+step=1730000 eps=0.050 loss=16069013.3640 steps/s=103
+step=1732000 eps=0.050 loss=16522368.4080 steps/s=103
+step=1734000 eps=0.050 loss=16817668.2160 steps/s=101
+step=1736000 eps=0.050 loss=16106826.0480 steps/s=103
+step=1738000 eps=0.050 loss=16522932.7520 steps/s=102
+step=1740000 eps=0.050 loss=16849560.7720 steps/s=103
+[eval] step=1740000 n=6 return/agent=-8.725 los_rate=0.0054 conflict_free=0.60
+step=1742000 eps=0.050 loss=15667423.4720 steps/s=83
+step=1744000 eps=0.050 loss=15612250.0240 steps/s=103
+step=1746000 eps=0.050 loss=16613099.8760 steps/s=102
+step=1748000 eps=0.050 loss=15824567.7240 steps/s=101
+step=1750000 eps=0.050 loss=16087668.6800 steps/s=103
+step=1752000 eps=0.050 loss=16030623.3360 steps/s=102
+step=1754000 eps=0.050 loss=16763574.5920 steps/s=103
+step=1756000 eps=0.050 loss=16096291.1880 steps/s=102
+step=1758000 eps=0.050 loss=16061187.9120 steps/s=103
+step=1760000 eps=0.050 loss=16546411.8920 steps/s=103
+[eval] step=1760000 n=6 return/agent=-9.185 los_rate=0.0077 conflict_free=0.30
+step=1762000 eps=0.050 loss=16126395.5080 steps/s=83
+step=1764000 eps=0.050 loss=15711470.8440 steps/s=102
+step=1766000 eps=0.050 loss=15963950.7800 steps/s=103
+step=1768000 eps=0.050 loss=15751562.7800 steps/s=103
+step=1770000 eps=0.050 loss=15761247.7960 steps/s=103
+step=1772000 eps=0.050 loss=15342884.7160 steps/s=103
+step=1774000 eps=0.050 loss=15079457.7680 steps/s=102
+step=1776000 eps=0.050 loss=15636515.9040 steps/s=103
+step=1778000 eps=0.050 loss=15383343.5560 steps/s=103
+step=1780000 eps=0.050 loss=16419993.7320 steps/s=103
+[eval] step=1780000 n=6 return/agent=-11.901 los_rate=0.0092 conflict_free=0.40
+step=1782000 eps=0.050 loss=15379789.6560 steps/s=82
+step=1784000 eps=0.050 loss=15208556.8280 steps/s=102
+step=1786000 eps=0.050 loss=15786068.5320 steps/s=103
+step=1788000 eps=0.050 loss=15708874.9440 steps/s=103
+step=1790000 eps=0.050 loss=15516101.3520 steps/s=104
+step=1792000 eps=0.050 loss=15286012.9840 steps/s=102
+step=1794000 eps=0.050 loss=16192689.1560 steps/s=103
+step=1796000 eps=0.050 loss=15304768.8400 steps/s=102
+step=1798000 eps=0.050 loss=15607877.3520 steps/s=103
+step=1800000 eps=0.050 loss=16508195.2480 steps/s=103
+[eval] step=1800000 n=6 return/agent=-9.198 los_rate=0.0065 conflict_free=0.60
+step=1802000 eps=0.050 loss=16190298.6880 steps/s=83
+step=1804000 eps=0.050 loss=15235218.9680 steps/s=102
+step=1806000 eps=0.050 loss=15904567.8840 steps/s=103
+step=1808000 eps=0.050 loss=15599166.4000 steps/s=102
+step=1810000 eps=0.050 loss=15379564.1560 steps/s=102
+step=1812000 eps=0.050 loss=15571606.5840 steps/s=103
+step=1814000 eps=0.050 loss=15758985.9520 steps/s=103
+step=1816000 eps=0.050 loss=16002666.3000 steps/s=102
+step=1818000 eps=0.050 loss=15510550.3320 steps/s=106
+step=1820000 eps=0.050 loss=16415422.8920 steps/s=103
+[eval] step=1820000 n=6 return/agent=-9.485 los_rate=0.0082 conflict_free=0.40
+step=1822000 eps=0.050 loss=16093806.6200 steps/s=83
+step=1824000 eps=0.050 loss=16053902.9720 steps/s=103
+step=1826000 eps=0.050 loss=15708048.0400 steps/s=103
+step=1828000 eps=0.050 loss=16347869.2040 steps/s=103
+step=1830000 eps=0.050 loss=16799212.8560 steps/s=103
+step=1832000 eps=0.050 loss=16157186.0680 steps/s=102
+step=1834000 eps=0.050 loss=16092161.0720 steps/s=103
+step=1836000 eps=0.050 loss=15733658.2720 steps/s=102
+step=1838000 eps=0.050 loss=16268757.3800 steps/s=103
+step=1840000 eps=0.050 loss=15325449.8840 steps/s=102
+[eval] step=1840000 n=6 return/agent=-9.202 los_rate=0.0070 conflict_free=0.50
+step=1842000 eps=0.050 loss=15500357.3760 steps/s=83
+step=1844000 eps=0.050 loss=17047210.9680 steps/s=102
+step=1846000 eps=0.050 loss=15242320.8720 steps/s=102
+step=1848000 eps=0.050 loss=15076630.7000 steps/s=102
+step=1850000 eps=0.050 loss=14897768.4400 steps/s=103
+step=1852000 eps=0.050 loss=15415989.7520 steps/s=104
+step=1854000 eps=0.050 loss=15360616.8720 steps/s=102
+step=1856000 eps=0.050 loss=15582064.6680 steps/s=104
+step=1858000 eps=0.050 loss=15231720.5160 steps/s=102
+step=1860000 eps=0.050 loss=15692433.0200 steps/s=103
+[eval] step=1860000 n=6 return/agent=-9.190 los_rate=0.0080 conflict_free=0.30
+step=1862000 eps=0.050 loss=16019245.6160 steps/s=82
+step=1864000 eps=0.050 loss=16014909.9800 steps/s=102
+step=1866000 eps=0.050 loss=15302496.8520 steps/s=103
+step=1868000 eps=0.050 loss=15126237.7880 steps/s=102
+step=1870000 eps=0.050 loss=16272440.6720 steps/s=103
+step=1872000 eps=0.050 loss=15606410.7240 steps/s=102
+step=1874000 eps=0.050 loss=15211582.4000 steps/s=103
+step=1876000 eps=0.050 loss=16073732.7720 steps/s=103
+step=1878000 eps=0.050 loss=15314191.2880 steps/s=102
+step=1880000 eps=0.050 loss=14580767.1280 steps/s=102
+[eval] step=1880000 n=6 return/agent=-9.019 los_rate=0.0071 conflict_free=0.30
+step=1882000 eps=0.050 loss=15218225.0040 steps/s=85
+step=1884000 eps=0.050 loss=14401651.9960 steps/s=103
+step=1886000 eps=0.050 loss=14689879.7920 steps/s=102
+step=1888000 eps=0.050 loss=15136470.3960 steps/s=103
+step=1890000 eps=0.050 loss=15829043.2080 steps/s=102
+step=1892000 eps=0.050 loss=14982868.9200 steps/s=103
+step=1894000 eps=0.050 loss=14018853.2960 steps/s=102
+step=1896000 eps=0.050 loss=14348047.7400 steps/s=104
+step=1898000 eps=0.050 loss=14300142.4160 steps/s=102
+step=1900000 eps=0.050 loss=15161785.4960 steps/s=105
+[eval] step=1900000 n=6 return/agent=-9.015 los_rate=0.0068 conflict_free=0.40
+step=1902000 eps=0.050 loss=14442776.1240 steps/s=82
+step=1904000 eps=0.050 loss=14721780.3840 steps/s=103
+step=1906000 eps=0.050 loss=14857936.7400 steps/s=103
+step=1908000 eps=0.050 loss=14859804.5640 steps/s=102
+step=1910000 eps=0.050 loss=15152851.2240 steps/s=102
+step=1912000 eps=0.050 loss=14616261.4120 steps/s=102
+step=1914000 eps=0.050 loss=14119555.7920 steps/s=102
+step=1916000 eps=0.050 loss=14859919.3080 steps/s=102
+step=1918000 eps=0.050 loss=14972434.5360 steps/s=103
+step=1920000 eps=0.050 loss=13709070.9880 steps/s=103
+[eval] step=1920000 n=6 return/agent=-9.446 los_rate=0.0036 conflict_free=0.60
+step=1922000 eps=0.050 loss=14328256.3720 steps/s=78
+step=1924000 eps=0.050 loss=14531394.1440 steps/s=102
+step=1926000 eps=0.050 loss=14944632.9400 steps/s=103
+step=1928000 eps=0.050 loss=14777713.3200 steps/s=102
+step=1930000 eps=0.050 loss=14472348.7200 steps/s=104
+step=1932000 eps=0.050 loss=14036789.6120 steps/s=108
+step=1934000 eps=0.050 loss=13634348.8240 steps/s=103
+step=1936000 eps=0.050 loss=14675343.2360 steps/s=103
+step=1938000 eps=0.050 loss=13980040.6960 steps/s=102
+step=1940000 eps=0.050 loss=13944025.8280 steps/s=101
+[eval] step=1940000 n=6 return/agent=-10.995 los_rate=0.0104 conflict_free=0.30
+step=1942000 eps=0.050 loss=14207327.6680 steps/s=83
+step=1944000 eps=0.050 loss=13618944.9600 steps/s=103
+step=1946000 eps=0.050 loss=13885381.6720 steps/s=102
+step=1948000 eps=0.050 loss=13208102.6840 steps/s=102
+step=1950000 eps=0.050 loss=13629768.0400 steps/s=102
+step=1952000 eps=0.050 loss=13761177.5520 steps/s=103
+step=1954000 eps=0.050 loss=13809134.2320 steps/s=101
+step=1956000 eps=0.050 loss=13952017.7560 steps/s=101
+step=1958000 eps=0.050 loss=13677885.0240 steps/s=101
+step=1960000 eps=0.050 loss=13510483.1600 steps/s=103
+[eval] step=1960000 n=6 return/agent=-9.733 los_rate=0.0075 conflict_free=0.40
+step=1962000 eps=0.050 loss=13457988.2720 steps/s=82
+step=1964000 eps=0.050 loss=13893241.0640 steps/s=102
+step=1966000 eps=0.050 loss=14309136.1800 steps/s=102
+step=1968000 eps=0.050 loss=14012253.7200 steps/s=102
+step=1970000 eps=0.050 loss=13372838.1460 steps/s=103
+step=1972000 eps=0.050 loss=13335768.5760 steps/s=104
+step=1974000 eps=0.050 loss=14465377.2640 steps/s=104
+step=1976000 eps=0.050 loss=14001691.1240 steps/s=102
+step=1978000 eps=0.050 loss=14343640.5400 steps/s=103
+step=1980000 eps=0.050 loss=13523889.4800 steps/s=102
+[eval] step=1980000 n=6 return/agent=-10.357 los_rate=0.0083 conflict_free=0.40
+step=1982000 eps=0.050 loss=13250915.7680 steps/s=83
+step=1984000 eps=0.050 loss=15149624.8200 steps/s=102
+step=1986000 eps=0.050 loss=13221649.4700 steps/s=103
+step=1988000 eps=0.050 loss=13829509.6520 steps/s=103
+step=1990000 eps=0.050 loss=14573429.7240 steps/s=104
+step=1992000 eps=0.050 loss=13329572.8120 steps/s=102
+step=1994000 eps=0.050 loss=13369009.3400 steps/s=102
+step=1996000 eps=0.050 loss=13720318.9280 steps/s=102
+step=1998000 eps=0.050 loss=13568769.7120 steps/s=104
+step=2000000 eps=0.050 loss=13400794.8700 steps/s=102
+[eval] step=2000000 n=6 return/agent=-9.924 los_rate=0.0089 conflict_free=0.30
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+done: 2000000 steps per fleet size (2000000 in total) in 20321 s -> /work/flemingc/akhan1/gnn_marl_experiments/Nov25_QMIX/G03.1_qmix_sector_cr_n6_s2_20261125-1847_nova
+eval_n=3: not_evaluable (network input is 38 wide, n=3 needs 17)
+/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/torch/nn/init.py:566: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=fixed eval_n=6: episodes=100 los_rate=0.0112 conflict_free=0.33 return/agent=-11.24
+eval_n=9: not_evaluable (network input is 38 wide, n=9 needs 59)
+eval_n=10: not_evaluable (network input is 38 wide, n=10 needs 66)
+eval_n=20: not_evaluable (network input is 38 wide, n=20 needs 136)
+eval_n=50: not_evaluable (network input is 38 wide, n=50 needs 346)
+eval_n=3: not_evaluable (network input is 38 wide, n=3 needs 17)
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+airspace=density eval_n=6: episodes=100 los_rate=0.0160 conflict_free=0.23 return/agent=-10.94
+eval_n=9: not_evaluable (network input is 38 wide, n=9 needs 59)
+eval_n=10: not_evaluable (network input is 38 wide, n=10 needs 66)
+eval_n=20: not_evaluable (network input is 38 wide, n=20 needs 136)
+eval_n=50: not_evaluable (network input is 38 wide, n=50 needs 346)
+wrote /work/flemingc/akhan1/gnn_marl_experiments/Nov25_QMIX/G03.1_qmix_sector_cr_n6_s2_20261125-1847_nova/eval_zero_shot.csv

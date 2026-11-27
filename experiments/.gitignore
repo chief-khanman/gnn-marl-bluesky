@@ -1,0 +1,2 @@
+# Not committed: TensorBoard event files duplicate metrics.csv. Weights (*.pt) are ignored by the root .gitignore (S-21).
+tb/

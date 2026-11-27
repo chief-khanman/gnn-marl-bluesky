@@ -1,0 +1,15 @@
+run_id,algo,agent_net,env,train_n,seed,airspace,eval_n,status,episode,ep_return_per_agent,ep_length,los_pair_steps,los_rate,los_events,los_events_per_agent,conflict_free,min_sep_nm,mean_abs_drift_deg
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,3,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,6,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,9,ok,0,-35.3209,150,48,0.00888889,5,0.555556,0,0.712679,94.1721
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,9,ok,1,-44.0166,150,107,0.0198148,6,0.666667,0,0.145601,77.3067
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,10,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,20,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,fixed,50,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,3,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,6,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,9,ok,0,-35.3209,150,48,0.00888889,5,0.555556,0,0.712679,94.1721
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,9,ok,1,-44.0166,150,107,0.0198148,6,0.666667,0,0.145601,77.3067
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,10,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,20,not_evaluable,,,,,,,,,,
+G03.1_qmix_sector_cr_n9_s1_20261126-1602_smoke,qmix,mlp,sector_cr,9,1,density,50,not_evaluable,,,,,,,,,,

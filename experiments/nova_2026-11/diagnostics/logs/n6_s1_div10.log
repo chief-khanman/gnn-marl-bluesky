@@ -1,0 +1,162 @@
+DIAGNOSTIC: mixer airspeed state entry divided by 10.0
+run_dir: /work/flemingc/akhan1/gnn_marl_diag/G03.1_qmix_sector_cr_n6_s1_20261126-1318_diag-div10
+algo=qmix agent=mlp train_n=[6] parameters=32464
+[eval] step=0 n=6 return/agent=-30.789 los_rate=0.0142 conflict_free=0.30
+step=2000 eps=0.981 loss=nan steps/s=74
+step=4000 eps=0.962 loss=nan steps/s=101
+/work/flemingc/akhan1/gnn_marl/algorithms/gnn_qmix/train.py:198: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  losses.append(float(loss))
+step=6000 eps=0.943 loss=6.0609 steps/s=99
+step=8000 eps=0.924 loss=0.2057 steps/s=92
+step=10000 eps=0.905 loss=0.1921 steps/s=92
+step=12000 eps=0.886 loss=0.2420 steps/s=92
+step=14000 eps=0.867 loss=0.3396 steps/s=92
+step=16000 eps=0.848 loss=0.4739 steps/s=93
+step=18000 eps=0.829 loss=0.6524 steps/s=93
+step=20000 eps=0.810 loss=0.8853 steps/s=93
+[eval] step=20000 n=6 return/agent=-34.025 los_rate=0.0105 conflict_free=0.30
+Traceback (most recent call last):
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/simstack.py", line 73, in process
+    success, echotext = cmdobj(argstring)
+                        ^^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/cmdparser.py", line 70, in __call__
+    result = param(argstring)
+             ^^^^^^^^^^^^^^^^
+  File "/work/flemingc/akhan1/gnn_marl/.venv/lib/python3.12/site-packages/bluesky/stack/argparser.py", line 87, in __call__
+    raise ArgumentError(error)
+bluesky.stack.argparser.ArgumentError: 
+txt2hdg needs either a float, optionally with an M/T prefix or a position
+step=22000 eps=0.791 loss=1.3195 steps/s=69
+step=24000 eps=0.772 loss=1.8291 steps/s=93
+step=26000 eps=0.753 loss=2.3728 steps/s=94
+step=28000 eps=0.734 loss=3.0004 steps/s=94
+step=30000 eps=0.715 loss=3.7140 steps/s=94
+step=32000 eps=0.696 loss=4.7042 steps/s=94
+step=34000 eps=0.677 loss=5.4806 steps/s=95
+step=36000 eps=0.658 loss=6.5370 steps/s=93
+step=38000 eps=0.639 loss=7.2117 steps/s=94
+step=40000 eps=0.620 loss=8.0746 steps/s=93
+[eval] step=40000 n=6 return/agent=-26.809 los_rate=0.0151 conflict_free=0.40
+step=42000 eps=0.601 loss=8.5832 steps/s=70
+step=44000 eps=0.582 loss=8.8981 steps/s=94
+step=46000 eps=0.563 loss=9.5672 steps/s=94
+step=48000 eps=0.544 loss=10.0080 steps/s=94
+step=50000 eps=0.525 loss=10.5387 steps/s=94
+step=52000 eps=0.506 loss=11.3210 steps/s=94
+step=54000 eps=0.487 loss=11.7394 steps/s=93
+step=56000 eps=0.468 loss=12.9479 steps/s=94
+step=58000 eps=0.449 loss=13.9068 steps/s=93
+step=60000 eps=0.430 loss=14.2890 steps/s=95
+[eval] step=60000 n=6 return/agent=-10.947 los_rate=0.0030 conflict_free=0.50
+step=62000 eps=0.411 loss=14.8910 steps/s=74
+step=64000 eps=0.392 loss=16.2168 steps/s=95
+step=66000 eps=0.373 loss=17.3791 steps/s=92
+step=68000 eps=0.354 loss=18.4343 steps/s=96
+step=70000 eps=0.335 loss=20.3126 steps/s=93
+step=72000 eps=0.316 loss=21.4469 steps/s=97
+step=74000 eps=0.297 loss=22.4826 steps/s=93
+step=76000 eps=0.278 loss=24.5164 steps/s=97
+step=78000 eps=0.259 loss=25.2738 steps/s=92
+step=80000 eps=0.240 loss=26.9487 steps/s=95
+[eval] step=80000 n=6 return/agent=-13.289 los_rate=0.0047 conflict_free=0.70
+step=82000 eps=0.221 loss=28.8437 steps/s=73
+step=84000 eps=0.202 loss=30.2452 steps/s=95
+step=86000 eps=0.183 loss=32.0251 steps/s=92
+step=88000 eps=0.164 loss=34.6948 steps/s=94
+step=90000 eps=0.145 loss=35.3883 steps/s=94
+step=92000 eps=0.126 loss=37.5929 steps/s=94
+step=94000 eps=0.107 loss=39.9828 steps/s=93
+step=96000 eps=0.088 loss=42.0347 steps/s=94
+step=98000 eps=0.069 loss=45.7269 steps/s=93
+step=100000 eps=0.050 loss=47.1900 steps/s=93
+[eval] step=100000 n=6 return/agent=-13.671 los_rate=0.0098 conflict_free=0.50
+step=102000 eps=0.050 loss=49.6504 steps/s=76
+step=104000 eps=0.050 loss=51.8713 steps/s=93
+step=106000 eps=0.050 loss=54.7311 steps/s=93
+step=108000 eps=0.050 loss=54.4580 steps/s=92
+step=110000 eps=0.050 loss=57.7860 steps/s=96
+step=112000 eps=0.050 loss=60.5015 steps/s=91
+step=114000 eps=0.050 loss=62.6448 steps/s=95
+step=116000 eps=0.050 loss=65.1176 steps/s=92
+step=118000 eps=0.050 loss=65.7323 steps/s=94
+step=120000 eps=0.050 loss=68.1803 steps/s=93
+[eval] step=120000 n=6 return/agent=-8.852 los_rate=0.0085 conflict_free=0.70
+step=122000 eps=0.050 loss=72.2214 steps/s=79
+step=124000 eps=0.050 loss=75.0506 steps/s=93
+step=126000 eps=0.050 loss=78.9701 steps/s=95
+step=128000 eps=0.050 loss=81.8228 steps/s=92
+step=130000 eps=0.050 loss=85.5073 steps/s=94
+step=132000 eps=0.050 loss=88.3954 steps/s=93
+step=134000 eps=0.050 loss=95.7979 steps/s=92
+step=136000 eps=0.050 loss=99.5806 steps/s=94
+step=138000 eps=0.050 loss=103.8345 steps/s=92
+step=140000 eps=0.050 loss=108.3750 steps/s=94
+[eval] step=140000 n=6 return/agent=-7.086 los_rate=0.0073 conflict_free=0.60
+step=142000 eps=0.050 loss=114.6774 steps/s=81
+step=144000 eps=0.050 loss=117.4629 steps/s=93
+step=146000 eps=0.050 loss=120.6862 steps/s=93
+step=148000 eps=0.050 loss=126.3648 steps/s=94
+step=150000 eps=0.050 loss=131.7035 steps/s=93
+step=152000 eps=0.050 loss=136.7531 steps/s=93
+step=154000 eps=0.050 loss=144.3866 steps/s=94
+step=156000 eps=0.050 loss=148.7301 steps/s=94
+step=158000 eps=0.050 loss=151.9686 steps/s=92
+step=160000 eps=0.050 loss=156.1098 steps/s=92
+[eval] step=160000 n=6 return/agent=-10.253 los_rate=0.0048 conflict_free=0.60
+step=162000 eps=0.050 loss=161.7715 steps/s=76
+step=164000 eps=0.050 loss=169.4235 steps/s=92
+step=166000 eps=0.050 loss=178.7688 steps/s=95
+step=168000 eps=0.050 loss=182.6587 steps/s=91
+step=170000 eps=0.050 loss=189.7627 steps/s=95
+step=172000 eps=0.050 loss=194.1695 steps/s=93
+step=174000 eps=0.050 loss=201.7036 steps/s=94
+step=176000 eps=0.050 loss=207.1000 steps/s=93
+step=178000 eps=0.050 loss=216.8317 steps/s=94
+step=180000 eps=0.050 loss=219.7400 steps/s=93
+[eval] step=180000 n=6 return/agent=-9.697 los_rate=0.0067 conflict_free=0.70
+step=182000 eps=0.050 loss=226.4504 steps/s=75
+step=184000 eps=0.050 loss=237.0454 steps/s=92
+step=186000 eps=0.050 loss=238.5813 steps/s=95
+step=188000 eps=0.050 loss=244.8282 steps/s=93
+step=190000 eps=0.050 loss=261.4468 steps/s=92
+step=192000 eps=0.050 loss=262.3375 steps/s=95
+step=194000 eps=0.050 loss=273.8711 steps/s=92
+step=196000 eps=0.050 loss=290.8703 steps/s=96
+step=198000 eps=0.050 loss=297.1500 steps/s=91
+step=200000 eps=0.050 loss=311.8578 steps/s=94
+[eval] step=200000 n=6 return/agent=-8.218 los_rate=0.0062 conflict_free=0.60
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+Using Python-based geo functions
+Warning: RTree could not be loaded. areafilter get_intersecting and get_knearest won't work
+Successfully loaded OpenAP performance model
+Failed to load BADA performance model
+Successfully loaded legacy performance model
+Reading config from /home/akhan1/bluesky/settings.cfg
+Reading magnetic variation data
+Loading global navigation database...
+Reading cache: /home/akhan1/bluesky/cache/navdata.p
+Successfully loaded plugin AREA
+Successfully loaded plugin DATAFEED
+done: 200000 steps per fleet size (200000 in total) in 2197 s -> /work/flemingc/akhan1/gnn_marl_diag/G03.1_qmix_sector_cr_n6_s1_20261126-1318_diag-div10
