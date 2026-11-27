@@ -120,11 +120,20 @@ class GATMixer(nn.Module):
 
     forward(q, state, h) -> q_tot (B,). q: (B, n) chosen utilities, state: (B, n * N_STATE)
     entity state, h: (B, n, embed_dim) agent embeddings.
+
+    Options of GAP-32, both off by default: `airspeed_div` divides the airspeed entry of the entity
+    state before the embedding (positions used for the radius graph are untouched); `norm` applies a
+    LayerNorm to every node embedding after the GAT stack, before the pooling and the weight heads.
+    The LayerNorm acts per node with shared parameters, so the mixer still has no n-sized layer, is
+    permutation invariant and keeps its weights non-negative.
     """
 
     def __init__(self, embed_dim: int = 32, mix_dim: int = 32, gat_layers: int = 2, gat_heads: int = 4,
-                 mixer_graph: str = "full", mixer_agg: str = "mean", r_detect_norm: float = 0.74):
+                 mixer_graph: str = "full", mixer_agg: str = "mean", r_detect_norm: float = 0.74,
+                 airspeed_div: float = 1.0, norm: bool = False):
         super().__init__()
+        self.airspeed_div = airspeed_div
+        self.norm = nn.LayerNorm(embed_dim) if norm else nn.Identity()
         if mixer_graph not in ("full", "radius") or mixer_agg not in ("mean", "sum"):
             raise ValueError("mixer_graph must be full|radius and mixer_agg mean|sum")
         self.mixer_graph, self.mixer_agg, self.r_detect_norm = mixer_graph, mixer_agg, r_detect_norm
@@ -142,9 +151,12 @@ class GATMixer(nn.Module):
             adj = q.new_ones(b, n, n)
         else:
             adj = (torch.cdist(ent[..., :2], ent[..., :2]) <= self.r_detect_norm).float()
+        if self.airspeed_div != 1.0:
+            ent = torch.cat([ent[..., :N_STATE - 1], ent[..., N_STATE - 1:] / self.airspeed_div], dim=-1)
         g = F.relu(self.embed(torch.cat([ent, h], dim=-1)))
         for layer in self.gat:
             g = F.elu(layer(g, adj)) + g
+        g = self.norm(g)
         pooled = torch.cat([g.mean(dim=1), g.max(dim=1).values], dim=-1)
 
         w1 = torch.abs(self.w1(g))                         # (B, n, mix_dim), >= 0

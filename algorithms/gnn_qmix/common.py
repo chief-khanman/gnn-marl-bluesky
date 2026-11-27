@@ -73,6 +73,12 @@ class Args:
     """mean or sum over agents inside the mixer"""
     hidden_dim: int = 64
     """Width of the baseline MLP agent and of the QMIX mixer"""
+    mixer_airspeed_div: float = 1.0
+    """GAT mixer only: divide the airspeed entry of the entity state by this before the embedding (GAP-32)"""
+    mixer_detach_h: bool = False
+    """GAT mixer only: the agent embeddings reach the mixer without gradients, so the mixer loss does not reshape the GCN trunk (GAP-32)"""
+    mixer_norm: bool = False
+    """GAT mixer only: LayerNorm on every node embedding after the GAT stack (GAP-32). Not in the paper's mixer equation"""
     qmix_airspeed_div: float = 1.0
     """QMIX mixer only: divide the airspeed entry of the entity state by this (GAP-30, D-032). 1.0 = unchanged"""
     # Training
@@ -124,6 +130,8 @@ class Args:
             raise ValueError(f"airspace must be one of {AIRSPACES}")
         if not self.is_n_agnostic() and len(self.train_n) != 1:
             raise ValueError(f"{self.algo} with this agent has fixed-n networks: give one train_n")
+        if self.algo != "gnn_qmix" and (self.mixer_airspeed_div != 1.0 or self.mixer_detach_h or self.mixer_norm):
+            raise ValueError("mixer_airspeed_div, mixer_detach_h and mixer_norm are options of the GAT mixer (algo gnn_qmix)")
         if self.checkpoint_every < 0 or (self.checkpoint_every and self.checkpoint_every % self.eval_every):
             raise ValueError("checkpoint_every must be 0 or a multiple of eval_every")
 
@@ -214,7 +222,7 @@ def build_networks(args: Args, obs_dim: int, state_dim: int, n_agents: int, n_ac
         if args.state_mode != "entities":
             raise ValueError("the GAT mixer needs state_mode='entities'")
         mixer = GATMixer(args.embed_dim, args.mix_dim, args.gat_layers, args.gat_heads, args.mixer_graph,
-                         args.mixer_agg, args.r_detect_norm())
+                         args.mixer_agg, args.r_detect_norm(), args.mixer_airspeed_div, args.mixer_norm)
     elif args.algo == "qmix":
         mixer = QMixer(n_agents, state_dim, args.hidden_dim, args.qmix_airspeed_div)
     elif args.algo == "vdn":

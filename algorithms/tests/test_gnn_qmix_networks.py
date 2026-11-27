@@ -69,9 +69,10 @@ def test_neighbor_inside_radius_changes_q():
     assert not torch.allclose(agent(obs)[0], agent(other)[0], atol=1e-5)
 
 
+@pytest.mark.parametrize("mixer_norm", [False, True])
 @pytest.mark.parametrize("n", [3, 9, 50])
-def test_one_parameter_set_runs_at_any_fleet_size(n):
-    args = Args(algo="gnn_qmix")
+def test_one_parameter_set_runs_at_any_fleet_size(n, mixer_norm):
+    args = Args(algo="gnn_qmix", mixer_norm=mixer_norm)
     agent, mixer = build_networks(args, obs_dim=0, state_dim=0, n_agents=0, n_actions=N_ACTIONS)
     b = 5
     q, h = agent(make_obs(b * n, n))
@@ -91,9 +92,10 @@ def test_parameter_shapes_do_not_depend_on_n():
     assert shapes[0] == shapes[1]
 
 
+@pytest.mark.parametrize("mixer_norm", [False, True])
 @pytest.mark.parametrize("graph", ["full", "radius"])
-def test_mixer_is_invariant_to_agent_permutation(graph):
-    mixer = GATMixer(mixer_graph=graph, r_detect_norm=R)
+def test_mixer_is_invariant_to_agent_permutation(graph, mixer_norm):
+    mixer = GATMixer(mixer_graph=graph, r_detect_norm=R, norm=mixer_norm)
     b, n = 4, 6
     q, state, h = torch.randn(b, n), torch.randn(b, n, N_STATE), torch.randn(b, n, 32)
     perm = torch.randperm(n)
@@ -102,9 +104,10 @@ def test_mixer_is_invariant_to_agent_permutation(graph):
     assert torch.allclose(out, out_perm, atol=1e-5)
 
 
+@pytest.mark.parametrize("mixer_norm", [False, True])
 @pytest.mark.parametrize("agg", ["mean", "sum"])
-def test_mixer_is_monotonic_in_every_agent_utility(agg):
-    mixer = GATMixer(mixer_agg=agg, r_detect_norm=R)
+def test_mixer_is_monotonic_in_every_agent_utility(agg, mixer_norm):
+    mixer = GATMixer(mixer_agg=agg, r_detect_norm=R, norm=mixer_norm)
     for n in (3, 9, 20):
         q = torch.randn(8, n, requires_grad=True)
         q_tot = mixer(q, torch.randn(8, n * N_STATE), torch.randn(8, n, 32))
@@ -279,4 +282,67 @@ def test_td_diagnostics_reports_value_scales_and_the_gain_of_a_parametric_mixer(
     if algo == "iql":
         assert out["q_tot_mean"] == out["q_taken_mean"]
     assert all(p.grad is None for p in agent.parameters())  # diagnostics leave no gradients behind
+
+
+# ---------------------------------------------------------------- GAP-32 GAT mixer options
+
+GAT_MIXER_PARAMETERS = {
+    "embed.weight", "embed.bias", "gat.0.a_src", "gat.0.a_dst", "gat.0.w.weight", "gat.1.a_src", "gat.1.a_dst",
+    "gat.1.w.weight", "w1.weight", "w1.bias", "b1.weight", "b1.bias", "w2.weight", "w2.bias",
+    "b2.0.weight", "b2.0.bias", "b2.2.weight", "b2.2.bias",
+}
+
+
+def test_gat_mixer_options_default_off_and_keep_the_checkpoint_format():
+    args = Args()
+    assert (args.mixer_airspeed_div, args.mixer_detach_h, args.mixer_norm) == (1.0, False, False)
+    assert set(GATMixer().state_dict()) == GAT_MIXER_PARAMETERS
+    assert set(GATMixer(airspeed_div=10.0).state_dict()) == GAT_MIXER_PARAMETERS
+    assert set(GATMixer(norm=True).state_dict()) == GAT_MIXER_PARAMETERS | {"norm.weight", "norm.bias"}
+
+
+@pytest.mark.parametrize("graph", ["full", "radius"])
+def test_mixer_airspeed_div_equals_dividing_the_airspeed_state_entry(graph):
+    b, n = 5, 6
+
+    def build(div):
+        torch.manual_seed(2)
+        return GATMixer(mixer_graph=graph, r_detect_norm=R, airspeed_div=div)
+
+    q, state, h = torch.randn(b, n), torch.randn(b, n, N_STATE), torch.randn(b, n, 32)
+    by_hand = state.clone()
+    by_hand[..., N_STATE - 1] /= 10.0
+    scaled = build(10.0)(q, state.reshape(b, -1), h)
+    assert torch.allclose(scaled, build(1.0)(q, by_hand.reshape(b, -1), h), atol=1e-6)
+    assert not torch.allclose(scaled, build(1.0)(q, state.reshape(b, -1), h))
+
+
+def _mixer_gradient_on_agent(detach: bool) -> float:
+    """Total |gradient| the mixer path alone sends into the agent (the utility path is cut off)."""
+    from algorithms.gnn_qmix import train as train_module
+
+    n, b = 3, 8
+    args = Args(algo="gnn_qmix", train_n=(n,), mixer_detach_h=detach)
+    agent, mixer = build_networks(args, 0, 0, n, N_ACTIONS)
+    obs = torch.stack([make_obs(b, n) for _ in range(n)], dim=1)
+    batch = (obs, torch.randn(b, n * N_STATE), torch.randint(0, N_ACTIONS, (b, n)), torch.randn(b),
+             obs.clone(), torch.randn(b, n * N_STATE), torch.zeros(b))
+    q_tot, _, q_taken = train_module._td_terms(args, agent, mixer, agent, mixer, batch)
+    # d q_tot / d agent through h only: subtract the path through q_taken
+    (grad_q,) = torch.autograd.grad(q_tot.sum(), q_taken, retain_graph=True)
+    (q_tot.sum() - (grad_q.detach() * q_taken).sum()).backward()
+    return sum(float(p.grad.abs().sum()) for p in agent.gcn.parameters() if p.grad is not None)
+
+
+def test_mixer_detach_h_stops_the_mixer_loss_from_reaching_the_gcn_trunk():
+    assert _mixer_gradient_on_agent(detach=False) > 1e-6
+    assert _mixer_gradient_on_agent(detach=True) < 1e-6
+
+
+def test_gat_mixer_options_are_rejected_for_other_algorithms():
+    for options in ({"mixer_airspeed_div": 10.0}, {"mixer_detach_h": True}, {"mixer_norm": True}):
+        Args(algo="gnn_qmix", **options).validate()
+        for algo, extra in (("vdn", {"baseline_k_nearest": 3}), ("iql", {"baseline_k_nearest": 3}), ("qmix", {"train_n": (3,)})):
+            with pytest.raises(ValueError):
+                Args(algo=algo, **extra, **options).validate()
 

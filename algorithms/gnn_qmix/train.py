@@ -96,7 +96,8 @@ def _td_terms(args: Args, agent, mixer, target_agent, target_mixer, batch):
     with torch.no_grad():
         target_tot = target_mixer(q_next, next_state, h_next.reshape(b, n, -1))
         target = reward + args.gamma * (1 - terminated) * target_tot
-    q_tot = mixer(q_taken, state, h.reshape(b, n, -1))
+    h = h.reshape(b, n, -1)
+    q_tot = mixer(q_taken, state, h.detach() if args.mixer_detach_h else h)
     return q_tot, target, q_taken
 
 
