@@ -27,7 +27,7 @@ ALGOS = ("gnn_qmix", "qmix", "vdn", "iql")
 AIRSPACES = ("fixed", "density")
 GOAL_ID = {"gnn_qmix": "G05.3", "qmix": "G03.1", "vdn": "G03.1", "iql": "G03.1"}
 # Fields that do not change what a run computes; left out of config_sha.
-NON_SEMANTIC = ("device", "runs_dir", "machine", "num_eval_envs", "log_every")
+NON_SEMANTIC = ("device", "runs_dir", "machine", "num_eval_envs", "log_every", "checkpoint_every", "log_diagnostics")
 
 
 @dataclass
@@ -92,6 +92,12 @@ class Args:
     end_e: float = 0.05
     exploration_steps: int = 100_000
     clip_gradients: float = 10.0
+    double_q: bool = False
+    """Next action = argmax of the online agent, valued by the target agent (GAP-31). False = max of the target agent"""
+    lr_final_frac: float = 1.0
+    """The learning rate falls linearly from learning_rate at step 0 to learning_rate * this at steps_per_size (GAP-31)"""
+    obs_airspeed_div: float = 1.0
+    """Every agent network divides its own-airspeed observation entry by this (GAP-31, GAP-30). 1.0 = unchanged"""
     # Evaluation and logging
     eval_every: int = 20_000
     num_eval_ep: int = 10
@@ -99,6 +105,10 @@ class Args:
     num_eval_envs: int = 2
     """Evaluation processes per fleet size"""
     log_every: int = 2_000
+    checkpoint_every: int = 0
+    """> 0: also keep checkpoints/step_<step>.pt at every evaluation whose step is a multiple of this (GAP-31)"""
+    log_diagnostics: bool = False
+    """Write lr, grad_norm, q_taken_mean, q_tot_mean, td_target_mean and the mixer gain at every log interval (GAP-31)"""
     device: str = "cpu"
     runs_dir: str = ""
     """Default: $GNN_MARL_RUNS_DIR, else ./runs"""
@@ -114,6 +124,8 @@ class Args:
             raise ValueError(f"airspace must be one of {AIRSPACES}")
         if not self.is_n_agnostic() and len(self.train_n) != 1:
             raise ValueError(f"{self.algo} with this agent has fixed-n networks: give one train_n")
+        if self.checkpoint_every < 0 or (self.checkpoint_every and self.checkpoint_every % self.eval_every):
+            raise ValueError("checkpoint_every must be 0 or a multiple of eval_every")
 
     def agent_kind(self) -> str:
         if self.agent_net == "auto":
@@ -194,9 +206,10 @@ def make_vec_env(args: Args, n_agents: int, n_envs: int, auto_reset: bool, airsp
 def build_networks(args: Args, obs_dim: int, state_dim: int, n_agents: int, n_actions: int):
     """Returns (agent, mixer). mixer is None for IQL. obs_dim/state_dim/n_agents matter only for fixed-n networks."""
     if args.agent_kind() == "gcn":
-        agent = GCNAgent(n_actions, args.embed_dim, args.gcn_layers, args.r_detect_norm())
+        agent = GCNAgent(n_actions, args.embed_dim, args.gcn_layers, args.r_detect_norm(), args.obs_airspeed_div)
     else:
-        agent = MLPAgent(obs_dim, n_actions, args.hidden_dim, k_nearest=args.baseline_k_nearest)
+        agent = MLPAgent(obs_dim, n_actions, args.hidden_dim, k_nearest=args.baseline_k_nearest,
+                         obs_airspeed_div=args.obs_airspeed_div)
     if args.algo == "gnn_qmix":
         if args.state_mode != "entities":
             raise ValueError("the GAT mixer needs state_mode='entities'")

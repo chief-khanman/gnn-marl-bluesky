@@ -68,22 +68,71 @@ class TransitionBuffer:
                      (self.obs, self.state, self.action, self.reward, self.next_obs, self.next_state, self.terminated))
 
 
-def td_loss(args: Args, agent, mixer, target_agent, target_mixer, batch) -> torch.Tensor:
+@torch.no_grad()
+def next_values(args: Args, agent, target_agent, next_obs_flat: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    """Bootstrap value of every agent's next observation, shape (B * n,), and the target agent's embedding.
+
+    double_q = False: max over the target agent's Q. True: the online agent picks the action and the
+    target agent values it (GAP-31). The embedding always comes from the target agent.
+    """
+    target_q, h_next = target_agent(next_obs_flat)
+    if not args.double_q:
+        return target_q.max(dim=-1).values, h_next
+    best = agent(next_obs_flat)[0].argmax(dim=-1, keepdim=True)
+    return target_q.gather(-1, best).squeeze(-1), h_next
+
+
+def _td_terms(args: Args, agent, mixer, target_agent, target_mixer, batch):
+    """(prediction, target, q_taken): what the TD loss compares, plus the chosen utilities (B, n)."""
     obs, state, action, reward, next_obs, next_state, terminated = batch
     b, n, d = obs.shape
     q, h = agent(obs.reshape(b * n, d))
     q_taken = q.gather(-1, action.reshape(b * n, 1)).reshape(b, n)
-    with torch.no_grad():
-        q_next, h_next = target_agent(next_obs.reshape(b * n, d))
-        q_next_max = q_next.max(dim=-1).values.reshape(b, n)
+    q_next, h_next = next_values(args, agent, target_agent, next_obs.reshape(b * n, d))
+    q_next = q_next.reshape(b, n)
     if mixer is None:  # IQL: every agent regresses on the team reward
-        target = reward.unsqueeze(-1) + args.gamma * (1 - terminated).unsqueeze(-1) * q_next_max
-        return F.mse_loss(q_taken, target)
+        target = reward.unsqueeze(-1) + args.gamma * (1 - terminated).unsqueeze(-1) * q_next
+        return q_taken, target, q_taken
     with torch.no_grad():
-        target_tot = target_mixer(q_next_max, next_state, h_next.reshape(b, n, -1))
+        target_tot = target_mixer(q_next, next_state, h_next.reshape(b, n, -1))
         target = reward + args.gamma * (1 - terminated) * target_tot
     q_tot = mixer(q_taken, state, h.reshape(b, n, -1))
-    return F.mse_loss(q_tot, target)
+    return q_tot, target, q_taken
+
+
+def td_loss(args: Args, agent, mixer, target_agent, target_mixer, batch) -> torch.Tensor:
+    prediction, target, _ = _td_terms(args, agent, mixer, target_agent, target_mixer, batch)
+    return F.mse_loss(prediction, target)
+
+
+def lr_at(args: Args, step: int) -> float:
+    """Learning rate at a per-fleet-size step: linear from learning_rate to learning_rate * lr_final_frac."""
+    progress = min(step, args.steps_per_size) / args.steps_per_size
+    return args.learning_rate * (1 - (1 - args.lr_final_frac) * progress)
+
+
+def td_diagnostics(args: Args, agent, mixer, target_agent, target_mixer, batch) -> dict[str, float]:
+    """Value scales on one batch, no optimizer step (GAP-31).
+
+    mixer_gain_* = dQ_tot / dQ_i over batch and agents, for a mixer with parameters. With
+    mixer_agg = "mean" it is multiplied by n, so mixing that behaves like a plain sum reads 1.0 at every n.
+    """
+    with torch.no_grad():
+        prediction, target, q_taken = _td_terms(args, agent, mixer, target_agent, target_mixer, batch)
+    out = {"q_taken_mean": float(q_taken.mean()), "q_tot_mean": float(prediction.mean()),
+           "td_target_mean": float(target.mean())}
+    if mixer is not None and any(True for _ in mixer.parameters()):
+        obs, state = batch[0], batch[1]
+        b, n, d = obs.shape
+        with torch.no_grad():
+            h = agent(obs.reshape(b * n, d))[1].reshape(b, n, -1)
+        q_in = q_taken.detach().clone().requires_grad_(True)
+        with torch.enable_grad():
+            gain = torch.autograd.grad(mixer(q_in, state, h).sum(), q_in)[0]
+        if args.algo == "gnn_qmix" and args.mixer_agg == "mean":
+            gain = gain * n
+        out["mixer_gain_mean"], out["mixer_gain_max"] = float(gain.mean()), float(gain.max())
+    return out
 
 
 def soft_update(target, source, polyak: float) -> None:
@@ -150,6 +199,8 @@ def main(argv: list[str] | None = None) -> Path:
             print(f"[eval] step={step} n={n} return/agent={values['ep_return_per_agent']:.3f} "
                   f"los_rate={values['los_rate']:.4f} conflict_free={values['conflict_free']:.2f}", flush=True)
         save("latest.pt", step)
+        if args.checkpoint_every > 0 and step % args.checkpoint_every == 0:
+            save(f"step_{step:07d}.pt", step)
 
     obs, state = {}, {}
     for i, n in enumerate(sizes):
@@ -157,6 +208,7 @@ def main(argv: list[str] | None = None) -> Path:
         obs[n], state[n] = o[0], train_envs[n].get_state()[0]
     finished = {n: [] for n in sizes}
     losses: list[float] = []
+    grad_norms: list[float] = []
     step, next_eval, next_log, next_train = 0, 0, args.log_every, args.learning_starts
     t_start = t_log = time.time()
     steps_at_log = 0
@@ -190,7 +242,13 @@ def main(argv: list[str] | None = None) -> Path:
             optimizer.zero_grad()
             loss.backward()
             if args.clip_gradients > 0:
-                torch.nn.utils.clip_grad_norm_(params, args.clip_gradients)
+                grad_norm = torch.nn.utils.clip_grad_norm_(params, args.clip_gradients)
+            elif args.log_diagnostics:
+                grad_norm = torch.nn.utils.clip_grad_norm_(params, float("inf"))  # measures, does not clip
+            if args.log_diagnostics:
+                grad_norms.append(float(grad_norm))
+            for group in optimizer.param_groups:
+                group["lr"] = lr_at(args, step)
             optimizer.step()
             soft_update(target_agent, agent, args.polyak)
             if mixer is not None:
@@ -213,6 +271,15 @@ def main(argv: list[str] | None = None) -> Path:
             if losses:
                 train_values["loss"] = float(np.mean(losses))
                 losses = []
+            if args.log_diagnostics:
+                train_values["lr"] = lr_at(args, step)
+                if grad_norms:
+                    train_values["grad_norm"] = float(np.mean(grad_norms))
+                    grad_norms = []
+                if all(buffers[n].size >= args.batch_size for n in sizes):
+                    per_size = [td_diagnostics(args, agent, mixer, target_agent, target_mixer,
+                                               buffers[n].sample(args.batch_size, device)) for n in sizes]
+                    train_values.update({k: float(np.mean([d[k] for d in per_size])) for k in per_size[0]})
             csv_log.write(step, "train", 0, train_values)
             for metric, value in train_values.items():
                 writer.add_scalar(f"train/{metric}", value, step)

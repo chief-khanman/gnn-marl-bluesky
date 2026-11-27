@@ -18,7 +18,7 @@ from algorithms.gnn_qmix.networks import (
     QMixer,
     k_nearest_observation,
 )
-from algorithms.gnn_qmix.train import td_loss
+from algorithms.gnn_qmix.train import lr_at, next_values, td_diagnostics, td_loss
 
 N_ACTIONS = 15
 R = 0.74  # normalized sensor radius
@@ -199,3 +199,84 @@ def test_fixed_n_algorithms_reject_several_train_sizes():
     with pytest.raises(ValueError):
         Args(algo="qmix", train_n=(3, 6, 9)).validate()
     Args(algo="vdn", agent_net="gcn", train_n=(3, 6, 9)).validate()  # GCN agent + VDN is n-agnostic
+
+
+# ---------------------------------------------------------------- GAP-31 shared stabilizers
+# Plan docs/plans/GAP-31_training_stability.md §5.1.
+
+def test_gap31_training_options_default_to_the_previous_behavior():
+    args = Args()
+    assert (args.double_q, args.lr_final_frac, args.obs_airspeed_div) == (False, 1.0, 1.0)
+    assert (args.checkpoint_every, args.log_diagnostics) == (0, False)
+
+
+def test_double_q_value_never_exceeds_the_max_and_matches_it_for_one_network():
+    torch.manual_seed(0)
+    agent, target = GCNAgent(N_ACTIONS, r_detect_norm=R), GCNAgent(N_ACTIONS, r_detect_norm=R)
+    obs = make_obs(64, 6)
+    plain, h_plain = next_values(Args(), agent, target, obs)
+    double, h_double = next_values(Args(double_q=True), agent, target, obs)
+    assert plain.shape == double.shape == (64,)
+    assert (double <= plain + 1e-6).all() and (double < plain - 1e-6).any()
+    assert torch.equal(h_plain, h_double)  # the embedding always comes from the target agent
+    same, _ = next_values(Args(double_q=True), agent, agent, obs)
+    assert torch.allclose(same, next_values(Args(), agent, agent, obs)[0])
+
+
+def test_lr_schedule_is_linear_and_constant_by_default():
+    args = Args(steps_per_size=1000, learning_rate=5e-4, lr_final_frac=0.1)
+    assert lr_at(args, 0) == pytest.approx(5e-4)
+    assert lr_at(args, 500) == pytest.approx(5e-4 * 0.55)
+    assert lr_at(args, 1000) == pytest.approx(5e-5) and lr_at(args, 5000) == pytest.approx(5e-5)
+    constant = Args(steps_per_size=1000)
+    assert {lr_at(constant, s) for s in (0, 1, 500, 1000)} == {constant.learning_rate}
+
+
+@pytest.mark.parametrize("kind", ["gcn", "mlp", "mlp-k3"])
+def test_obs_airspeed_div_equals_dividing_the_own_airspeed_entry(kind):
+    n = 6
+    obs = make_obs(8, n)
+    obs_dim = obs.shape[-1]
+
+    def build(div):
+        torch.manual_seed(1)
+        if kind == "gcn":
+            return GCNAgent(N_ACTIONS, r_detect_norm=R, obs_airspeed_div=div)
+        return MLPAgent(obs_dim, N_ACTIONS, k_nearest=3 if kind == "mlp-k3" else 0, obs_airspeed_div=div)
+
+    by_hand = obs.clone()
+    by_hand[:, N_OWN - 1] /= 10.0
+    q_scaled, h_scaled = build(10.0)(obs)
+    q_plain, h_plain = build(1.0)(by_hand)
+    assert torch.allclose(q_scaled, q_plain, atol=1e-6) and torch.allclose(h_scaled, h_plain, atol=1e-6)
+    assert not torch.allclose(q_scaled, build(1.0)(obs)[0])
+    assert torch.equal(obs[:, N_OWN - 1] / 10.0, by_hand[:, N_OWN - 1])  # the input tensor was not edited
+
+
+def test_checkpoint_every_must_be_a_multiple_of_eval_every():
+    Args(eval_every=20_000, checkpoint_every=40_000).validate()
+    for bad in (30_000, 10_000, -1):
+        with pytest.raises(ValueError):
+            Args(eval_every=20_000, checkpoint_every=bad).validate()
+
+
+@pytest.mark.parametrize("algo", ["gnn_qmix", "qmix", "vdn", "iql"])
+def test_td_diagnostics_reports_value_scales_and_the_gain_of_a_parametric_mixer(algo):
+    import copy
+
+    n, b = 3, 16
+    args = Args(algo=algo, train_n=(n,), double_q=True)
+    obs_dim = N_OWN + N_PER_OTHER * (n - 1)
+    agent, mixer = build_networks(args, obs_dim, n * N_STATE, n, N_ACTIONS)
+    batch = (torch.stack([make_obs(b, n) for _ in range(n)], dim=1),
+             torch.randn(b, n * N_STATE), torch.randint(0, N_ACTIONS, (b, n)), torch.randn(b),
+             torch.stack([make_obs(b, n) for _ in range(n)], dim=1), torch.randn(b, n * N_STATE), torch.zeros(b))
+    out = td_diagnostics(args, agent, mixer, copy.deepcopy(agent), copy.deepcopy(mixer), batch)
+    assert {"q_taken_mean", "q_tot_mean", "td_target_mean"} <= set(out)
+    assert ("mixer_gain_mean" in out) == (algo in ("gnn_qmix", "qmix"))
+    if "mixer_gain_mean" in out:
+        assert 0 <= out["mixer_gain_mean"] <= out["mixer_gain_max"]
+    if algo == "iql":
+        assert out["q_tot_mean"] == out["q_taken_mean"]
+    assert all(p.grad is None for p in agent.parameters())  # diagnostics leave no gradients behind
+

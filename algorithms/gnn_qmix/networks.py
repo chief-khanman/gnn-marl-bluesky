@@ -23,6 +23,15 @@ N_PER_OTHER = 7  # dx, dy, dvx, dvy, cos(psi), sin(psi), distance
 DIST_INDEX = 6   # position of the distance inside one "other" block
 N_NODE = N_OWN + N_PER_OTHER + 1  # + IS_SELF
 N_STATE = 7      # x, y, vx, vy, cos(drift), sin(drift), airspeed  (state_mode="entities")
+OBS_AIRSPEED = N_OWN - 1  # position of the own airspeed, (tas - 150) / 6 in the env, inside the observation
+
+
+def scale_obs_airspeed(obs: torch.Tensor, div: float) -> torch.Tensor:
+    """Observation with the own-airspeed entry divided by `div` (GAP-31). Returns a new tensor."""
+    if div == 1.0:
+        return obs
+    i = OBS_AIRSPEED
+    return torch.cat([obs[..., :i], obs[..., i:i + 1] / div, obs[..., i + 1:]], dim=-1)
 
 
 def observation_graph(obs: torch.Tensor, r_detect_norm: float) -> tuple[torch.Tensor, torch.Tensor]:
@@ -59,14 +68,17 @@ class GCNAgent(nn.Module):
     forward(obs) -> (q, h): q (B, n_actions), h (B, embed_dim) = embedding of the self node.
     """
 
-    def __init__(self, n_actions: int, embed_dim: int = 32, gcn_layers: int = 2, r_detect_norm: float = 0.74):
+    def __init__(self, n_actions: int, embed_dim: int = 32, gcn_layers: int = 2, r_detect_norm: float = 0.74,
+                 obs_airspeed_div: float = 1.0):
         super().__init__()
         self.r_detect_norm = r_detect_norm
+        self.obs_airspeed_div = obs_airspeed_div
         self.embed = nn.Linear(N_NODE, embed_dim)
         self.gcn = nn.ModuleList(nn.Linear(embed_dim, embed_dim) for _ in range(gcn_layers))
         self.q_head = nn.Sequential(nn.Linear(embed_dim, embed_dim), nn.ReLU(), nn.Linear(embed_dim, n_actions))
 
     def forward(self, obs: torch.Tensor, avail_action: torch.Tensor | None = None):
+        obs = scale_obs_airspeed(obs, self.obs_airspeed_div)
         nodes, adj = observation_graph(obs, self.r_detect_norm)
         deg_inv_sqrt = adj.sum(-1).clamp(min=1.0).pow(-0.5)
         a_hat = deg_inv_sqrt.unsqueeze(-1) * adj * deg_inv_sqrt.unsqueeze(-2)  # D^-1/2 (A + I) D^-1/2
@@ -170,9 +182,11 @@ class MLPAgent(nn.Module):
     k_nearest > 0: reads the fixed k-nearest observation and runs at any fleet size.
     """
 
-    def __init__(self, obs_dim: int, n_actions: int, hidden_dim: int = 64, num_layers: int = 1, k_nearest: int = 0):
+    def __init__(self, obs_dim: int, n_actions: int, hidden_dim: int = 64, num_layers: int = 1, k_nearest: int = 0,
+                 obs_airspeed_div: float = 1.0):
         super().__init__()
         self.k_nearest = k_nearest
+        self.obs_airspeed_div = obs_airspeed_div
         if k_nearest > 0:
             obs_dim = N_OWN + N_PER_OTHER * k_nearest
         layers = [nn.Linear(obs_dim, hidden_dim), nn.ReLU()]
@@ -182,6 +196,7 @@ class MLPAgent(nn.Module):
         self.q_head = nn.Linear(hidden_dim, n_actions)
 
     def forward(self, obs: torch.Tensor, avail_action: torch.Tensor | None = None):
+        obs = scale_obs_airspeed(obs, self.obs_airspeed_div)
         if self.k_nearest > 0:
             obs = k_nearest_observation(obs, self.k_nearest)
         h = self.body(obs)

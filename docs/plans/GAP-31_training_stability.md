@@ -4,7 +4,7 @@
 |---|---|
 | goals | G05.3, G05.4 (GNN-QMIX training), G03.1, G06.4 (baselines under the same settings), G06.7 (ablation), G06.3 (evaluation of a selected checkpoint) |
 | paper basis | §05.1 mixer equations and training paragraph; §06 protocol. `mixer_norm` (arm C) adds a LayerNorm that is not in the paper's mixer equation: if arm C is the one reported, the equation changes and that goes to the authors (S-04) |
-| status | `in-review`. Becomes `approved` when Aadit-Farhan Khan says so in the implementing session; write name and date here before any code (S-05) |
+| status | `approved` (Aadit-Farhan Khan, 2026-11-27, in the implementing session on Nova: "I approve the plan. Implement the changes, and run the smoke test. After the smoke tests pass, run the jobs"). Deviations agreed in that session are listed in the work log (S-05) |
 | author(s) / agent | Aadit-Farhan Khan with Claude (Claude Fable 5.2, Claude app), from `experiments/nova_2026-11/` and the code at `4f6d321` |
 | gaps addressed | GAP-31 (late drift; shared stabilizers + kept checkpoints), GAP-32 (GAT mixer amplifiers). Does not fix GAP-26 (no resume) |
 | decisions needed | Q-17 (which checkpoint is reported), Q-18 (which GNN-QMIX arm is "the proposed method"; whether these runs supersede the 2026-11-25/26 sets). The runs do not wait for these answers |
